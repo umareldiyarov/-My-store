@@ -168,34 +168,22 @@ input[type=number]{-moz-appearance:textfield;}
 @keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
  
 /* ── ЭКРАН 1: СКАНИРОВАНИЕ ── */
-#ks1 {
-  background:#111;
-}
+#ks1 { background:var(--bg); }
  
-/* Видео зона — фиксированная высота */
+/* Камера — 35% */
 .ks1-cam {
-  position:relative;
-  width:100%;
-  flex-shrink:0;
-  background:#000;
-  /* ~44% высоты экрана для камеры — больше места для лога */
-  height: 44dvh;
-  overflow:hidden;
+  position:relative; width:100%; flex-shrink:0;
+  background:#000; height:35dvh; overflow:hidden;
 }
-.ks1-cam video {
-  width:100%; height:100%; object-fit:cover; display:block;
-}
-/* Рамка сканера */
+.ks1-cam video { width:100%; height:100%; object-fit:cover; display:block; }
 .ks1-frame {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
   pointer-events:none;
 }
 .ks1-box {
-  width:62%; aspect-ratio:1;
-  position:relative;
-  box-shadow:0 0 0 2000px rgba(0,0,0,.5);
-  border-radius:12px;
+  width:55%; aspect-ratio:1; position:relative;
+  box-shadow:0 0 0 2000px rgba(0,0,0,.5); border-radius:12px;
 }
 .ks1-line {
   position:absolute; left:0; right:0; height:2.5px;
@@ -203,100 +191,114 @@ input[type=number]{-moz-appearance:textfield;}
   animation:scanLine 1.6s ease-in-out infinite;
 }
 @keyframes scanLine{0%{top:4%}50%{top:96%}100%{top:4%}}
-.ks1-c { position:absolute; width:18px; height:18px; border-color:#fff; border-style:solid; }
+.ks1-c { position:absolute; width:16px; height:16px; border-color:#fff; border-style:solid; }
 .ks1-c.tl{top:-1px;left:-1px;border-width:3px 0 0 3px;border-radius:4px 0 0 0;}
 .ks1-c.tr{top:-1px;right:-1px;border-width:3px 3px 0 0;border-radius:0 4px 0 0;}
 .ks1-c.bl{bottom:-1px;left:-1px;border-width:0 0 3px 3px;border-radius:0 0 0 4px;}
 .ks1-c.br{bottom:-1px;right:-1px;border-width:0 3px 3px 0;border-radius:0 0 4px 0;}
- 
-/* Статус сканера */
 .ks1-status {
   position:absolute; bottom:0; left:0; right:0;
-  background:rgba(0,0,0,.65); padding:8px 14px;
+  background:rgba(0,0,0,.65); padding:7px 14px;
   display:flex; align-items:center; gap:8px;
 }
-.ks1-dot { width:7px; height:7px; border-radius:50%; background:#22c55e; flex-shrink:0; animation:pulse 1.5s ease-in-out infinite; }
+.ks1-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; flex-shrink:0; animation:pulse 1.5s ease-in-out infinite; }
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
-.ks1-status-txt { font-size:12px; font-weight:600; color:rgba(255,255,255,.8); }
+.ks1-status-txt { font-size:11px; font-weight:600; color:rgba(255,255,255,.8); }
  
-/* Нижняя панель экрана 1 */
+/* Кнопки без штрихкода — горизонтальная полоска */
+.ks1-nobar-strip {
+  display:flex; gap:8px; padding:9px 14px 9px;
+  overflow-x:auto; flex-shrink:0; background:var(--sf);
+  border-bottom:1px solid var(--bd);
+  scrollbar-width:none;
+}
+.ks1-nobar-strip::-webkit-scrollbar { display:none; }
+.ks1-nobar-strip-empty {
+  padding:9px 14px; font-size:12px; color:var(--tx3);
+  font-weight:500; background:var(--sf);
+  border-bottom:1px solid var(--bd); flex-shrink:0;
+  display:flex; align-items:center; gap:6px;
+}
+.nobar-chip {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  background:var(--sf2); border:1.5px solid var(--bd);
+  border-radius:10px; padding:8px 12px;
+  cursor:pointer; flex-shrink:0; transition:all .13s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  min-width:68px;
+}
+.nobar-chip:active { background:var(--bd); transform:scale(.95); }
+.nobar-chip-emo { font-size:22px; }
+.nobar-chip-name { font-size:11px; font-weight:700; color:var(--tx); white-space:nowrap; }
+.nobar-chip-price { font-size:10px; font-weight:600; color:var(--gn); }
+ 
+/* Нижняя панель — лог + поиск + кнопка */
 .ks1-bottom {
   flex:1; background:var(--bg);
   display:flex; flex-direction:column;
-  padding:12px 14px;
+  padding:10px 14px;
   padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px);
   overflow:hidden;
 }
+.ks1-bottom.active { display:flex; }
  
 /* Ручной поиск */
-.ks1-search-row { display:flex; gap:8px; margin-bottom:10px; flex-shrink:0; }
+.ks1-search-row { display:flex; gap:8px; margin-bottom:8px; flex-shrink:0; }
 .ks1-search-in {
   flex:1; background:var(--sf); border:1.5px solid var(--bd2);
-  border-radius:var(--rs); padding:11px 14px;
-  font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:500; color:var(--tx);
+  border-radius:var(--rs); padding:9px 13px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:14px; font-weight:500; color:var(--tx);
   outline:none; transition:border-color .14s;
 }
-.ks1-search-in::placeholder { color:var(--tx3); font-weight:400; font-size:14px; }
+.ks1-search-in::placeholder { color:var(--tx3); font-weight:400; font-size:13px; }
 .ks1-search-in:focus { border-color:var(--tx); }
  
-/* Лог последних товаров — маленький */
-.ks1-log {
-  flex:1; overflow-y:auto; margin-bottom:10px;
-}
+/* Лог товаров */
+.ks1-log { flex:1; overflow-y:auto; margin-bottom:8px; }
 .ks1-log-empty {
   display:flex; align-items:center; justify-content:center;
   height:100%; color:var(--tx3); font-size:12px; font-weight:500;
   text-align:center; line-height:1.6;
 }
 .ks1-log-item {
-  display:flex; align-items:center; gap:9px;
-  padding:8px 10px; background:var(--sf);
+  display:flex; align-items:center; gap:8px;
+  padding:7px 10px; background:var(--sf);
   border:1px solid var(--bd); border-radius:var(--rs);
-  margin-bottom:6px; animation:pgIn .15s ease;
+  margin-bottom:5px; animation:pgIn .15s ease;
 }
-.ks1-log-emo { font-size:20px; flex-shrink:0; }
+.ks1-log-emo { font-size:18px; flex-shrink:0; }
 .ks1-log-name { flex:1; font-size:13px; font-weight:700; color:var(--tx); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.ks1-log-qty { font-size:12px; font-weight:700; color:var(--tx3); flex-shrink:0; }
-.ks1-log-price { font-size:13px; font-weight:800; color:var(--gn); flex-shrink:0; min-width:60px; text-align:right; }
+.ks1-log-qty { font-size:11px; font-weight:700; color:var(--tx3); flex-shrink:0; }
+.ks1-log-price { font-size:13px; font-weight:800; color:var(--gn); flex-shrink:0; min-width:56px; text-align:right; }
  
-/* Кнопка оплатить */
+/* Кнопка оплаты — компактная */
 .ks1-pay-btn {
   display:flex; align-items:center; justify-content:space-between;
   background:var(--gn); border:none; border-radius:var(--r);
-  padding:15px 20px; cursor:pointer; flex-shrink:0;
-  box-shadow:0 4px 16px rgba(22,163,74,.3);
+  padding:12px 16px; cursor:pointer; flex-shrink:0;
+  box-shadow:0 3px 12px rgba(22,163,74,.25);
   transition:all .14s; font-family:'Plus Jakarta Sans',sans-serif;
 }
 .ks1-pay-btn:active { transform:scale(.975); filter:brightness(.9); }
 .ks1-pay-btn-left { display:flex; flex-direction:column; align-items:flex-start; }
-.ks1-pay-btn-title { font-size:16px; font-weight:800; color:#fff; letter-spacing:-.01em; }
-.ks1-pay-btn-sub { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; font-weight:500; }
-.ks1-pay-btn-amount { font-size:24px; font-weight:800; color:#fff; letter-spacing:-.03em; }
- 
-/* Кнопка неактивна когда нет товаров */
-.ks1-pay-btn.empty-cart {
-  background:var(--bd2); box-shadow:none; cursor:default;
-}
+.ks1-pay-btn-title { font-size:14px; font-weight:800; color:#fff; letter-spacing:-.01em; }
+.ks1-pay-btn-sub { font-size:10px; color:rgba(255,255,255,.65); margin-top:1px; font-weight:500; }
+.ks1-pay-btn-amount { font-size:20px; font-weight:800; color:#fff; letter-spacing:-.03em; }
+.ks1-pay-btn.empty-cart { background:var(--bd2); box-shadow:none; cursor:default; }
 .ks1-pay-btn.empty-cart .ks1-pay-btn-title,
 .ks1-pay-btn.empty-cart .ks1-pay-btn-amount { color:var(--tx3); }
 .ks1-pay-btn.empty-cart .ks1-pay-btn-sub { color:var(--tx3); }
- 
-/* Подсказка снизу */
-.ks1-hint {
-  text-align:center; font-size:11px; color:var(--tx3); font-weight:500;
-  margin-top:8px; flex-shrink:0;
-}
  
 /* Результаты ручного поиска */
 .ks1-manual-res {
   position:absolute; left:14px; right:14px;
   background:var(--sf); border:1px solid var(--bd);
   border-radius:var(--r); box-shadow:var(--sh2);
-  z-index:50; overflow:hidden; max-height:240px; overflow-y:auto;
+  z-index:50; overflow:hidden; max-height:220px; overflow-y:auto;
 }
 .ks1-mr-item {
   display:flex; align-items:center; gap:10px;
-  padding:12px 14px; border-bottom:1px solid var(--bd);
+  padding:11px 14px; border-bottom:1px solid var(--bd);
   cursor:pointer; transition:background .12s;
 }
 .ks1-mr-item:last-child { border-bottom:none; }
@@ -492,6 +494,84 @@ input[type=number]{-moz-appearance:textfield;}
 /* TOAST */
 .toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--tx);border-radius:50px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;z-index:999;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;box-shadow:var(--sh2);max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+ 
+/* ── ВКЛАДКИ ВНУТРИ КАССЫ (Сканер / Без штрихкода) ── */
+.ks1-tabs {
+  display:flex; background:rgba(255,255,255,.1);
+  border-radius:10px; padding:3px; gap:3px;
+  margin:10px 14px 0; flex-shrink:0;
+}
+.ks1-tab {
+  flex:1; padding:8px; border:none; background:transparent;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:12px; font-weight:700;
+  color:rgba(255,255,255,.5); border-radius:8px; cursor:pointer; transition:all .15s;
+}
+.ks1-tab.active { background:rgba(255,255,255,.15); color:#fff; }
+ 
+/* Панель без штрихкода */
+.ks1-nobar {
+  display:none; flex:1; flex-direction:column; overflow:hidden;
+  background:var(--bg); padding:12px 14px;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px);
+}
+.ks1-nobar.active { display:flex; }
+ 
+/* Кнопки товаров без штрихкода */
+.nobar-grid {
+  flex:1; overflow-y:auto;
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:9px; margin-bottom:10px; align-content:start;
+}
+.nobar-btn {
+  background:var(--sf); border:1.5px solid var(--bd);
+  border-radius:var(--r); padding:14px 10px;
+  cursor:pointer; text-align:center; transition:all .14s;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
+  box-shadow:var(--sh);
+}
+.nobar-btn:active { transform:scale(.96); background:var(--sf2); }
+.nobar-btn-emo { font-size:28px; }
+.nobar-btn-name { font-size:13px; font-weight:700; color:var(--tx); line-height:1.2; }
+.nobar-btn-price { font-size:12px; font-weight:600; color:var(--gn); }
+.nobar-btn-unit { font-size:10px; font-weight:600; color:var(--tx3); background:var(--sf2); border:1px solid var(--bd); border-radius:4px; padding:1px 6px; }
+ 
+/* Попап ввода количества/веса */
+.qty-entry-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  backdrop-filter:blur(8px); z-index:400;
+  display:flex; align-items:center; justify-content:center;
+  animation:pgIn .15s ease;
+}
+.qty-entry-card {
+  background:#fff; border-radius:20px;
+  padding:24px 20px; width:88%; max-width:320px;
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+}
+.qe-prod { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.qe-emo { font-size:34px; }
+.qe-name { font-size:16px; font-weight:800; color:var(--tx); }
+.qe-price { font-size:13px; font-weight:600; color:var(--gn); margin-top:2px; }
+.qe-input-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.qe-input {
+  flex:1; text-align:center; background:var(--sf2);
+  border:2px solid var(--bd2); border-radius:11px;
+  padding:12px 8px; font-size:28px; font-weight:800; color:var(--tx);
+  font-family:'Plus Jakarta Sans',sans-serif; outline:none;
+}
+.qe-input:focus { border-color:var(--tx); }
+.qe-unit { font-size:16px; font-weight:700; color:var(--tx2); flex-shrink:0; }
+.qe-sub { text-align:center; font-size:14px; font-weight:700; color:var(--gn); margin-bottom:16px; }
+ 
+/* Чекбокс без штрихкода в форме товара */
+.nobar-toggle {
+  display:flex; align-items:center; gap:10px;
+  background:var(--ambg); border:1.5px solid var(--ambr);
+  border-radius:var(--rs); padding:12px 14px; margin-bottom:12px;
+  cursor:pointer;
+}
+.nobar-toggle input { width:18px; height:18px; accent-color:var(--am); cursor:pointer; flex-shrink:0; }
+.nobar-toggle-text { font-size:13px; font-weight:700; color:var(--am); line-height:1.3; }
 </style>
 </head>
 <body>
@@ -512,7 +592,7 @@ input[type=number]{-moz-appearance:textfield;}
   <!-- ▓▓ ЭКРАН 1: СКАНИРОВАНИЕ ▓▓ -->
   <div class="ks active" id="ks1">
  
-    <!-- Камера -->
+    <!-- Камера 35% -->
     <div class="ks1-cam">
       <video id="kassa-video" playsinline muted autoplay></video>
       <div class="ks1-frame">
@@ -526,59 +606,36 @@ input[type=number]{-moz-appearance:textfield;}
         <div class="ks1-dot" id="cam-dot"></div>
         <span class="ks1-status-txt" id="cam-status">Запуск камеры…</span>
       </div>
- 
-      <!-- Попап выбора количества (поверх камеры) -->
-      <div class="ks1-qty-popup" id="qty-popup" style="display:none">
-        <div class="ks1-qty-card">
-          <div class="ks1-qty-prod">
-            <div class="ks1-qty-emo" id="qp-emo">📦</div>
-            <div>
-              <div class="ks1-qty-name" id="qp-name">—</div>
-              <div class="ks1-qty-price" id="qp-price">—</div>
-            </div>
-          </div>
-          <div class="ks1-qty-ctrl">
-            <button class="ks1-qbtn" onclick="qpDelta(-1)">−</button>
-            <input type="number" class="ks1-qin" id="qp-qty" value="1" min="1" inputmode="numeric" onclick="this.select()" oninput="qpUpdate()">
-            <button class="ks1-qbtn" onclick="qpDelta(1)">+</button>
-          </div>
-          <div class="ks1-qty-sub" id="qp-sub">— сом</div>
-          <button class="btn btn-dk" onclick="qpConfirm()">+ Добавить в чек</button>
-          <button class="btn btn-gh" onclick="qpCancel()" style="margin-top:7px">Отмена</button>
-        </div>
-      </div>
     </div>
  
-    <!-- Нижняя часть экрана 1 -->
-    <div class="ks1-bottom" style="position:relative">
+    <!-- Горизонтальная полоска: товары без штрихкода -->
+    <div id="nobar-strip-wrap"></div>
  
-      <!-- Ручной поиск -->
+    <!-- Нижняя панель: поиск + лог + кнопка оплаты -->
+    <div class="ks1-bottom active" id="ks1-scan-panel" style="position:relative">
+ 
       <div class="ks1-search-row">
         <input type="text" class="ks1-search-in" id="ks1-search"
-          placeholder="🔍 Ручной поиск — хлеб, сахар…"
+          placeholder="🔍 Поиск по названию…"
           oninput="ks1ManualSearch(this.value)"
           autocomplete="off">
       </div>
+      <div class="ks1-manual-res" id="ks1-manual-res" style="display:none;top:56px"></div>
  
-      <!-- Результаты поиска (абсолютно) -->
-      <div class="ks1-manual-res" id="ks1-manual-res" style="display:none;top:62px"></div>
- 
-      <!-- Лог добавленных товаров -->
       <div class="ks1-log" id="ks1-log">
         <div class="ks1-log-empty" id="ks1-log-empty">
-          Сканируйте товар<br>или найдите вручную
+          Сканируйте штрихкод или нажмите кнопку выше
         </div>
       </div>
  
-      <!-- Кнопка оплатить -->
       <button class="ks1-pay-btn empty-cart" id="ks1-pay-btn" onclick="goToPayment()" disabled>
         <div class="ks1-pay-btn-left">
           <div class="ks1-pay-btn-title">Перейти к оплате</div>
-          <div class="ks1-pay-btn-sub" id="ks1-pay-sub">Добавьте товары для оплаты</div>
+          <div class="ks1-pay-btn-sub" id="ks1-pay-sub">Добавьте товары</div>
         </div>
         <div class="ks1-pay-btn-amount" id="ks1-pay-amount">0 сом</div>
       </button>
-      <div class="ks1-hint">Нажмите «Перейти к оплате» когда покупатель завершил выбор</div>
+ 
     </div>
   </div>
  
@@ -804,6 +861,9 @@ input[type=number]{-moz-appearance:textfield;}
       <input type="text" class="fi" id="ep-bar-manual" placeholder="Штрихкод вручную…" inputmode="numeric" style="flex:1">
       <button class="sm sm-dk" onclick="lookupBarcode(document.getElementById('ep-bar-manual').value)">Найти</button>
     </div>
+    <div style="margin-top:10px;text-align:center">
+      <button class="sm sm-am" onclick="skipScanStep()">🥦 Товар без штрихкода — пропустить</button>
+    </div>
   </div>
  
   <!-- Шаг 2: форма с данными (скрыта пока не отсканировали) -->
@@ -817,6 +877,12 @@ input[type=number]{-moz-appearance:textfield;}
       <span>Штрихкод: <b id="ep-bar-show">—</b></span>
       <button class="sm sm-gh" onclick="resetToScanStep()" style="font-size:10px">Сканировать заново</button>
     </div>
+ 
+    <!-- Без штрихкода -->
+    <label class="nobar-toggle" for="ep-nobar">
+      <input type="checkbox" id="ep-nobar">
+      <div class="nobar-toggle-text">🥦 Товар без штрихкода<br><span style="font-size:11px;font-weight:500;color:var(--am)">Овощи, фрукты, выпечка — появится кнопкой на кассе</span></div>
+    </label>
     <div class="fr2">
       <div><label class="lbl">Категория</label>
         <select class="fi" id="ep-cat">
@@ -982,6 +1048,26 @@ input[type=number]{-moz-appearance:textfield;}
  
 <div class="toast" id="toast"></div>
  
+<!-- Модал ввода кол-ва/веса для товаров без штрихкода -->
+<div id="qty-entry-overlay" class="qty-entry-overlay" style="display:none" onclick="if(event.target===this)qeCancel()">
+  <div class="qty-entry-card">
+    <div class="qe-prod">
+      <div class="qe-emo" id="qe-emo">🥦</div>
+      <div>
+        <div class="qe-name" id="qe-name">—</div>
+        <div class="qe-price" id="qe-price">—</div>
+      </div>
+    </div>
+    <div class="qe-input-row">
+      <input type="number" class="qe-input" id="qe-qty" value="1" min="0.01" step="0.01" inputmode="decimal" onclick="this.select()" oninput="qeUpdate()">
+      <div class="qe-unit" id="qe-unit">кг</div>
+    </div>
+    <div class="qe-sub" id="qe-sub">— сом</div>
+    <button class="btn btn-dk" onclick="qeConfirm()">+ Добавить в чек</button>
+    <button class="btn btn-gh" onclick="qeCancel()" style="margin-top:7px">Отмена</button>
+  </div>
+</div>
+ 
 <script>
 // ══════════════════════════════════════════
 // DATABASE — операционная архитектура
@@ -1075,14 +1161,84 @@ function openGenericScanner(title,onCode){
 function closeGenericScanner(){_stopReader('gen-video');closeModal('ov-scan-generic');}
  
 // ══════════════════════════════════════════
-// КАССА — КАМЕРА (всегда активна на экране 1)
+// КАССА — полоска товаров без штрихкода
 // ══════════════════════════════════════════
+function renderNobarStrip() {
+  const data = db();
+  const nobar = data.products.filter(p => p.noBarcode);
+  const wrap = document.getElementById('nobar-strip-wrap');
+  if (!wrap) return;
+  if (!nobar.length) {
+    wrap.innerHTML = '';
+    return;
+  }
+  wrap.innerHTML = `<div class="ks1-nobar-strip">
+    ${nobar.map(p => `
+      <button class="nobar-chip" onclick="nobarSelect('${p.id}')">
+        <div class="nobar-chip-emo">${p.emoji||'📦'}</div>
+        <div class="nobar-chip-name">${p.name}</div>
+        <div class="nobar-chip-price">${fmt(p.sellPrice)} ${p.unit||'шт'}</div>
+      </button>`).join('')}
+  </div>`;
+}
+ 
+function renderNobarGrid() { renderNobarStrip(); }
+ 
+// ── Выбрали товар без штрихкода ──
+let _qeProd = null;
+function nobarSelect(pid) {
+  const p = db().products.find(x => x.id === pid);
+  if (!p) return;
+  _qeProd = p;
+  document.getElementById('qe-emo').textContent   = p.emoji || '📦';
+  document.getElementById('qe-name').textContent  = p.name;
+  document.getElementById('qe-price').textContent = fmt(p.sellPrice) + ' сом / ' + (p.unit||'шт');
+  document.getElementById('qe-unit').textContent  = p.unit || 'шт';
+  // Для кг — дробный ввод, для шт — целый
+  const inp = document.getElementById('qe-qty');
+  inp.step        = p.unit === 'кг' || p.unit === 'л' ? '0.1' : '1';
+  inp.inputMode   = p.unit === 'кг' || p.unit === 'л' ? 'decimal' : 'numeric';
+  inp.value       = p.unit === 'кг' || p.unit === 'л' ? '1.0' : '1';
+  qeUpdate();
+  document.getElementById('qty-entry-overlay').style.display = 'flex';
+  setTimeout(() => inp.select(), 100);
+}
+ 
+function qeUpdate() {
+  const qty = parseFloat(document.getElementById('qe-qty').value) || 0;
+  if (!_qeProd) return;
+  document.getElementById('qe-sub').textContent = fmt(_qeProd.sellPrice * qty) + ' сом';
+}
+ 
+function qeConfirm() {
+  if (!_qeProd) return;
+  const qty = parseFloat(document.getElementById('qe-qty').value) || 0;
+  if (qty <= 0) { toast('⚠️ Введите количество'); return; }
+  const ex = kCart.find(c => c.pid === _qeProd.id);
+  if (ex) ex.qty = parseFloat((ex.qty + qty).toFixed(3));
+  else kCart.push({pid:_qeProd.id, name:_qeProd.name, emoji:_qeProd.emoji||'📦', unit:_qeProd.unit||'шт', sellPrice:_qeProd.sellPrice, buyPrice:_qeProd.buyPrice, qty});
+  navigator.vibrate?.([40]);
+  qeCancel();
+  renderKassaLog();
+  updatePayBtn();
+  // Синхронизируем вторую кнопку оплаты
+  updatePayBtn2();
+}
+ 
+function qeCancel() {
+  document.getElementById('qty-entry-overlay').style.display = 'none';
+  _qeProd = null;
+}
+ 
+// Синхронизируем вторую кнопку оплаты (на панели без штрихкода)
+function updatePayBtn2() { /* не используется — один экран */ }
 let _kassaCamRunning = false;
  
 function startKassaCamera(){
   if(_kassaCamRunning) return;
   _kassaCamRunning=true;
   document.getElementById('cam-status').textContent='Запуск камеры…';
+  renderNobarStrip();
   _startReader('kassa-video', null, code=>{
     // Нашли штрихкод — показываем popup
     kassaScanFound(code);
@@ -1104,7 +1260,7 @@ function stopKassaCamera(){
 function kassaScanFound(code){
   const p=db().products.find(pr=>pr.barcode===code||pr.name.toLowerCase()===code.toLowerCase());
   if(!p){
-    toast(`⚠️ Товар не найден: ${code}`);
+    toast(`⚠️ Не найден: ${code}`);
     document.getElementById('cam-status').textContent='Не найден: '+code;
     setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',2000);
     return;
@@ -1112,62 +1268,29 @@ function kassaScanFound(code){
   const st=getStock(p.id);
   if(st<=0){
     toast(`⛔ ${p.name} — нет на складе`);
+    document.getElementById('cam-status').textContent='⛔ Нет на складе';
+    setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',2000);
     return;
   }
-  // Показываем popup выбора количества
-  _qpProd=p;
-  document.getElementById('qp-emo').textContent=p.emoji||'📦';
-  document.getElementById('qp-name').textContent=p.name;
-  document.getElementById('qp-price').textContent=fmt(p.sellPrice)+' сом / '+( p.unit||'шт');
-  document.getElementById('qp-qty').value=1;
-  document.getElementById('qp-sub').textContent=fmt(p.sellPrice)+' сом';
-  document.getElementById('qty-popup').style.display='flex';
-  // Пауза камеры пока popup открыт
-  if(_readers['kassa-video']) _readers['kassa-video'].active=false;
-}
- 
-// ══════════════════════════════════════════
-// КАССА — POPUP КОЛИЧЕСТВО
-// ══════════════════════════════════════════
-let _qpProd=null;
-let kCart=[];
- 
-function qpDelta(d){
-  const inp=document.getElementById('qp-qty');
-  const st=getStock(_qpProd.id);
-  inp.value=Math.max(1,Math.min(st,(parseInt(inp.value)||1)+d));
-  qpUpdate();
-}
-function qpUpdate(){
-  const inp=document.getElementById('qp-qty');
-  if(!_qpProd) return;
-  const st=getStock(_qpProd.id);
-  let qty=parseInt(inp.value)||1;
-  if(qty>st){qty=st;inp.value=qty;toast(`⚠️ Максимум ${st} ${_qpProd.unit||'шт'}`);}
-  if(qty<1){qty=1;inp.value=1;}
-  document.getElementById('qp-sub').textContent=fmt(_qpProd.sellPrice*qty)+' сом';
-}
-function qpConfirm(){
-  if(!_qpProd) return;
-  const qty=parseInt(document.getElementById('qp-qty').value)||1;
-  const st=getStock(_qpProd.id);
-  const alreadyInCart=kCart.find(c=>c.pid===_qpProd.id)?.qty||0;
-  if(alreadyInCart+qty>st){toast(`⚠️ Только ${st} ${_qpProd.unit||'шт'} на складе`);return;}
-  const ex=kCart.find(c=>c.pid===_qpProd.id);
-  if(ex) ex.qty+=qty;
-  else kCart.push({pid:_qpProd.id,name:_qpProd.name,emoji:_qpProd.emoji||'📦',unit:_qpProd.unit||'шт',sellPrice:_qpProd.sellPrice,buyPrice:_qpProd.buyPrice,qty});
-  navigator.vibrate?.([40,20,40]);
-  qpClose();
+  // 1 скан = 1 товар сразу в чек
+  const ex=kCart.find(c=>c.pid===p.id);
+  if(ex){
+    if(ex.qty+1>st){ toast(`⚠️ ${p.name} — максимум ${st} шт`); return; }
+    ex.qty+=1;
+  } else {
+    kCart.push({pid:p.id,name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',sellPrice:p.sellPrice,buyPrice:p.buyPrice,qty:1});
+  }
+  navigator.vibrate?.([40]);
+  document.getElementById('cam-status').textContent=`✓ ${p.name}`;
+  setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',1500);
   renderKassaLog();
   updatePayBtn();
 }
-function qpCancel(){qpClose();}
-function qpClose(){
-  document.getElementById('qty-popup').style.display='none';
-  _qpProd=null;
-  // Возобновляем камеру
-  if(_readers['kassa-video']) _readers['kassa-video'].active=true;
-}
+ 
+// ══════════════════════════════════════════
+// КАССА — переменные корзины
+// ══════════════════════════════════════════
+let kCart=[];
  
 // ══════════════════════════════════════════
 // КАССА — ЛОГ (маленький список добавленных)
@@ -1204,13 +1327,15 @@ function updatePayBtn(){
   if(!kCart.length){
     btn.classList.add('empty-cart'); btn.disabled=true;
     sub.textContent='Добавьте товары для оплаты';
-    amt.textContent='0 сом'; return;
+    amt.textContent='0 сом';
+  } else {
+    let total=0,totalQty=0;
+    kCart.forEach(c=>{total+=c.sellPrice*c.qty;totalQty+=c.qty;});
+    btn.classList.remove('empty-cart'); btn.disabled=false;
+    sub.textContent=`${kCart.length} товар${kCart.length>1?'а':''} · ${totalQty} шт`;
+    amt.textContent=fmt(total)+' сом';
   }
-  let total=0,totalQty=0;
-  kCart.forEach(c=>{total+=c.sellPrice*c.qty;totalQty+=c.qty;});
-  btn.classList.remove('empty-cart'); btn.disabled=false;
-  sub.textContent=`${kCart.length} товар${kCart.length>1?'а':''} · ${totalQty} шт`;
-  amt.textContent=fmt(total)+' сом';
+  updatePayBtn2();
 }
  
 // ══════════════════════════════════════════
@@ -1244,14 +1369,18 @@ function ks1SelectProd(pid){
   if(!p) return;
   const st=getStock(p.id);
   if(st<=0){toast(`⛔ ${p.name} — нет на складе`);return;}
-  _qpProd=p;
-  document.getElementById('qp-emo').textContent=p.emoji||'📦';
-  document.getElementById('qp-name').textContent=p.name;
-  document.getElementById('qp-price').textContent=fmt(p.sellPrice)+' сом / '+(p.unit||'шт');
-  document.getElementById('qp-qty').value=1;
-  document.getElementById('qp-sub').textContent=fmt(p.sellPrice)+' сом';
-  document.getElementById('qty-popup').style.display='flex';
-  if(_readers['kassa-video']) _readers['kassa-video'].active=false;
+  // Сразу добавляем в чек
+  const ex=kCart.find(c=>c.pid===p.id);
+  if(ex){
+    if(ex.qty+1>st){toast(`⚠️ ${p.name} — максимум ${st} шт`);return;}
+    ex.qty+=1;
+  } else {
+    kCart.push({pid:p.id,name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',sellPrice:p.sellPrice,buyPrice:p.buyPrice,qty:1});
+  }
+  navigator.vibrate?.([40]);
+  toast(`✓ ${p.name} добавлен`);
+  renderKassaLog();
+  updatePayBtn();
 }
  
 // ══════════════════════════════════════════
@@ -1580,6 +1709,7 @@ function openProdForm(id) {
       document.getElementById('ep-emo').value   = p.emoji || '';
       document.getElementById('ep-cat').value   = p.category || 'Другое';
       document.getElementById('ep-unit').value  = p.unit || 'шт';
+      document.getElementById('ep-nobar').checked = p.noBarcode || false;
       showMprev();
     }
     document.getElementById('ep-scan-step').style.display = 'none';
@@ -1590,6 +1720,7 @@ function openProdForm(id) {
     document.getElementById('ep-form-step').style.display = 'none';
     document.getElementById('ep-bar-manual').value = '';
     document.getElementById('ep-lookup-status').textContent = '';
+    document.getElementById('ep-nobar').checked = false;
     ['ep-name','ep-bar','ep-buy','ep-sell','ep-emo'].forEach(f => document.getElementById(f).value = '');
     document.getElementById('ep-cat').value = 'Другое';
     document.getElementById('ep-unit').value = 'шт';
@@ -1605,49 +1736,41 @@ function resetToScanStep() {
   document.getElementById('ep-bar-manual').value = '';
   _startReader('ep-video', 'ep-scan-st', code => { _stopReader('ep-video'); lookupBarcode(code); });
 }
-async function lookupBarcode(code) {
+function skipScanStep() {
+  _stopReader('ep-video');
+  document.getElementById('ep-bar').value = '';
+  document.getElementById('ep-bar-show').textContent = '—';
+  document.getElementById('ep-nobar').checked = true;
+  document.getElementById('ep-found-badge').style.display = 'none';
+  document.getElementById('ep-scan-step').style.display = 'none';
+  document.getElementById('ep-form-step').style.display = '';
+  document.getElementById('ep-name').focus();
+}
+ 
+function lookupBarcode(code) {
   if (!code) return;
-  const status = document.getElementById('ep-lookup-status');
-  status.textContent = '🔍 Ищем по штрихкоду…';
   document.getElementById('ep-bar').value = code;
   document.getElementById('ep-bar-show').textContent = code;
+  document.getElementById('ep-lookup-status').textContent = '';
+  // Если штрихкод уже есть в базе — предупреждаем
   const existing = db().products.find(p => p.barcode === code);
   if (existing) {
     document.getElementById('ep-found-badge').style.cssText = 'display:block;background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--am);font-weight:600';
-    document.getElementById('ep-found-badge').textContent = `⚠️ Штрихкод уже есть: «${existing.name}»`;
+    document.getElementById('ep-found-badge').textContent = `⚠️ Этот штрихкод уже есть: «${existing.name}»`;
     document.getElementById('ep-name').value  = existing.name;
     document.getElementById('ep-buy').value   = existing.buyPrice;
     document.getElementById('ep-sell').value  = existing.sellPrice;
     document.getElementById('ep-emo').value   = existing.emoji || '';
     document.getElementById('ep-cat').value   = existing.category || 'Другое';
     document.getElementById('ep-unit').value  = existing.unit || 'шт';
-    showMprev(); status.textContent = '';
-    document.getElementById('ep-scan-step').style.display = 'none';
-    document.getElementById('ep-form-step').style.display = '';
-    return;
+    showMprev();
+  } else {
+    document.getElementById('ep-found-badge').style.display = 'none';
   }
-  try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
-    const data = await res.json();
-    if (data.status === 1 && data.product) {
-      const p = data.product;
-      const name = p.product_name_ru || p.product_name || p.generic_name || '';
-      const qty = p.quantity || '';
-      const full = (name + (qty ? ' ' + qty : '')).trim();
-      if (full) {
-        document.getElementById('ep-name').value = full;
-        document.getElementById('ep-found-badge').style.cssText = 'display:block;background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--gn);font-weight:600';
-        document.getElementById('ep-found-badge').textContent = `✓ Найдено: ${full}`;
-        const q = qty.toLowerCase();
-        if (q.includes('кг')||q.includes('kg')||q.includes('г')||q.includes('g')) document.getElementById('ep-unit').value='кг';
-        else if (q.includes('л')||q.includes('l')||q.includes('мл')||q.includes('ml')) document.getElementById('ep-unit').value='л';
-        status.textContent = '';
-      } else { status.textContent = '⚠️ Найден без названия. Введите вручную.'; }
-    } else { status.textContent = '⚠️ Не найден в базе. Введите название вручную.'; }
-  } catch(e) { status.textContent = '⚠️ Нет интернета. Введите вручную.'; }
+  // Показываем форму — кассир вводит название и цены сам
   document.getElementById('ep-scan-step').style.display = 'none';
   document.getElementById('ep-form-step').style.display = '';
-  document.getElementById('ep-buy').focus();
+  document.getElementById('ep-name').focus();
 }
 function showMprev() {
   const buy=parseFloat(document.getElementById('ep-buy').value)||0;
@@ -1658,7 +1781,17 @@ function showMprev() {
 function saveProd(){
   const name=document.getElementById('ep-name').value.trim(); if(!name){toast('⚠️ Введите название');return;}
   const data=db(); const eid=document.getElementById('ep-id').value;
-  const pd={name,barcode:document.getElementById('ep-bar').value.trim(),buyPrice:parseFloat(document.getElementById('ep-buy').value)||0,sellPrice:parseFloat(document.getElementById('ep-sell').value)||0,emoji:document.getElementById('ep-emo').value.trim()||'📦',category:document.getElementById('ep-cat').value,unit:document.getElementById('ep-unit').value,minStock:5};
+  const pd={
+    name,
+    barcode:   document.getElementById('ep-bar').value.trim(),
+    buyPrice:  parseFloat(document.getElementById('ep-buy').value)||0,
+    sellPrice: parseFloat(document.getElementById('ep-sell').value)||0,
+    emoji:     document.getElementById('ep-emo').value.trim()||'📦',
+    category:  document.getElementById('ep-cat').value,
+    unit:      document.getElementById('ep-unit').value,
+    noBarcode: document.getElementById('ep-nobar').checked,
+    minStock:  5
+  };
   if(eid){const i=data.products.findIndex(p=>p.id===eid);if(i>=0)data.products[i]={...data.products[i],...pd};}
   else{pd.id=uid();data.products.push(pd);}
   _stopReader('ep-video');
