@@ -37,7 +37,7 @@ input[type=number]{-moz-appearance:textfield;}
 .logo{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:800;color:var(--tx);letter-spacing:-.02em;flex-shrink:0;cursor:pointer;}
 .logo-sq{width:24px;height:24px;background:var(--tx);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;}
 .hdr-store{flex:1;font-size:12px;font-weight:500;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.hdr-time{font-size:11px;font-weight:700;color:var(--tx3);flex-shrink:0;font-variant-numeric:tabular-nums;}
+.hdr-time{display:none;}
  
 /* ─── BOTTOM NAV ─── */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.98);backdrop-filter:blur(20px);border-top:1px solid var(--bd);display:flex;padding:5px 2px calc(env(safe-area-inset-bottom,0px)+2px);}
@@ -178,8 +178,8 @@ input[type=number]{-moz-appearance:textfield;}
   width:100%;
   flex-shrink:0;
   background:#000;
-  /* ~56% высоты экрана для камеры */
-  height: 56dvh;
+  /* ~44% высоты экрана для камеры — больше места для лога */
+  height: 44dvh;
   overflow:hidden;
 }
 .ks1-cam video {
@@ -708,11 +708,32 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- ══════ ДОЛГИ ══════ -->
 <div id="pg-debts" class="page">
 <div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
-  <div class="ss ss2">
-    <div class="sc"><div class="sc-v" style="color:var(--rd);font-size:18px" id="ss-debt">0 сом</div><div class="sc-l">Общий долг</div></div>
-    <div class="sc"><div class="sc-v" id="ss-debtors">0</div><div class="sc-l">Должников</div></div>
+ 
+  <!-- Переключатель -->
+  <div style="display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rs);padding:3px;gap:2px;margin-bottom:14px;">
+    <button class="pt active" id="dt-buyers" onclick="setDebtTab('buyers',this)" style="flex:1">👤 Покупатели должны нам</button>
+    <button class="pt" id="dt-suppliers" onclick="setDebtTab('suppliers',this)" style="flex:1">🏭 Мы должны поставщикам</button>
   </div>
-  <div id="debt-list"></div>
+ 
+  <!-- Покупатели -->
+  <div id="debt-tab-buyers">
+    <div class="ss ss2">
+      <div class="sc"><div class="sc-v" style="color:var(--rd);font-size:18px" id="ss-debt">0 сом</div><div class="sc-l">Долг покупателей</div></div>
+      <div class="sc"><div class="sc-v" id="ss-debtors">0</div><div class="sc-l">Должников</div></div>
+    </div>
+    <div id="debt-list"></div>
+  </div>
+ 
+  <!-- Поставщики -->
+  <div id="debt-tab-suppliers" style="display:none">
+    <div class="ss ss2">
+      <div class="sc"><div class="sc-v" style="color:var(--am);font-size:18px" id="ss-sup-debt">0 сом</div><div class="sc-l">Мы должны</div></div>
+      <div class="sc"><div class="sc-v" id="ss-sup-count">0</div><div class="sc-l">Поставщиков</div></div>
+    </div>
+    <button class="btn btn-dk" onclick="openAddSupDebt()" style="margin-bottom:12px">+ Добавить долг поставщику</button>
+    <div id="sup-debt-list"></div>
+  </div>
+ 
 </div>
 </div>
  
@@ -759,43 +780,67 @@ input[type=number]{-moz-appearance:textfield;}
 </nav>
  
 <!-- MODALS -->
+<!-- ═══ ДОБАВИТЬ ТОВАР — новый флоу: сначала сканер ═══ -->
 <div class="ov" id="ov-prod">
 <div class="modal">
-  <div class="mhdr"><div class="mt" id="prod-form-t">Новый товар</div><button class="mc" onclick="closeModal('ov-prod')">×</button></div>
+  <div class="mhdr"><div class="mt" id="prod-form-t">Новый товар</div><button class="mc" onclick="closeProdModal()">×</button></div>
   <input type="hidden" id="ep-id">
-  <div class="fr"><label class="lbl">Название *</label><input type="text" class="fi" id="ep-name" placeholder="Кола 1л, Хлеб…"></div>
-  <div class="fr"><label class="lbl">Штрихкод</label>
+ 
+  <!-- Шаг 1: сканер (показывается при добавлении нового) -->
+  <div id="ep-scan-step">
+    <div class="svp"><video id="ep-video" playsinline muted autoplay></video>
+      <div class="svo"><div class="svf"><div class="svl"></div>
+        <div class="svc stl"></div><div class="svc str"></div><div class="svc sbl"></div><div class="svc sbr"></div>
+      </div></div>
+      <div class="svs" id="ep-scan-st">Сканируйте штрихкод товара</div>
+    </div>
+    <div id="ep-lookup-status" style="min-height:20px;text-align:center;font-size:12px;font-weight:600;color:var(--bl);margin-bottom:10px"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <div style="flex:1;height:1px;background:var(--bd)"></div>
+      <span style="font-size:11px;color:var(--tx3);font-weight:600">или введите вручную</span>
+      <div style="flex:1;height:1px;background:var(--bd)"></div>
+    </div>
     <div style="display:flex;gap:8px">
-      <input type="text" class="fi" id="ep-bar" placeholder="4601234567890" inputmode="numeric" style="flex:1">
-      <button class="sm sm-gh" onclick="scanBarcode4Prod()">📷</button>
+      <input type="text" class="fi" id="ep-bar-manual" placeholder="Штрихкод вручную…" inputmode="numeric" style="flex:1">
+      <button class="sm sm-dk" onclick="lookupBarcode(document.getElementById('ep-bar-manual').value)">Найти</button>
     </div>
   </div>
-  <div class="fr2">
-    <div><label class="lbl">Категория</label>
-      <select class="fi" id="ep-cat">
-        <option value="Напитки">Напитки</option><option value="Продукты">Продукты</option>
-        <option value="Молочное">Молочное</option><option value="Хлеб">Хлеб</option>
-        <option value="Снеки">Снеки</option><option value="Хозтовары">Хозтовары</option>
-        <option value="Другое" selected>Другое</option>
-      </select>
+ 
+  <!-- Шаг 2: форма с данными (скрыта пока не отсканировали) -->
+  <div id="ep-form-step" style="display:none">
+    <!-- Найденные данные -->
+    <div id="ep-found-badge" style="display:none;background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--gn);font-weight:600"></div>
+ 
+    <div class="fr"><label class="lbl">Название *</label><input type="text" class="fi" id="ep-name" placeholder="Кола 1л, Хлеб…"></div>
+    <input type="hidden" id="ep-bar">
+    <div style="background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rs);padding:9px 13px;margin-bottom:11px;font-size:12px;color:var(--tx2);display:flex;justify-content:space-between;align-items:center">
+      <span>Штрихкод: <b id="ep-bar-show">—</b></span>
+      <button class="sm sm-gh" onclick="resetToScanStep()" style="font-size:10px">Сканировать заново</button>
     </div>
-    <div><label class="lbl">Единица</label>
-      <select class="fi" id="ep-unit">
-        <option value="шт" selected>шт</option><option value="кг">кг</option>
-        <option value="л">л</option><option value="пач">пачка</option><option value="бут">бутылка</option>
-      </select>
+    <div class="fr2">
+      <div><label class="lbl">Категория</label>
+        <select class="fi" id="ep-cat">
+          <option value="Напитки">Напитки</option><option value="Продукты">Продукты</option>
+          <option value="Молочное">Молочное</option><option value="Хлеб">Хлеб</option>
+          <option value="Снеки">Снеки</option><option value="Хозтовары">Хозтовары</option>
+          <option value="Другое" selected>Другое</option>
+        </select>
+      </div>
+      <div><label class="lbl">Единица</label>
+        <select class="fi" id="ep-unit">
+          <option value="шт" selected>шт</option><option value="кг">кг</option>
+          <option value="л">л</option><option value="пач">пачка</option><option value="бут">бутылка</option>
+        </select>
+      </div>
     </div>
+    <div class="fr2">
+      <div><label class="lbl">Цена закупки (сом) *</label><input type="number" class="fi" id="ep-buy" placeholder="0" min="0" step="0.01" oninput="showMprev()"></div>
+      <div><label class="lbl">Цена продажи (сом) *</label><input type="number" class="fi" id="ep-sell" placeholder="0" min="0" step="0.01" oninput="showMprev()"></div>
+    </div>
+    <div class="mprev" id="mprev"></div>
+    <div class="fr"><label class="lbl">Эмодзи</label><input type="text" class="fi" id="ep-emo" placeholder="🍞"></div>
+    <button class="btn btn-dk" onclick="saveProd()">Сохранить товар</button>
   </div>
-  <div class="fr2">
-    <div><label class="lbl">Цена закупки (сом)</label><input type="number" class="fi" id="ep-buy" placeholder="0" min="0" step="0.01" oninput="showMprev()"></div>
-    <div><label class="lbl">Цена продажи (сом)</label><input type="number" class="fi" id="ep-sell" placeholder="0" min="0" step="0.01" oninput="showMprev()"></div>
-  </div>
-  <div class="mprev" id="mprev"></div>
-  <div class="fr"><label class="lbl">Эмодзи</label><input type="text" class="fi" id="ep-emo" placeholder="🍞"></div>
-  <div style="background:var(--blbg);border:1px solid var(--blbr);border-radius:var(--rs);padding:11px 13px;font-size:12px;color:var(--bl);font-weight:500;margin-bottom:14px;line-height:1.6">
-    💡 Начальный остаток добавляется через <b>Склад → Приход</b>
-  </div>
-  <button class="btn btn-dk" onclick="saveProd()">Сохранить</button>
 </div>
 </div>
  
@@ -861,8 +906,12 @@ input[type=number]{-moz-appearance:textfield;}
 <div class="modal">
   <div class="mhdr"><div class="mt" id="debt-mname">—</div><button class="mc" onclick="closeModal('ov-debt')">×</button></div>
   <div id="debt-mbody"></div>
-  <div style="background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:13px;margin-top:12px">
-    <label class="lbl">Частичная оплата (сом)</label>
+  <!-- WhatsApp кнопка -->
+  <div id="debt-wa-wrap" style="margin-top:12px;display:none">
+    <button class="btn" style="background:#25d366;color:#fff" onclick="sendDebtWA()">💬 Написать в WhatsApp</button>
+  </div>
+  <div style="background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:13px;margin-top:10px">
+    <label class="lbl">Принять частичную оплату (сом)</label>
     <div style="display:flex;gap:8px;margin-top:4px">
       <input type="number" class="fi" id="partial-amt" placeholder="0" min="0" inputmode="numeric" style="flex:1">
       <button class="sm sm-am" onclick="partialPay()">Принять</button>
@@ -870,6 +919,41 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
   <button class="btn btn-gn" onclick="markPaid()" style="margin-top:10px">✓ Долг погашен полностью</button>
   <button class="btn btn-gh" onclick="closeModal('ov-debt')" style="margin-top:7px">Закрыть</button>
+</div>
+</div>
+ 
+<!-- Долг поставщику — добавить/просмотреть -->
+<div class="ov" id="ov-sup-debt">
+<div class="modal">
+  <div class="mhdr"><div class="mt" id="sup-debt-title">Долг поставщику</div><button class="mc" onclick="closeModal('ov-sup-debt')">×</button></div>
+  <input type="hidden" id="sd-id">
+  <div class="fr"><label class="lbl">Название поставщика *</label><input type="text" class="fi" id="sd-name" placeholder="ИП Алибек, ООО Фудмаркет…"></div>
+  <div class="fr"><label class="lbl">Номер телефона</label><input type="tel" class="fi" id="sd-phone" placeholder="+996 700 123 456" inputmode="tel"></div>
+  <div class="fr"><label class="lbl">Сумма долга (сом) *</label><input type="number" class="fi" id="sd-amount" placeholder="0" min="0" inputmode="numeric"></div>
+  <div class="fr"><label class="lbl">Что взяли (товары)</label><textarea class="fi" id="sd-goods" placeholder="Кола 1л — 100шт&#10;Хлеб — 50шт" rows="3" style="resize:none"></textarea></div>
+  <div class="fr"><label class="lbl">Дата</label><input type="date" class="fi" id="sd-date"></div>
+  <div class="fr"><label class="lbl">Комментарий</label><input type="text" class="fi" id="sd-note" placeholder="Условия оплаты…"></div>
+  <button class="btn btn-dk" onclick="saveSupDebt()">Сохранить</button>
+</div>
+</div>
+ 
+<!-- Детали долга поставщику -->
+<div class="ov" id="ov-sup-detail">
+<div class="modal">
+  <div class="mhdr"><div class="mt" id="sdd-name">—</div><button class="mc" onclick="closeModal('ov-sup-detail')">×</button></div>
+  <div id="sdd-body"></div>
+  <div id="sdd-wa-wrap" style="margin-top:10px;display:none">
+    <button class="btn" style="background:#25d366;color:#fff" onclick="sendSupWA()">💬 Написать в WhatsApp</button>
+  </div>
+  <div style="background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:13px;margin-top:10px">
+    <label class="lbl">Частичная оплата поставщику (сом)</label>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <input type="number" class="fi" id="sd-partial" placeholder="0" min="0" inputmode="numeric" style="flex:1">
+      <button class="sm sm-am" onclick="supPartialPay()">Оплатить</button>
+    </div>
+  </div>
+  <button class="btn btn-gn" onclick="supMarkPaid()" style="margin-top:10px">✓ Долг поставщику погашен</button>
+  <button class="btn btn-gh" onclick="closeModal('ov-sup-detail')" style="margin-top:7px">Закрыть</button>
 </div>
 </div>
  
@@ -1478,17 +1562,94 @@ function applyCorrection(){
 }
  
 // ══════════════════════════════════════════
-// ТОВАРЫ
+// ТОВАРЫ — сканер сначала + API
 // ══════════════════════════════════════════
-function openProdForm(id){
-  document.getElementById('prod-form-t').textContent=id?'Редактировать':'Новый товар';
-  document.getElementById('ep-id').value=id||'';
-  document.getElementById('mprev').textContent='';
-  if(id){const p=db().products.find(x=>x.id===id);if(p){document.getElementById('ep-name').value=p.name;document.getElementById('ep-bar').value=p.barcode||'';document.getElementById('ep-buy').value=p.buyPrice;document.getElementById('ep-sell').value=p.sellPrice;document.getElementById('ep-emo').value=p.emoji||'';document.getElementById('ep-cat').value=p.category||'Другое';document.getElementById('ep-unit').value=p.unit||'шт';showMprev();}}
-  else{['ep-name','ep-bar','ep-buy','ep-sell','ep-emo'].forEach(f=>document.getElementById(f).value='');document.getElementById('ep-cat').value='Другое';document.getElementById('ep-unit').value='шт';}
-  openModal('ov-prod');
+function openProdForm(id) {
+  document.getElementById('prod-form-t').textContent = id ? 'Редактировать' : 'Новый товар';
+  document.getElementById('ep-id').value = id || '';
+  document.getElementById('mprev').textContent = '';
+  document.getElementById('ep-found-badge').style.display = 'none';
+  if (id) {
+    const p = db().products.find(x => x.id === id);
+    if (p) {
+      document.getElementById('ep-name').value  = p.name;
+      document.getElementById('ep-bar').value   = p.barcode || '';
+      document.getElementById('ep-bar-show').textContent = p.barcode || '—';
+      document.getElementById('ep-buy').value   = p.buyPrice;
+      document.getElementById('ep-sell').value  = p.sellPrice;
+      document.getElementById('ep-emo').value   = p.emoji || '';
+      document.getElementById('ep-cat').value   = p.category || 'Другое';
+      document.getElementById('ep-unit').value  = p.unit || 'шт';
+      showMprev();
+    }
+    document.getElementById('ep-scan-step').style.display = 'none';
+    document.getElementById('ep-form-step').style.display = '';
+    openModal('ov-prod');
+  } else {
+    document.getElementById('ep-scan-step').style.display = '';
+    document.getElementById('ep-form-step').style.display = 'none';
+    document.getElementById('ep-bar-manual').value = '';
+    document.getElementById('ep-lookup-status').textContent = '';
+    ['ep-name','ep-bar','ep-buy','ep-sell','ep-emo'].forEach(f => document.getElementById(f).value = '');
+    document.getElementById('ep-cat').value = 'Другое';
+    document.getElementById('ep-unit').value = 'шт';
+    openModal('ov-prod');
+    _startReader('ep-video', 'ep-scan-st', code => { _stopReader('ep-video'); lookupBarcode(code); });
+  }
 }
-function showMprev(){
+function closeProdModal() { _stopReader('ep-video'); closeModal('ov-prod'); }
+function resetToScanStep() {
+  document.getElementById('ep-scan-step').style.display = '';
+  document.getElementById('ep-form-step').style.display = 'none';
+  document.getElementById('ep-lookup-status').textContent = '';
+  document.getElementById('ep-bar-manual').value = '';
+  _startReader('ep-video', 'ep-scan-st', code => { _stopReader('ep-video'); lookupBarcode(code); });
+}
+async function lookupBarcode(code) {
+  if (!code) return;
+  const status = document.getElementById('ep-lookup-status');
+  status.textContent = '🔍 Ищем по штрихкоду…';
+  document.getElementById('ep-bar').value = code;
+  document.getElementById('ep-bar-show').textContent = code;
+  const existing = db().products.find(p => p.barcode === code);
+  if (existing) {
+    document.getElementById('ep-found-badge').style.cssText = 'display:block;background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--am);font-weight:600';
+    document.getElementById('ep-found-badge').textContent = `⚠️ Штрихкод уже есть: «${existing.name}»`;
+    document.getElementById('ep-name').value  = existing.name;
+    document.getElementById('ep-buy').value   = existing.buyPrice;
+    document.getElementById('ep-sell').value  = existing.sellPrice;
+    document.getElementById('ep-emo').value   = existing.emoji || '';
+    document.getElementById('ep-cat').value   = existing.category || 'Другое';
+    document.getElementById('ep-unit').value  = existing.unit || 'шт';
+    showMprev(); status.textContent = '';
+    document.getElementById('ep-scan-step').style.display = 'none';
+    document.getElementById('ep-form-step').style.display = '';
+    return;
+  }
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    const data = await res.json();
+    if (data.status === 1 && data.product) {
+      const p = data.product;
+      const name = p.product_name_ru || p.product_name || p.generic_name || '';
+      const qty = p.quantity || '';
+      const full = (name + (qty ? ' ' + qty : '')).trim();
+      if (full) {
+        document.getElementById('ep-name').value = full;
+        document.getElementById('ep-found-badge').style.cssText = 'display:block;background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--gn);font-weight:600';
+        document.getElementById('ep-found-badge').textContent = `✓ Найдено: ${full}`;
+        const q = qty.toLowerCase();
+        if (q.includes('кг')||q.includes('kg')||q.includes('г')||q.includes('g')) document.getElementById('ep-unit').value='кг';
+        else if (q.includes('л')||q.includes('l')||q.includes('мл')||q.includes('ml')) document.getElementById('ep-unit').value='л';
+        status.textContent = '';
+      } else { status.textContent = '⚠️ Найден без названия. Введите вручную.'; }
+    } else { status.textContent = '⚠️ Не найден в базе. Введите название вручную.'; }
+  } catch(e) { status.textContent = '⚠️ Нет интернета. Введите вручную.'; }
+  document.getElementById('ep-scan-step').style.display = 'none';
+  document.getElementById('ep-form-step').style.display = '';
+  document.getElementById('ep-buy').focus();
+}
+function showMprev() {
   const buy=parseFloat(document.getElementById('ep-buy').value)||0;
   const sell=parseFloat(document.getElementById('ep-sell').value)||0;
   const el=document.getElementById('mprev');
@@ -1500,6 +1661,7 @@ function saveProd(){
   const pd={name,barcode:document.getElementById('ep-bar').value.trim(),buyPrice:parseFloat(document.getElementById('ep-buy').value)||0,sellPrice:parseFloat(document.getElementById('ep-sell').value)||0,emoji:document.getElementById('ep-emo').value.trim()||'📦',category:document.getElementById('ep-cat').value,unit:document.getElementById('ep-unit').value,minStock:5};
   if(eid){const i=data.products.findIndex(p=>p.id===eid);if(i>=0)data.products[i]={...data.products[i],...pd};}
   else{pd.id=uid();data.products.push(pd);}
+  _stopReader('ep-video');
   save(data); closeModal('ov-prod'); renderProds(); toast(eid?'✓ Обновлено':'✓ Товар добавлен');
 }
 function deleteProd(id){if(!confirm('Удалить товар?'))return;const data=db();data.products=data.products.filter(p=>p.id!==id);save(data);renderProds();toast('Удалён');}
@@ -1529,83 +1691,152 @@ function renderProds(){
       </div>
       <div class="pi-right"><span class="chip ${scls}">${stxt} ${p.unit||'шт'}</span>
         <div style="display:flex;gap:4px"><button class="ib" onclick="openProdForm('${p.id}')">✏️</button><button class="ib ib-rd" onclick="deleteProd('${p.id}')">×</button></div>
-      </div>
-    </div>`;
+      </div></div>`;
   }).join('');
 }
-function scanBarcode4Prod(){
-  closeModal('ov-prod');
-  openGenericScanner('Штрихкод товара',code=>{
-    closeGenericScanner();
-    document.getElementById('ep-bar').value=code;
-    openModal('ov-prod');
-    toast('✓ '+code);
-  });
-}
  
 // ══════════════════════════════════════════
-// EXCEL
+// ДОЛГИ ПОКУПАТЕЛЕЙ + ПОСТАВЩИКИ
 // ══════════════════════════════════════════
-function openImport(){document.getElementById('import-prev').innerHTML='';openModal('ov-import');}
-function handleImport(e){
-  const file=e.target.files[0];if(!file)return;
-  const r=new FileReader();
-  r.onload=ev=>{try{const wb=XLSX.read(ev.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});const items=rows.slice(1).filter(r=>r[0]);if(!items.length){toast('⚠️ Пусто');return;}
-    let prev=`<div style="font-size:12px;font-weight:700;margin-bottom:7px">Найдено: ${items.length} товаров</div><div style="max-height:150px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--rs)">`;
-    items.slice(0,5).forEach(r=>{prev+=`<div style="padding:8px 12px;border-bottom:1px solid var(--bd);font-size:12px">${r[0]} — <b style="color:var(--gn)">${fmt(r[3]||0)} сом</b></div>`;});
-    if(items.length>5)prev+=`<div style="padding:8px 12px;font-size:11px;color:var(--tx3)">+${items.length-5} ещё…</div>`;
-    prev+=`</div><button class="btn btn-dk" onclick="confirmImport()" style="margin-top:10px">Импортировать</button>`;
-    window._importRows=items;document.getElementById('import-prev').innerHTML=prev;
-  }catch(err){toast('⚠️ Ошибка');}};
-  r.readAsArrayBuffer(file);
+let _activeDebt=null, _activeDebtWAData=null;
+function setDebtTab(tab,btn){
+  document.querySelectorAll('#pg-debts .pt').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('debt-tab-buyers').style.display    = tab==='buyers'    ? '' : 'none';
+  document.getElementById('debt-tab-suppliers').style.display = tab==='suppliers' ? '' : 'none';
+  if(tab==='suppliers') renderSupDebts();
 }
-function confirmImport(){
-  const rows=window._importRows;if(!rows)return;
-  const data=db();let added=0,updated=0;
-  rows.forEach(r=>{const name=(r[0]||'').toString().trim();if(!name)return;
-    const pd={barcode:(r[1]||'').toString().trim(),buyPrice:parseFloat(r[2])||0,sellPrice:parseFloat(r[3])||0,category:(r[4]||'Другое').toString().trim()||'Другое',unit:(r[5]||'шт').toString().trim()||'шт',emoji:(r[6]||'📦').toString().trim()||'📦',minStock:5};
-    const ex=data.products.find(p=>(pd.barcode&&p.barcode===pd.barcode)||p.name.toLowerCase()===name.toLowerCase());
-    if(ex){Object.assign(ex,{name,...pd});updated++;}else{data.products.push({id:uid(),name,...pd});added++;}
-  });
-  save(data);closeModal('ov-import');renderProds();window._importRows=null;toast(`✓ +${added} обновлено: ${updated}`);
-}
-function exportExcel(){
-  const data=db();if(!data.products.length){toast('Нет товаров');return;}
-  const stocks=getAllStocks();
-  const rows=[['Название','Штрихкод','Цена закупки','Цена продажи','Остаток','Категория','Единица','Эмодзи'],...data.products.map(p=>[p.name,p.barcode||'',p.buyPrice,p.sellPrice,stocks[p.id]||0,p.category||'',p.unit||'шт',p.emoji||'📦'])];
-  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:24},{wch:15},{wch:13},{wch:13},{wch:9},{wch:12},{wch:8},{wch:7}];
-  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Товары');
-  XLSX.writeFile(wb,`magazin_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.xlsx`);toast('✓ Excel скачан');
-}
-function exportJson(){const blob=new Blob([JSON.stringify(db(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`backup_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.json`;a.click();toast('✓ Копия скачана');}
-function clearAll(){if(!confirm('Удалить ВСЕ данные?'))return;localStorage.removeItem(KEY);kCart=[];renderKassaLog();updatePayBtn();closeModal('ov-settings');toast('Данные удалены');}
- 
-// ══════════════════════════════════════════
-// ДОЛГИ
-// ══════════════════════════════════════════
-let _activeDebt=null;
 function renderDebts(){
-  const data=db();const active=data.debts.filter(d=>!d.paid);const total=active.reduce((s,d)=>s+d.amount,0);
-  document.getElementById('ss-debt').textContent=fmt(total)+' сом';document.getElementById('ss-debtors').textContent=active.length;
+  const data=db(); const active=data.debts.filter(d=>!d.paid); const total=active.reduce((s,d)=>s+d.amount,0);
+  document.getElementById('ss-debt').textContent=fmt(total)+' сом';
+  document.getElementById('ss-debtors').textContent=active.length;
   const list=document.getElementById('debt-list');
   if(!active.length){list.innerHTML=`<div class="empty"><div class="ei">🎉</div><div class="et">Долгов нет!</div></div>`;return;}
-  list.innerHTML=active.map(d=>{const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+  list.innerHTML=active.map(d=>{
+    const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+    const phoneBtn=d.phone?`<a href="tel:${d.phone}" style="font-size:11px;color:var(--bl);font-weight:700;text-decoration:none;display:block;margin-bottom:5px">📞 ${d.phone}</a>`:'';
     return `<div class="di"><div class="di-hdr"><div class="di-name">👤 ${d.name}</div><div class="di-date">${date}</div></div>
-      <div class="di-amount">${fmt(d.amount)} сом</div>
+      ${phoneBtn}<div class="di-amount">${fmt(d.amount)} сом</div>
       <div class="di-foot"><div style="font-size:12px;color:var(--tx2)">${(d.saleIds||[]).length} покупок</div>
         <div style="display:flex;gap:6px"><button class="sm sm-bl" onclick="openDebtDetail('${d.id}')">Подробно</button><button class="sm sm-gn" onclick="quickPaid('${d.id}')">✓ Вернул</button></div>
       </div></div>`;
   }).join('');
 }
-function openDebtDetail(id){const d=db().debts.find(x=>x.id===id);if(!d)return;_activeDebt=id;document.getElementById('debt-mname').textContent=d.name;
+function openDebtDetail(id){
+  const data=db(); const d=data.debts.find(x=>x.id===id); if(!d) return;
+  _activeDebt=id;
+  document.getElementById('debt-mname').textContent=d.name;
   const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-  const ph=(d.payments||[]).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><span style="color:var(--tx2)">${new Date(p.date).toLocaleDateString('ru-RU')}</span><span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span></div>`).join('');
-  document.getElementById('debt-mbody').innerHTML=`<div style="text-align:center;padding:16px 0 12px"><div style="font-size:34px;font-weight:800;color:var(--rd);letter-spacing:-.03em">${fmt(d.amount)} сом</div><div style="font-size:12px;color:var(--tx3);margin-top:5px">С ${date} · ${(d.saleIds||[]).length} покупок</div></div>${ph?`<div style="margin-bottom:6px"><div class="slbl">Выплаты</div>${ph}</div>`:''}`;
-  document.getElementById('partial-amt').value='';openModal('ov-debt');
+  const sales=(d.saleIds||[]).map(sid=>data.sales.find(s=>s.id===sid)).filter(Boolean);
+  const salesText=sales.map(s=>{
+    const dt=new Date(s.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+    const items=s.items.map(i=>`${i.name} × ${i.qty} = ${fmt(i.subRev||i.sellPrice*i.qty)} сом`).join(', ');
+    return `${dt}: ${items}`;
+  }).join('\n');
+  _activeDebtWAData={name:d.name,phone:d.phone||'',amount:d.amount,salesText};
+  const ph=(d.payments||[]).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${new Date(p.date).toLocaleDateString('ru-RU')}</span><span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span></div>`).join('');
+  document.getElementById('debt-mbody').innerHTML=`
+    <div style="text-align:center;padding:14px 0 10px">
+      <div style="font-size:34px;font-weight:800;color:var(--rd);letter-spacing:-.03em">${fmt(d.amount)} сом</div>
+      <div style="font-size:12px;color:var(--tx3);margin-top:4px">С ${date} · ${sales.length} покупок</div>
+      ${d.phone?`<a href="tel:${d.phone}" style="display:inline-block;margin-top:5px;font-size:13px;color:var(--bl);font-weight:700">📞 ${d.phone}</a>`:''}
+    </div>
+    ${ph?`<div class="slbl" style="margin-top:8px">Выплаты</div>${ph}`:''}`;
+  document.getElementById('debt-wa-wrap').style.display=d.phone?'':'none';
+  document.getElementById('partial-amt').value='';
+  openModal('ov-debt');
 }
-function partialPay(){const amt=parseFloat(document.getElementById('partial-amt').value)||0;if(amt<=0){toast('⚠️ Введите сумму');return;}const data=db();const d=data.debts.find(x=>x.id===_activeDebt);if(!d)return;if(amt>=d.amount){d.paid=true;d.paidDate=new Date().toISOString();toast('✓ Погашен полностью!');}else{d.amount-=amt;(d.payments=d.payments||[]).push({amount:amt,date:new Date().toISOString()});toast(`✓ ${fmt(amt)} сом · Осталось ${fmt(d.amount)}`);}save(data);closeModal('ov-debt');renderDebts();}
+function sendDebtWA(){
+  if(!_activeDebtWAData) return;
+  const {name,phone,amount,salesText}=_activeDebtWAData;
+  const msg=`Здравствуйте, ${name}!\n\nНапоминаем о задолженности.\n\nСумма долга: ${fmt(amount)} сом\n\nПокупки:\n${salesText}\n\nПросьба погасить при следующем визите. Спасибо!`;
+  window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function partialPay(){
+  const amt=parseFloat(document.getElementById('partial-amt').value)||0; if(amt<=0){toast('⚠️ Введите сумму');return;}
+  const data=db(); const d=data.debts.find(x=>x.id===_activeDebt); if(!d) return;
+  if(amt>=d.amount){d.paid=true;d.paidDate=new Date().toISOString();toast('✓ Погашен полностью!');}
+  else{d.amount-=amt;(d.payments=d.payments||[]).push({amount:amt,date:new Date().toISOString()});toast(`✓ ${fmt(amt)} сом · Осталось ${fmt(d.amount)}`);}
+  save(data); closeModal('ov-debt'); renderDebts();
+}
 function markPaid(){const data=db();const d=data.debts.find(x=>x.id===_activeDebt);if(d){d.paid=true;d.paidDate=new Date().toISOString();}save(data);closeModal('ov-debt');renderDebts();toast('✓ Долг погашен!');}
 function quickPaid(id){const data=db();const d=data.debts.find(x=>x.id===id);if(d){d.paid=true;d.paidDate=new Date().toISOString();}save(data);renderDebts();toast('✓ Долг погашен!');}
+let _activeSupDebt=null,_activeSupWAData=null;
+function openAddSupDebt(){
+  document.getElementById('sup-debt-title').textContent='Новый долг поставщику';
+  document.getElementById('sd-id').value='';
+  ['sd-name','sd-phone','sd-amount','sd-goods','sd-note'].forEach(f=>document.getElementById(f).value='');
+  document.getElementById('sd-date').value=new Date().toISOString().split('T')[0];
+  openModal('ov-sup-debt');
+}
+function saveSupDebt(){
+  const name=document.getElementById('sd-name').value.trim(); if(!name){toast('⚠️ Введите поставщика');return;}
+  const amount=parseFloat(document.getElementById('sd-amount').value)||0; if(!amount){toast('⚠️ Введите сумму');return;}
+  const data=db(); if(!data.supDebts) data.supDebts=[];
+  const eid=document.getElementById('sd-id').value;
+  const sd={name,phone:document.getElementById('sd-phone').value.trim(),amount,goods:document.getElementById('sd-goods').value.trim(),date:document.getElementById('sd-date').value||new Date().toISOString().split('T')[0],note:document.getElementById('sd-note').value.trim(),paid:false,payments:[]};
+  if(eid){const i=data.supDebts.findIndex(x=>x.id===eid);if(i>=0)data.supDebts[i]={...data.supDebts[i],...sd};}
+  else{sd.id=uid();data.supDebts.push(sd);}
+  save(data); closeModal('ov-sup-debt'); renderSupDebts(); toast('✓ Сохранено');
+}
+function renderSupDebts(){
+  const data=db(); const list=(data.supDebts||[]).filter(d=>!d.paid);
+  const total=list.reduce((s,d)=>s+d.amount,0);
+  document.getElementById('ss-sup-debt').textContent=fmt(total)+' сом';
+  document.getElementById('ss-sup-count').textContent=list.length;
+  const el=document.getElementById('sup-debt-list');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="ei">✅</div><div class="et">Долгов поставщикам нет</div></div>`;return;}
+  el.innerHTML=list.map(d=>{
+    const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+    return `<div class="di" style="border-color:var(--ambr)">
+      <div class="di-hdr"><div class="di-name">🏭 ${d.name}</div><div class="di-date">${date}</div></div>
+      ${d.phone?`<a href="tel:${d.phone}" style="font-size:11px;color:var(--bl);font-weight:700;text-decoration:none;display:block;margin-bottom:5px">📞 ${d.phone}</a>`:''}
+      <div class="di-amount" style="color:var(--am)">${fmt(d.amount)} сом</div>
+      ${d.goods?`<div style="font-size:12px;color:var(--tx2);margin-bottom:8px;line-height:1.5">${d.goods.replace(/\n/g,'<br>')}</div>`:''}
+      <div class="di-foot"><div style="font-size:12px;color:var(--tx2)">${d.note||''}</div>
+        <div style="display:flex;gap:6px">
+          <button class="sm sm-am" onclick="openSupDetail('${d.id}')">Подробно</button>
+          <button class="sm sm-gn" onclick="supQuickPaid('${d.id}')">✓ Оплатил</button>
+        </div>
+      </div></div>`;
+  }).join('');
+}
+function openSupDetail(id){
+  const data=db(); const d=(data.supDebts||[]).find(x=>x.id===id); if(!d) return;
+  _activeSupDebt=id;
+  document.getElementById('sdd-name').textContent=d.name;
+  const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+  _activeSupWAData={name:d.name,phone:d.phone||'',amount:d.amount,goods:d.goods||'',date};
+  const ph=(d.payments||[]).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${new Date(p.date).toLocaleDateString('ru-RU')}</span><span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span></div>`).join('');
+  document.getElementById('sdd-body').innerHTML=`
+    <div style="text-align:center;padding:14px 0 10px">
+      <div style="font-size:32px;font-weight:800;color:var(--am)">${fmt(d.amount)} сом</div>
+      <div style="font-size:12px;color:var(--tx3);margin-top:4px">${date}</div>
+      ${d.phone?`<a href="tel:${d.phone}" style="display:inline-block;margin-top:5px;font-size:13px;color:var(--bl);font-weight:700">📞 ${d.phone}</a>`:''}
+    </div>
+    ${d.goods?`<div style="background:var(--sf2);border-radius:var(--rs);padding:12px;margin-bottom:8px;font-size:13px;line-height:1.7">${d.goods.replace(/\n/g,'<br>')}</div>`:''}
+    ${d.note?`<div style="font-size:12px;color:var(--tx2);margin-bottom:8px">${d.note}</div>`:''}
+    ${ph?`<div class="slbl">Выплаты</div>${ph}`:''}`;
+  document.getElementById('sdd-wa-wrap').style.display=d.phone?'':'none';
+  document.getElementById('sd-partial').value='';
+  openModal('ov-sup-detail');
+}
+function sendSupWA(){
+  if(!_activeSupWAData) return;
+  const {name,phone,amount,goods,date}=_activeSupWAData;
+  const msg=`Здравствуйте, ${name}!\n\nПодтверждаем долг от ${date}.\nСумма: ${fmt(amount)} сом\n${goods?`\nТовары:\n${goods}`:''}\n\nПланируем оплатить. Спасибо!`;
+  window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+function supPartialPay(){
+  const amt=parseFloat(document.getElementById('sd-partial').value)||0; if(amt<=0){toast('⚠️ Введите сумму');return;}
+  const data=db(); const d=(data.supDebts||[]).find(x=>x.id===_activeSupDebt); if(!d) return;
+  if(amt>=d.amount){d.paid=true;d.paidDate=new Date().toISOString();toast('✓ Долг погашен!');}
+  else{d.amount-=amt;(d.payments=d.payments||[]).push({amount:amt,date:new Date().toISOString()});toast(`✓ ${fmt(amt)} сом · Осталось ${fmt(d.amount)}`);}
+  save(data); closeModal('ov-sup-detail'); renderSupDebts();
+}
+function supMarkPaid(){const data=db();const d=(data.supDebts||[]).find(x=>x.id===_activeSupDebt);if(d){d.paid=true;d.paidDate=new Date().toISOString();}save(data);closeModal('ov-sup-detail');renderSupDebts();toast('✓ Погашен!');}
+function supQuickPaid(id){const data=db();const d=(data.supDebts||[]).find(x=>x.id===id);if(d){d.paid=true;d.paidDate=new Date().toISOString();}save(data);renderSupDebts();toast('✓ Оплачено!');
+}
  
 // ══════════════════════════════════════════
 // ОТЧЁТЫ
