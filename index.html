@@ -495,6 +495,33 @@ input[type=number]{-moz-appearance:textfield;}
 .toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--tx);border-radius:50px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;z-index:999;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;box-shadow:var(--sh2);max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
  
+/* ─── РОЛИ ─── */
+.role-screen,.pin-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:500;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;padding-top:calc(env(safe-area-inset-top,0px) + 32px);
+}
+.role-logo{width:64px;height:64px;background:var(--tx);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:16px;}
+.role-title{font-size:22px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:6px;}
+.role-sub{font-size:13px;color:var(--tx3);font-weight:500;margin-bottom:36px;text-align:center;line-height:1.6;}
+.role-btn{width:100%;max-width:320px;padding:16px;border:none;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .14s;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.role-btn:active{transform:scale(.975);filter:brightness(.9);}
+.role-btn-owner{background:var(--tx);color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.18);}
+.role-btn-cashier{background:var(--sf);border:2px solid var(--bd2);color:var(--tx2);}
+.pin-title{font-size:18px;font-weight:800;color:var(--tx);margin-bottom:6px;}
+.pin-sub{font-size:13px;color:var(--tx3);margin-bottom:24px;text-align:center;}
+.pin-dots{display:flex;gap:14px;margin-bottom:24px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--bd2);transition:all .15s;}
+.pin-dot.filled{background:var(--tx);transform:scale(1.1);}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:280px;}
+.pin-key{padding:18px;border:1.5px solid var(--bd);border-radius:var(--r);background:var(--sf);font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .13s;text-align:center;box-shadow:var(--sh);}
+.pin-key:active{background:var(--sf2);transform:scale(.95);}
+.pin-key.wide{grid-column:span 2;}
+.pin-error{color:var(--rd);font-size:12px;font-weight:700;min-height:18px;margin-bottom:8px;text-align:center;}
+.pin-back{background:none;border:none;color:var(--bl);font-size:13px;font-weight:600;cursor:pointer;margin-top:16px;font-family:'Plus Jakarta Sans',sans-serif;}
+.cashier-bar{background:var(--blbg);border-bottom:1px solid var(--blbr);padding:7px 16px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:var(--bl);flex-shrink:0;}
+.cashier-bar button{background:none;border:1px solid var(--blbr);border-radius:6px;padding:4px 10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:var(--bl);cursor:pointer;}
+ 
 /* ── ВКЛАДКИ ВНУТРИ КАССЫ (Сканер / Без штрихкода) ── */
 .ks1-tabs {
   display:flex; background:rgba(255,255,255,.1);
@@ -577,8 +604,12 @@ input[type=number]{-moz-appearance:textfield;}
 <body>
  
 <header class="hdr">
+  <div id="cashier-bar" class="cashier-bar" style="display:none">
+    <span>🧾 Режим кассира</span>
+    <button onclick="switchRole()">Сменить роль</button>
+  </div>
   <div class="hdr-in">
-    <div class="logo" onclick="openSettings()"><div class="logo-sq">М</div>Мой Магазин</div>
+    <div class="logo" onclick="isOwner()&&openSettings()"><div class="logo-sq">М</div>Мой Магазин</div>
     <div class="hdr-store" id="hdr-store"></div>
     <div class="hdr-time" id="hdr-time">—</div>
   </div>
@@ -676,11 +707,25 @@ input[type=number]{-moz-appearance:textfield;}
       </div>
     </div>
  
-    <!-- Поле имени если долг -->
+    <!-- Поле имени и телефона если долг -->
     <div class="ks2-debt-name" id="ks2-debt-block" style="display:none">
       <div style="height:12px"></div>
-      <label class="lbl">Имя клиента *</label>
-      <input type="text" class="fi" id="ks2-buyer" placeholder="Ахмед Касымов">
+      <div class="fr" style="margin-bottom:9px">
+        <label class="lbl">Имя клиента *</label>
+        <input type="text" class="fi" id="ks2-buyer" placeholder="Ахмед Касымов">
+      </div>
+      <div>
+        <label class="lbl">Номер телефона</label>
+        <div style="display:flex;gap:0">
+          <div style="background:var(--sf2);border:1.5px solid var(--bd);border-right:none;border-radius:var(--rs) 0 0 var(--rs);padding:11px 12px;font-size:15px;font-weight:700;color:var(--tx2);white-space:nowrap;flex-shrink:0">+996</div>
+          <input type="text" class="fi" id="ks2-phone"
+            placeholder="700 123 456"
+            inputmode="numeric"
+            maxlength="13"
+            style="border-radius:0 var(--rs) var(--rs) 0;border-left:none"
+            oninput="formatPhone(this)">
+        </div>
+      </div>
     </div>
  
   </div>
@@ -797,18 +842,37 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- ══════ ОТЧЁТЫ ══════ -->
 <div id="pg-report" class="page">
 <div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
+ 
+  <!-- Период -->
   <div class="period-tabs">
     <button class="pt active" onclick="setPeriod('day',this)">Сегодня</button>
     <button class="pt" onclick="setPeriod('week',this)">Неделя</button>
     <button class="pt" onclick="setPeriod('month',this)">Месяц</button>
     <button class="pt" onclick="setPeriod('all',this)">Всё время</button>
   </div>
+ 
+  <!-- Z-отчёт кнопка (только для сегодня) -->
+  <div id="z-report-btn-wrap" style="margin-bottom:12px">
+    <button class="btn btn-dk" onclick="showZReport()" style="padding:11px">
+      📋 Z-отчёт — закрыть день
+    </button>
+  </div>
+ 
+  <!-- Сравнение с прошлым периодом -->
+  <div id="r-compare" style="margin-bottom:12px"></div>
+ 
+  <!-- KPI -->
   <div class="kpi-grid">
     <div class="kpi"><div class="kpi-l">Выручка</div><div class="kpi-v g" id="r-rev">0</div><div class="kpi-s">сом</div></div>
     <div class="kpi"><div class="kpi-l">Себестоимость</div><div class="kpi-v r" id="r-cost">0</div><div class="kpi-s">сом</div></div>
     <div class="kpi"><div class="kpi-l">Прибыль</div><div class="kpi-v b" id="r-profit">0</div><div class="kpi-s" id="r-pct">%</div></div>
-    <div class="kpi"><div class="kpi-l">Чеков</div><div class="kpi-v a" id="r-sales">0</div><div class="kpi-s">продаж</div></div>
+    <div class="kpi"><div class="kpi-l">Средний чек</div><div class="kpi-v a" id="r-avg">0</div><div class="kpi-s" id="r-sales-sub">0 чеков</div></div>
   </div>
+ 
+  <!-- Долги в отчёте -->
+  <div id="r-debts-summary" style="margin-bottom:12px"></div>
+ 
+  <!-- По способу оплаты -->
   <div class="slbl">По способу оплаты</div>
   <div class="pay-brkdwn">
     <div class="pb"><div class="pb-ic">💵</div><div class="pb-v" id="pb-cash">0</div><div class="pb-l">Наличные</div></div>
@@ -816,13 +880,68 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="pb"><div class="pb-ic">📱</div><div class="pb-v" id="pb-qr">0</div><div class="pb-l">QR</div></div>
     <div class="pb"><div class="pb-ic">🧾</div><div class="pb-v" id="pb-debt">0</div><div class="pb-l">Долг</div></div>
   </div>
+ 
+  <!-- Что заканчивается -->
+  <div class="card" style="margin-bottom:10px" id="r-lowstock-card">
+    <div class="ctitle">⚠️ Заканчивается на складе</div>
+    <div id="r-lowstock"></div>
+  </div>
+ 
+  <!-- Топ товаров -->
   <div class="card" style="margin-bottom:10px">
-    <div class="ctitle">Топ товаров</div>
+    <div class="ctitle">Топ товаров по выручке</div>
     <div id="r-top"></div>
   </div>
+ 
+  <!-- История продаж -->
   <div class="card">
     <div class="ctitle">История продаж</div>
     <div id="sales-log"></div>
+  </div>
+ 
+</div>
+</div>
+ 
+<!-- Z-ОТЧЁТ МОДАЛ -->
+<div class="ov" id="ov-zreport">
+<div class="modal">
+  <div class="mhdr">
+    <div class="mt">📋 Z-отчёт</div>
+    <button class="mc" onclick="closeModal('ov-zreport')">×</button>
+  </div>
+  <div id="z-report-body"></div>
+  <button class="btn btn-gh" onclick="closeModal('ov-zreport')" style="margin-top:12px">Закрыть</button>
+</div>
+</div>
+ 
+<!-- ══════ НАСТРОЙКИ ══════ -->
+<div id="pg-settings" class="page">
+<div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
+  <div class="card">
+    <div class="ctitle">Магазин</div>
+    <div class="fr"><label class="lbl">Название магазина</label><input type="text" class="fi" id="set-name" placeholder="Мой магазин" oninput="saveSetting()"></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Безопасность</div>
+    <button class="btn btn-gh" onclick="openChangePinScreen()" style="margin-bottom:7px">🔑 Изменить PIN владельца</button>
+    <div style="font-size:12px;color:var(--tx3);line-height:1.6">PIN по умолчанию: <b>1234</b>. Смените его для безопасности.</div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Данные</div>
+    <button class="btn btn-gh" onclick="exportExcel()" style="margin-bottom:7px">⬇ Товары в Excel</button>
+    <button class="btn btn-gh" onclick="exportJson()" style="margin-bottom:7px">📤 Резервная копия</button>
+    <button class="btn btn-rd" onclick="clearAll()">🗑 Удалить все данные</button>
+  </div>
+  <div class="card">
+    <div class="ctitle">О приложении</div>
+    <div style="font-size:13px;color:var(--tx2);line-height:1.75">
+      <b style="color:var(--tx)">Мой Магазин</b> — кассовая система для малого бизнеса Кыргызстана.<br><br>
+      <span style="color:var(--tx3)">v6.0 · Умар Элдияров</span>
+    </div>
+    <a href="https://wa.me/996502516726" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;padding:13px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none;margin-top:13px">💬 Написать разработчику</a>
+  </div>
+  <div class="card">
+    <button class="btn btn-gh" onclick="switchRole()">🔄 Сменить роль (выйти)</button>
   </div>
 </div>
 </div>
@@ -830,10 +949,11 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- BOTTOM NAV -->
 <nav class="bnav">
   <button class="nb active" id="nb-kassa" onclick="goPage('kassa',this)"><span class="nb-icon">🧾</span>Касса</button>
-  <button class="nb" onclick="goPage('sklad',this)"><span class="nb-icon">🏪</span>Склад</button>
-  <button class="nb" onclick="goPage('products',this)"><span class="nb-icon">📦</span>Товары</button>
-  <button class="nb" onclick="goPage('debts',this)"><span class="nb-icon">💳</span>Долги</button>
-  <button class="nb" onclick="goPage('report',this)"><span class="nb-icon">📊</span>Отчёты</button>
+  <button class="nb" id="nb-sklad" onclick="goPage('sklad',this)"><span class="nb-icon">🏪</span>Склад</button>
+  <button class="nb" id="nb-products" onclick="goPage('products',this)"><span class="nb-icon">📦</span>Товары</button>
+  <button class="nb" id="nb-debts" onclick="goPage('debts',this)"><span class="nb-icon">💳</span>Долги</button>
+  <button class="nb" id="nb-report" onclick="goPage('report',this)"><span class="nb-icon">📊</span>Отчёты</button>
+  <button class="nb" id="nb-settings" onclick="goPage('settings',this)"><span class="nb-icon">⚙️</span>Настройки</button>
 </nav>
  
 <!-- MODALS -->
@@ -996,7 +1116,6 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="fr"><label class="lbl">Название поставщика *</label><input type="text" class="fi" id="sd-name" placeholder="ИП Алибек, ООО Фудмаркет…"></div>
   <div class="fr"><label class="lbl">Номер телефона</label><input type="tel" class="fi" id="sd-phone" placeholder="+996 700 123 456" inputmode="tel"></div>
   <div class="fr"><label class="lbl">Сумма долга (сом) *</label><input type="number" class="fi" id="sd-amount" placeholder="0" min="0" inputmode="numeric"></div>
-  <div class="fr"><label class="lbl">Что взяли (товары)</label><textarea class="fi" id="sd-goods" placeholder="Кола 1л — 100шт&#10;Хлеб — 50шт" rows="3" style="resize:none"></textarea></div>
   <div class="fr"><label class="lbl">Дата</label><input type="date" class="fi" id="sd-date"></div>
   <div class="fr"><label class="lbl">Комментарий</label><input type="text" class="fi" id="sd-note" placeholder="Условия оплаты…"></div>
   <button class="btn btn-dk" onclick="saveSupDebt()">Сохранить</button>
@@ -1023,27 +1142,45 @@ input[type=number]{-moz-appearance:textfield;}
 </div>
 </div>
  
-<div class="ov" id="ov-settings">
-<div class="modal">
-  <div class="mhdr"><div class="mt">⚙️ Настройки</div><button class="mc" onclick="closeModal('ov-settings')">×</button></div>
-  <div class="card">
-    <div class="fr"><label class="lbl">Название магазина</label><input type="text" class="fi" id="set-name" placeholder="Мой магазин" oninput="saveSetting()"></div>
-  </div>
-  <div class="card">
-    <div class="ctitle">Данные</div>
-    <button class="btn btn-gh" onclick="exportExcel()" style="margin-bottom:7px">⬇ Товары в Excel</button>
-    <button class="btn btn-gh" onclick="exportJson()" style="margin-bottom:7px">📤 Резервная копия</button>
-    <button class="btn btn-rd" onclick="clearAll()">🗑 Удалить все данные</button>
-  </div>
-  <div class="card">
-    <div class="ctitle">О приложении</div>
-    <div style="font-size:13px;color:var(--tx2);line-height:1.75">
-      <b style="color:var(--tx)">Мой Магазин</b> — кассовая система для малого бизнеса Кыргызстана.<br><br>
-      <span style="color:var(--tx3)">v6.0 · Умар Элдияров</span>
-    </div>
-    <a href="https://wa.me/996502516726" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;padding:13px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none;margin-top:13px">💬 Написать разработчику</a>
-  </div>
+ 
+<!-- ═══ ЭКРАН ВЫБОРА РОЛИ ═══ -->
+<div id="role-screen" class="role-screen">
+  <div class="role-logo">М</div>
+  <div class="role-title">Мой Магазин</div>
+  <div class="role-sub">Кто вы?</div>
+  <button class="role-btn role-btn-owner" onclick="showPinScreen()">
+    👑 Владелец
+  </button>
+  <button class="role-btn role-btn-cashier" onclick="loginAsCashier()">
+    🧾 Кассир
+  </button>
 </div>
+ 
+<!-- ═══ PIN ЭКРАН ═══ -->
+<div id="pin-screen" class="pin-screen" style="display:none">
+  <div class="pin-title">Введите PIN</div>
+  <div class="pin-sub" id="pin-sub-txt">Введите PIN владельца</div>
+  <div class="pin-dots">
+    <div class="pin-dot" id="pd0"></div>
+    <div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div>
+    <div class="pin-dot" id="pd3"></div>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+  <div class="pin-grid">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <button class="pin-key" onclick="pinKey('0')" style="grid-column:span 2">0</button>
+    <button class="pin-key" onclick="pinDel()">⌫</button>
+  </div>
+  <button class="pin-back" onclick="backToRoleScreen()">← Назад</button>
 </div>
  
 <div class="toast" id="toast"></div>
@@ -1110,17 +1247,14 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 // ══════════════════════════════════════════
 let _currentPage = 'kassa';
 function goPage(name, btn) {
-  // Если уходим с кассы — останавливаем камеру кассы
   if (_currentPage === 'kassa' && name !== 'kassa') stopKassaCamera();
-  // Если возвращаемся на кассу — запускаем камеру
   if (name === 'kassa') startKassaCamera();
- 
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('pg-'+name).classList.add('active');
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
   _currentPage = name;
-  ({sklad:renderSklad,products:renderProds,debts:renderDebts,report:renderReport})[name]?.();
+  ({sklad:renderSklad,products:renderProds,debts:()=>{renderDebts();renderSupDebts();},report:renderReport,settings:loadSettings})[name]?.();
 }
 function openModal(id){document.getElementById(id).classList.add('on');}
 function closeModal(id){document.getElementById(id).classList.remove('on');}
@@ -1476,6 +1610,7 @@ function goToPayment(){
   document.getElementById('ks2-items-count').textContent=`${kCart.length} позиции · ${totalQty} шт`;
   document.getElementById('ks2-debt-block').style.display='none';
   document.getElementById('ks2-buyer').value='';
+  document.getElementById('ks2-phone').value='';
   _selectedPayType=null;
   setKassaScreen('ks2');
 }
@@ -1537,6 +1672,8 @@ function confirmCheckout(){
   if(!kCart.length) return;
   const type=_selectedPayType;
   const buyer=type==='debt'?(document.getElementById('ks2-buyer').value||'').trim():'';
+  const phone=type==='debt'?(document.getElementById('ks2-phone').value||'').trim():'';
+  const fullPhone = phone ? '+996' + phone.replace(/\s/g,'') : '';
  
   const data=db(); const now=new Date().toISOString();
   let revenue=0,cost=0;
@@ -1554,9 +1691,16 @@ function confirmCheckout(){
   data.sales.push({id:uid(),date:now,items:saleItems,revenue,cost,profit,payType:type,buyer:buyer||null});
  
   if(type==='debt'){
+    const saleId = data.sales[data.sales.length-1].id;
     const ex=data.debts.find(d=>d.name.toLowerCase()===buyer.toLowerCase()&&!d.paid);
-    if(ex){ex.amount+=revenue;(ex.saleIds=ex.saleIds||[]).push(data.sales[data.sales.length-1].id);}
-    else data.debts.push({id:uid(),name:buyer,amount:revenue,date:now,saleIds:[data.sales[data.sales.length-1].id],paid:false,payments:[]});
+    if(ex){
+      ex.amount+=revenue;
+      (ex.saleIds=ex.saleIds||[]).push(saleId);
+      // Обновляем телефон если ввели
+      if(fullPhone) ex.phone=fullPhone;
+    } else {
+      data.debts.push({id:uid(),name:buyer,phone:fullPhone,amount:revenue,date:now,saleIds:[saleId],paid:false,payments:[]});
+    }
   }
  
   save(data);
@@ -1580,8 +1724,13 @@ document.getElementById('ks2-buyer').addEventListener('keydown',function(e){
 // SETTINGS
 // ══════════════════════════════════════════
 function openSettings(){
-  document.getElementById('set-name').value=localStorage.getItem('mm_name')||'';
-  openModal('ov-settings');
+  if(isOwner()) goPage('settings', document.getElementById('nb-settings'));
+}
+function loadSettings(){
+  const v=localStorage.getItem('mm_name')||'';
+  const el = document.getElementById('set-name');
+  if(el) el.value=v;
+  document.getElementById('hdr-store').textContent=v;
 }
 function saveSetting(){
   const v=document.getElementById('set-name').value.trim()||'Мой Магазин';
@@ -1597,6 +1746,57 @@ function initSettings(){
 // СКЛАД
 // ══════════════════════════════════════════
 let prikh_qtys={};
+let prikh_buys={};
+ 
+function pvUpdatePrice(oldBuy, oldSell) {
+  const inp = document.getElementById('pv-buy');
+  const info = document.getElementById('pv-price-info');
+  if (!inp || !info) return;
+  const ob = parseFloat(oldBuy) || 0;
+  const newBuy = parseFloat(inp.value) || 0;
+  if (!newBuy || !ob) { info.innerHTML=''; return; }
+  const diff = newBuy - ob;
+  const pct = ob > 0 ? Math.abs((diff/ob)*100).toFixed(0) : 0;
+  if (diff > 0) {
+    info.innerHTML=`<div style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:var(--rs);padding:9px 12px;font-size:12px;font-weight:700;color:var(--rd)">
+      📈 Цена выросла на ${fmt(diff)} сом (+${pct}%) · было ${fmt(ob)} сом</div>`;
+  } else if (diff < 0) {
+    info.innerHTML=`<div style="background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:9px 12px;font-size:12px;font-weight:700;color:var(--gn)">
+      📉 Цена снизилась на ${fmt(Math.abs(diff))} сом (-${pct}%) · было ${fmt(ob)} сом</div>`;
+  } else {
+    info.innerHTML=`<div style="font-size:12px;color:var(--tx3)">Цена не изменилась</div>`;
+  }
+}
+ 
+// Блок поставщика — общий HTML для обоих режимов
+function supplierBlockHTML() {
+  return `
+    <div id="sup-block" style="background:var(--ambg);border:1.5px solid var(--ambr);border-radius:var(--rs);padding:13px;margin-top:10px">
+      <label class="nobar-toggle" for="sup-debt-chk" style="margin-bottom:10px;cursor:pointer">
+        <input type="checkbox" id="sup-debt-chk" onchange="toggleSupBlock()">
+        <div style="font-size:13px;font-weight:700;color:var(--am)">🏭 Взяли в долг у поставщика</div>
+      </label>
+      <div id="sup-fields" style="display:none">
+        <div class="fr" style="margin-bottom:9px">
+          <label class="lbl">Название поставщика *</label>
+          <input type="text" class="fi" id="sup-name" placeholder="ИП Алибек, ООО Фудмаркет…">
+        </div>
+        <div>
+          <label class="lbl">Телефон поставщика</label>
+          <div style="display:flex;gap:0">
+            <div style="background:var(--sf2);border:1.5px solid var(--bd);border-right:none;border-radius:var(--rs) 0 0 var(--rs);padding:11px 12px;font-size:15px;font-weight:700;color:var(--tx2);white-space:nowrap;flex-shrink:0">+996</div>
+            <input type="text" class="fi" id="sup-phone" placeholder="700 123 456" inputmode="numeric" maxlength="13" style="border-radius:0 var(--rs) var(--rs) 0;border-left:none" oninput="formatPhone(this)">
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+ 
+function toggleSupBlock() {
+  const on = document.getElementById('sup-debt-chk').checked;
+  document.getElementById('sup-fields').style.display = on ? '' : 'none';
+}
+ 
 function openPrikhod(mode){
   prikh_qtys={};
   const body=document.getElementById('prikhod-body');
@@ -1608,7 +1808,8 @@ function openPrikhod(mode){
         </div></div>
         <div class="svs" id="pv-st">Сканируйте штрихкод</div>
       </div>
-      <div id="pv-res"></div>`;
+      <div id="pv-res"></div>
+      ${supplierBlockHTML()}`;
     openModal('ov-prikhod');
     _startReader('pv','pv-st',code=>{
       const p=db().products.find(x=>x.barcode===code||x.name.toLowerCase()===code.toLowerCase());
@@ -1616,15 +1817,30 @@ function openPrikhod(mode){
       const st=p?getStock(p.id):0;
       document.getElementById('pv-st').textContent=p?`✓ ${p.name}`:'Не найден: '+code;
       if(p){
-        area.innerHTML=`<div style="background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:13px;margin-top:4px">
-          <div style="font-size:15px;font-weight:800;margin-bottom:5px">${p.emoji||'📦'} ${p.name}</div>
-          <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">Текущий остаток: <b>${st} ${p.unit||'шт'}</b></div>
-          <label class="lbl">Количество прихода *</label>
-          <div style="display:flex;gap:8px;margin-top:4px">
-            <input type="number" class="fi" id="pv-qty" value="1" min="1" inputmode="numeric" style="flex:1" onclick="this.select()">
-            <button class="btn btn-gn" style="width:auto;padding:0 20px" onclick="doArrival('${p.id}','pv-qty')">✓ Принять</button>
-          </div>
-        </div>`;
+        area.innerHTML=`
+          <div style="background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:13px;margin-top:4px">
+            <div style="font-size:15px;font-weight:800;margin-bottom:5px">${p.emoji||'📦'} ${p.name}</div>
+            <div style="font-size:12px;color:var(--tx2);margin-bottom:12px">Остаток: <b>${st} ${p.unit||'шт'}</b></div>
+ 
+            <div class="fr2" style="margin-bottom:8px">
+              <div>
+                <label class="lbl">Закупочная цена этой партии *</label>
+                <input type="number" class="fi" id="pv-buy" value="${p.buyPrice}" min="0" step="0.01"
+                  inputmode="decimal" onclick="this.select()"
+                  oninput="pvUpdatePrice(this.dataset.old, this.dataset.sell)" data-old="${p.buyPrice}" data-sell="${p.sellPrice}">
+              </div>
+              <div>
+                <label class="lbl">Количество *</label>
+                <input type="number" class="fi" id="pv-qty" value="1" min="1"
+                  inputmode="numeric" onclick="this.select()">
+              </div>
+            </div>
+ 
+            <div id="pv-price-info" style="margin-bottom:10px"></div>
+ 
+            <button class="btn btn-gn" onclick="doArrival('${p.id}','pv-qty','pv-buy')">✓ Принять</button>
+          </div>`;
+        pvUpdatePrice(p.buyPrice, p.sellPrice);
       } else {
         area.innerHTML=`<div style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:var(--rs);padding:13px;text-align:center;margin-top:4px">
           <div style="font-size:13px;color:var(--rd);font-weight:700;margin-bottom:5px">Товар не найден</div>
@@ -1635,22 +1851,102 @@ function openPrikhod(mode){
   } else {
     body.innerHTML=`
       <div class="sw"><span class="sw-ic">🔍</span><input type="text" class="fi" id="pk-q" placeholder="Поиск товара…" oninput="renderPrikhList()"></div>
-      <div id="pk-list" style="max-height:300px;overflow-y:auto"></div>
+      <div id="pk-list" style="max-height:240px;overflow-y:auto"></div>
+      ${supplierBlockHTML()}
       <button class="btn btn-dk" onclick="applyPrikhod()" style="margin-top:10px">✓ Оприходовать</button>`;
     openModal('ov-prikhod');
     renderPrikhList();
   }
 }
  
-function doArrival(pid,qtyId){
+// Создать долг поставщику из прихода
+function createSupDebtFromArrival(items, now) {
+  const supName = (document.getElementById('sup-name')?.value||'').trim();
+  if (!supName) { toast('⚠️ Введите название поставщика'); return false; }
+  const phone = (document.getElementById('sup-phone')?.value||'').trim();
+  const fullPhone = phone ? '+996' + phone.replace(/\s/g,'') : '';
+  const totalAmt = items.reduce((s,i) => s + i.buyPrice * i.qty, 0);
+ 
+  // Читаем свежие данные
+  const raw = localStorage.getItem('mm6');
+  const data = raw ? JSON.parse(raw) : {products:[],operations:[],sales:[],debts:[]};
+  if (!data.supDebts) data.supDebts = [];
+ 
+  const ex = data.supDebts.find(d => d.name.toLowerCase()===supName.toLowerCase() && !d.paid);
+  if (ex) {
+    ex.amount += totalAmt;
+    if (fullPhone) ex.phone = fullPhone;
+    ex.arrivals = ex.arrivals || [];
+    ex.arrivals.push({ date: now, items, totalAmt });
+  } else {
+    data.supDebts.push({
+      id: uid(), name: supName, phone: fullPhone,
+      amount: totalAmt, date: now, paid: false, payments: [],
+      arrivals: [{ date: now, items, totalAmt }]
+    });
+  }
+  localStorage.setItem('mm6', JSON.stringify(data));
+  return true;
+}
+ 
+function doArrival(pid, qtyId, buyPriceId){
   const qty=parseInt(document.getElementById(qtyId).value)||0;
   if(qty<=0){toast('⚠️ Введите количество');return;}
-  const data=db(); const p=data.products.find(x=>x.id===pid); if(!p) return;
-  data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:p.buyPrice,note:'Приход от поставщика',date:new Date().toISOString()});
+  const data=db();
+  const p=data.products.find(x=>x.id===pid); if(!p) return;
+  const now=new Date().toISOString();
+ 
+  // Новая закупочная цена из поля ввода
+  const newBuyPrice = buyPriceId
+    ? (parseFloat(document.getElementById(buyPriceId)?.value)||p.buyPrice)
+    : p.buyPrice;
+  const oldBuyPrice = p.buyPrice;
+  if (newBuyPrice !== oldBuyPrice) p.buyPrice = newBuyPrice;
+ 
+  // Операция прихода с актуальной ценой
+  data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:newBuyPrice,note:'Приход от поставщика',date:now});
+ 
+  // Долг поставщику — записываем в тот же объект data
+  const isDebt = document.getElementById('sup-debt-chk')?.checked;
+  let supOk = true;
+  if (isDebt) {
+    const supName = (document.getElementById('sup-name')?.value||'').trim();
+    if (!supName) { toast('⚠️ Введите название поставщика'); return; }
+    const phone = (document.getElementById('sup-phone')?.value||'').trim();
+    const fullPhone = phone ? '+996'+phone.replace(/\s/g,'') : '';
+    const totalAmt = newBuyPrice * qty;
+    if (!data.supDebts) data.supDebts = [];
+    const ex = data.supDebts.find(d=>d.name.toLowerCase()===supName.toLowerCase()&&!d.paid);
+    if (ex) {
+      ex.amount += totalAmt;
+      if (fullPhone) ex.phone = fullPhone;
+      ex.arrivals = ex.arrivals||[];
+      ex.arrivals.push({date:now,items:[{name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuyPrice}],totalAmt});
+    } else {
+      data.supDebts.push({
+        id:uid(), name:supName, phone:fullPhone,
+        amount:totalAmt, date:now, paid:false, payments:[],
+        arrivals:[{date:now,items:[{name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuyPrice}],totalAmt}]
+      });
+    }
+  }
+ 
+  // Один save — всё вместе
   save(data);
+ 
   const ns=getStock(pid,data.operations);
-  document.getElementById('pv-res').innerHTML=`<div style="text-align:center;padding:16px;color:var(--gn);font-weight:800;font-size:15px">✓ Принято ${qty} ${p.unit||'шт'}<br><span style="font-size:12px;font-weight:600;color:var(--tx2)">Новый остаток: ${ns} ${p.unit||'шт'}</span></div>`;
-  toast(`✓ ${p.name} +${qty}`);
+  const priceChangeTxt = newBuyPrice!==oldBuyPrice
+    ? `<br><span style="font-size:12px;font-weight:700;color:${newBuyPrice>oldBuyPrice?'var(--rd)':'var(--gn)'}">
+        ${newBuyPrice>oldBuyPrice?'📈':'📉'} Закупочная: ${fmt(oldBuyPrice)} → ${fmt(newBuyPrice)} сом</span>`
+    : '';
+  document.getElementById('pv-res').innerHTML=`
+    <div style="text-align:center;padding:16px;color:var(--gn);font-weight:800;font-size:15px">
+      ✓ Принято ${qty} ${p.unit||'шт'}<br>
+      <span style="font-size:12px;font-weight:600;color:var(--tx2)">Новый остаток: ${ns} ${p.unit||'шт'}</span>
+      ${priceChangeTxt}
+      ${isDebt?`<br><span style="font-size:12px;font-weight:700;color:var(--am)">🏭 Долг поставщику: ${fmt(newBuyPrice*qty)} сом</span>`:''}
+    </div>`;
+  toast(`✓ ${p.name} +${qty}${newBuyPrice!==oldBuyPrice?` · цена ${fmt(oldBuyPrice)}→${fmt(newBuyPrice)} сом`:''}${isDebt?` · долг записан`:''}`);
   renderSklad();
 }
  
@@ -1661,22 +1957,84 @@ function renderPrikhList(){
   if(!filtered.length){el.innerHTML=`<div class="empty" style="padding:14px 0"><div class="et">Нет товаров</div></div>`;return;}
   el.innerHTML=filtered.map(p=>{
     const st=getStock(p.id,data.operations);
-    return `<div class="arr-row"><span style="font-size:22px">${p.emoji||'📦'}</span>
-      <div class="arr-info"><div class="arr-name">${p.name}</div><div class="arr-sub">Остаток: ${st} ${p.unit||'шт'}</div></div>
-      <input type="number" class="fi arr-qty-in" id="pk-${p.id}" value="${prikh_qtys[p.id]||''}" placeholder="0" min="0" inputmode="numeric"
-        oninput="prikh_qtys['${p.id}']=parseInt(this.value)||0" onclick="this.select()">
-      <span style="font-size:11px;color:var(--tx3)">${p.unit||'шт'}</span>
+    return `<div class="arr-row" style="flex-wrap:wrap;gap:6px">
+      <div style="display:flex;align-items:center;gap:8px;width:100%">
+        <span style="font-size:22px">${p.emoji||'📦'}</span>
+        <div class="arr-info">
+          <div class="arr-name">${p.name}</div>
+          <div class="arr-sub">Остаток: ${st} ${p.unit||'шт'} · Текущая закупочная: ${fmt(p.buyPrice)} сом</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;width:100%;align-items:center">
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Закупочная цена (сом)</div>
+          <input type="number" class="fi" id="pb-${p.id}" value="${p.buyPrice}" min="0" step="0.01"
+            inputmode="decimal" onclick="this.select()"
+            style="padding:8px 10px;font-size:14px"
+            oninput="prikh_buys['${p.id}']=parseFloat(this.value)||0">
+        </div>
+        <div style="flex:1">
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Количество (${p.unit||'шт'})</div>
+          <input type="number" class="fi arr-qty-in" id="pk-${p.id}" value="${prikh_qtys[p.id]||''}" placeholder="0" min="0"
+            inputmode="numeric" onclick="this.select()"
+            style="padding:8px 10px;font-size:14px"
+            oninput="prikh_qtys['${p.id}']=parseInt(this.value)||0">
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
  
 function applyPrikhod(){
   const data=db(); let count=0; const now=new Date().toISOString();
+  const arrivedItems=[];
+  const priceChanges=[];
+ 
   Object.entries(prikh_qtys).forEach(([pid,qty])=>{
-    if(qty>0){const p=data.products.find(x=>x.id===pid);if(p){data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:p.buyPrice,note:'Приход (вручную)',date:now});count++;}}
+    if(qty>0){
+      const p=data.products.find(x=>x.id===pid);
+      if(p){
+        // Берём новую закупочную цену из поля pb-{pid}
+        const newBuy = parseFloat(document.getElementById('pb-'+pid)?.value) || p.buyPrice;
+        const oldBuy = p.buyPrice;
+        if (newBuy !== oldBuy) {
+          p.buyPrice = newBuy;
+          priceChanges.push(`${p.name}: ${fmt(oldBuy)}→${fmt(newBuy)} сом`);
+        }
+        data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:newBuy,note:'Приход (вручную)',date:now});
+        arrivedItems.push({name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuy});
+        count++;
+      }
+    }
   });
   if(!count){toast('⚠️ Укажите количество');return;}
-  save(data); prikh_qtys={}; closePrikhod(); renderSklad(); toast(`✓ Оприходовано ${count} позиций`);
+ 
+  // Долг поставщику
+  const isDebt = document.getElementById('sup-debt-chk')?.checked;
+  if (isDebt) {
+    const supName=(document.getElementById('sup-name')?.value||'').trim();
+    if(!supName){toast('⚠️ Введите название поставщика');return;}
+    const phone=(document.getElementById('sup-phone')?.value||'').trim();
+    const fullPhone=phone?'+996'+phone.replace(/\s/g,''):'';
+    const totalAmt=arrivedItems.reduce((s,i)=>s+i.buyPrice*i.qty,0);
+    if(!data.supDebts) data.supDebts=[];
+    const ex=data.supDebts.find(d=>d.name.toLowerCase()===supName.toLowerCase()&&!d.paid);
+    if(ex){
+      ex.amount+=totalAmt;
+      if(fullPhone) ex.phone=fullPhone;
+      ex.arrivals=ex.arrivals||[];
+      ex.arrivals.push({date:now,items:arrivedItems,totalAmt});
+    } else {
+      data.supDebts.push({id:uid(),name:supName,phone:fullPhone,amount:totalAmt,date:now,paid:false,payments:[],
+        arrivals:[{date:now,items:arrivedItems,totalAmt}]});
+    }
+  }
+ 
+  save(data);
+  prikh_qtys={}; prikh_buys={};
+  closePrikhod(); renderSklad();
+  const changesTxt = priceChanges.length ? ` · цены обновлены: ${priceChanges.join(', ')}` : '';
+  toast(`✓ Оприходовано ${count} позиций${changesTxt}${isDebt?' · долг записан':''}`);
 }
  
 function closePrikhod(){_stopReader('pv');closeModal('ov-prikhod');}
@@ -1930,35 +2288,79 @@ function renderDebts(){
       </div></div>`;
   }).join('');
 }
+// Форматирование телефона: 700123456 → 700 123 456
+function formatPhone(inp) {
+  let v = inp.value.replace(/\D/g,'');
+  if (v.length > 9) v = v.slice(0,9);
+  // Формат: 700 123 456
+  if (v.length > 6) v = v.slice(0,3)+' '+v.slice(3,6)+' '+v.slice(6);
+  else if (v.length > 3) v = v.slice(0,3)+' '+v.slice(3);
+  inp.value = v;
+}
+ 
 function openDebtDetail(id){
   const data=db(); const d=data.debts.find(x=>x.id===id); if(!d) return;
   _activeDebt=id;
   document.getElementById('debt-mname').textContent=d.name;
   const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+ 
+  // История покупок детально
   const sales=(d.saleIds||[]).map(sid=>data.sales.find(s=>s.id===sid)).filter(Boolean);
+ 
+  // Для WhatsApp — подробный список
   const salesText=sales.map(s=>{
     const dt=new Date(s.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-    const items=s.items.map(i=>`${i.name} × ${i.qty} = ${fmt(i.subRev||i.sellPrice*i.qty)} сом`).join(', ');
-    return `${dt}: ${items}`;
-  }).join('\n');
+    const items=s.items.map(i=>`  • ${i.name} × ${i.qty} ${i.unit||'шт'} = ${fmt(i.subRev||i.sellPrice*i.qty)} сом`).join('\n');
+    return `${dt}:\n${items}`;
+  }).join('\n\n');
   _activeDebtWAData={name:d.name,phone:d.phone||'',amount:d.amount,salesText};
-  const ph=(d.payments||[]).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${new Date(p.date).toLocaleDateString('ru-RU')}</span><span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span></div>`).join('');
+ 
+  // История выплат
+  const ph=(d.payments||[]).map(p=>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px">
+      <span>${new Date(p.date).toLocaleDateString('ru-RU')}</span>
+      <span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span>
+    </div>`).join('');
+ 
+  // Детальная история покупок
+  const salesHtml = sales.map(s=>{
+    const dt=new Date(s.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const items=s.items.map(i=>
+      `<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);padding:2px 0">
+        <span>${i.name} × ${i.qty} ${i.unit||'шт'}</span>
+        <span style="font-weight:700">${fmt(i.subRev||i.sellPrice*i.qty)} сом</span>
+      </div>`).join('');
+    return `<div style="background:var(--sf2);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px">
+      <div style="font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:5px">${dt}</div>
+      ${items}
+      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--bd);margin-top:5px;padding-top:5px;font-size:12px;font-weight:800">
+        <span>Итого</span><span style="color:var(--rd)">${fmt(s.revenue)} сом</span>
+      </div>
+    </div>`;
+  }).join('');
+ 
   document.getElementById('debt-mbody').innerHTML=`
-    <div style="text-align:center;padding:14px 0 10px">
-      <div style="font-size:34px;font-weight:800;color:var(--rd);letter-spacing:-.03em">${fmt(d.amount)} сом</div>
-      <div style="font-size:12px;color:var(--tx3);margin-top:4px">С ${date} · ${sales.length} покупок</div>
-      ${d.phone?`<a href="tel:${d.phone}" style="display:inline-block;margin-top:5px;font-size:13px;color:var(--bl);font-weight:700">📞 ${d.phone}</a>`:''}
+    <div style="text-align:center;padding:14px 0 12px">
+      <div style="font-size:36px;font-weight:800;color:var(--rd);letter-spacing:-.03em">${fmt(d.amount)} сом</div>
+      <div style="font-size:12px;color:var(--tx3);margin-top:4px">С ${date}</div>
+      ${d.phone
+        ? `<a href="tel:${d.phone}" style="display:inline-flex;align-items:center;gap:5px;margin-top:7px;font-size:13px;color:var(--bl);font-weight:700;text-decoration:none">📞 ${d.phone}</a>`
+        : '<div style="font-size:11px;color:var(--tx3);margin-top:6px">Телефон не указан</div>'}
     </div>
-    ${ph?`<div class="slbl" style="margin-top:8px">Выплаты</div>${ph}`:''}`;
-  document.getElementById('debt-wa-wrap').style.display=d.phone?'':'none';
+    ${salesHtml ? `<div style="margin-bottom:10px"><div class="slbl">История покупок</div>${salesHtml}</div>` : ''}
+    ${ph ? `<div style="margin-bottom:4px"><div class="slbl">Выплаты</div>${ph}</div>` : ''}`;
+ 
+  document.getElementById('debt-wa-wrap').style.display = d.phone ? '' : 'none';
   document.getElementById('partial-amt').value='';
   openModal('ov-debt');
 }
 function sendDebtWA(){
   if(!_activeDebtWAData) return;
   const {name,phone,amount,salesText}=_activeDebtWAData;
-  const msg=`Здравствуйте, ${name}!\n\nНапоминаем о задолженности.\n\nСумма долга: ${fmt(amount)} сом\n\nПокупки:\n${salesText}\n\nПросьба погасить при следующем визите. Спасибо!`;
-  window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');
+  const storeName = localStorage.getItem('mm_name')||'Мой Магазин';
+  const msg=`Здравствуйте, ${name}!\n\n${storeName} напоминает о задолженности.\n\n💰 Сумма долга: ${fmt(amount)} сом\n\n📋 Что брали:\n${salesText}\n\nПросьба погасить долг при следующем визите.\nСпасибо! 🙏`;
+  const num=phone.replace(/\D/g,'');
+  window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 function partialPay(){
   const amt=parseFloat(document.getElementById('partial-amt').value)||0; if(amt<=0){toast('⚠️ Введите сумму');return;}
@@ -2014,17 +2416,40 @@ function openSupDetail(id){
   _activeSupDebt=id;
   document.getElementById('sdd-name').textContent=d.name;
   const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-  _activeSupWAData={name:d.name,phone:d.phone||'',amount:d.amount,goods:d.goods||'',date};
-  const ph=(d.payments||[]).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><span>${new Date(p.date).toLocaleDateString('ru-RU')}</span><span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span></div>`).join('');
+  _activeSupWAData={name:d.name,phone:d.phone||'',amount:d.amount,goods:'',date};
+ 
+  // История приходов от этого поставщика
+  const arrivalsHtml = (d.arrivals||[]).slice().reverse().map(a=>{
+    const dt=new Date(a.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const items=a.items.map(i=>
+      `<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);padding:2px 0">
+        <span>${i.emoji||'📦'} ${i.name} × ${i.qty} ${i.unit||'шт'}</span>
+        <span style="font-weight:700">${fmt(i.buyPrice*i.qty)} сом</span>
+      </div>`).join('');
+    return `<div style="background:var(--sf2);border-radius:var(--rs);padding:10px 12px;margin-bottom:6px">
+      <div style="font-size:11px;font-weight:700;color:var(--tx3);margin-bottom:5px">${dt}</div>
+      ${items}
+      <div style="display:flex;justify-content:space-between;border-top:1px solid var(--bd);margin-top:5px;padding-top:5px;font-size:12px;font-weight:800">
+        <span>Итого</span><span style="color:var(--am)">${fmt(a.totalAmt)} сом</span>
+      </div>
+    </div>`;
+  }).join('');
+ 
+  const ph=(d.payments||[]).map(p=>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px">
+      <span>${new Date(p.date).toLocaleDateString('ru-RU')}</span>
+      <span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span>
+    </div>`).join('');
+ 
   document.getElementById('sdd-body').innerHTML=`
     <div style="text-align:center;padding:14px 0 10px">
       <div style="font-size:32px;font-weight:800;color:var(--am)">${fmt(d.amount)} сом</div>
-      <div style="font-size:12px;color:var(--tx3);margin-top:4px">${date}</div>
-      ${d.phone?`<a href="tel:${d.phone}" style="display:inline-block;margin-top:5px;font-size:13px;color:var(--bl);font-weight:700">📞 ${d.phone}</a>`:''}
+      <div style="font-size:12px;color:var(--tx3);margin-top:4px">С ${date}</div>
+      ${d.phone?`<a href="tel:${d.phone}" style="display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:13px;color:var(--bl);font-weight:700;text-decoration:none">📞 ${d.phone}</a>`:''}
     </div>
-    ${d.goods?`<div style="background:var(--sf2);border-radius:var(--rs);padding:12px;margin-bottom:8px;font-size:13px;line-height:1.7">${d.goods.replace(/\n/g,'<br>')}</div>`:''}
-    ${d.note?`<div style="font-size:12px;color:var(--tx2);margin-bottom:8px">${d.note}</div>`:''}
-    ${ph?`<div class="slbl">Выплаты</div>${ph}`:''}`;
+    ${arrivalsHtml?`<div style="margin-bottom:10px"><div class="slbl">История приходов</div>${arrivalsHtml}</div>`:''}
+    ${ph?`<div><div class="slbl">Выплаты</div>${ph}</div>`:''}`;
+ 
   document.getElementById('sdd-wa-wrap').style.display=d.phone?'':'none';
   document.getElementById('sd-partial').value='';
   openModal('ov-sup-detail');
@@ -2051,41 +2476,481 @@ function supQuickPaid(id){const data=db();const d=(data.supDebts||[]).find(x=>x.
 // ══════════════════════════════════════════
 let _period='day';
 function setPeriod(p,btn){_period=p;document.querySelectorAll('.pt').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderReport();}
+ 
+function filterSales(data, period, offsetDays=0) {
+  const now = new Date();
+  return data.sales.filter(s=>{
+    const d=new Date(s.date);
+    if(period==='day'){
+      const target=new Date(now); target.setDate(target.getDate()-offsetDays);
+      return d.toDateString()===target.toDateString();
+    }
+    if(period==='week'){
+      const from=new Date(now); from.setDate(from.getDate()-7*(offsetDays+1));
+      const to=new Date(now); to.setDate(to.getDate()-7*offsetDays);
+      return d>=from&&d<to;
+    }
+    if(period==='month'){
+      const from=new Date(now); from.setDate(from.getDate()-30*(offsetDays+1));
+      const to=new Date(now); to.setDate(to.getDate()-30*offsetDays);
+      return d>=from&&d<to;
+    }
+    return true;
+  });
+}
+ 
 function renderReport(){
-  const data=db();const now=new Date();
-  const sales=data.sales.filter(s=>{const d=new Date(s.date);if(_period==='day')return d.toDateString()===now.toDateString();if(_period==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}if(_period==='month'){const m=new Date(now);m.setDate(m.getDate()-30);return d>=m;}return true;});
-  const revenue=sales.reduce((s,x)=>s+x.revenue,0);const cost=sales.reduce((s,x)=>s+x.cost,0);const profit=revenue-cost;const margin=revenue>0?(profit/revenue*100).toFixed(1):0;
-  document.getElementById('r-rev').textContent=fmt(revenue);document.getElementById('r-cost').textContent=fmt(cost);document.getElementById('r-profit').textContent=fmt(profit);document.getElementById('r-pct').textContent=margin+'% маржа';document.getElementById('r-sales').textContent=sales.length;
+  const data=db(); const now=new Date();
+ 
+  // Текущий период
+  const sales=filterSales(data,_period,0);
+  const revenue=sales.reduce((s,x)=>s+x.revenue,0);
+  const cost=sales.reduce((s,x)=>s+x.cost,0);
+  const profit=revenue-cost;
+  const margin=revenue>0?(profit/revenue*100).toFixed(1):0;
+  const avgCheck=sales.length>0?Math.round(revenue/sales.length):0;
+ 
+  // Z-отчёт — только для сегодня
+  document.getElementById('z-report-btn-wrap').style.display=_period==='day'?'':'none';
+ 
+  // KPI
+  document.getElementById('r-rev').textContent=fmt(revenue);
+  document.getElementById('r-cost').textContent=fmt(cost);
+  document.getElementById('r-profit').textContent=fmt(profit);
+  document.getElementById('r-pct').textContent=margin+'% маржа';
+  document.getElementById('r-avg').textContent=fmt(avgCheck);
+  document.getElementById('r-sales-sub').textContent=sales.length+' чеков';
+ 
+  // Сравнение с прошлым периодом (не для "всё время")
+  const cmp=document.getElementById('r-compare');
+  if(_period!=='all'){
+    const prevSales=filterSales(data,_period,1);
+    const prevRev=prevSales.reduce((s,x)=>s+x.revenue,0);
+    const diff=revenue-prevRev;
+    const diffPct=prevRev>0?((diff/prevRev)*100).toFixed(0):0;
+    const periodName={day:'вчера',week:'прошлую неделю',month:'прошлый месяц'}[_period];
+    const color=diff>=0?'var(--gn)':'var(--rd)';
+    const arrow=diff>=0?'↑':'↓';
+    cmp.innerHTML=prevRev>0?`
+      <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:11px 14px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:12px;color:var(--tx2);font-weight:500">vs ${periodName}: ${fmt(prevRev)} сом</span>
+        <span style="font-size:13px;font-weight:800;color:${color}">${arrow} ${fmt(Math.abs(diff))} сом (${Math.abs(diffPct)}%)</span>
+      </div>`:'';
+  } else { cmp.innerHTML=''; }
+ 
+  // По способу оплаты
   document.getElementById('pb-cash').textContent=fmt(sales.filter(s=>s.payType==='cash').reduce((s,x)=>s+x.revenue,0));
   document.getElementById('pb-card').textContent=fmt(sales.filter(s=>s.payType==='card').reduce((s,x)=>s+x.revenue,0));
   document.getElementById('pb-qr').textContent=fmt(sales.filter(s=>s.payType==='qr').reduce((s,x)=>s+x.revenue,0));
   document.getElementById('pb-debt').textContent=fmt(sales.filter(s=>s.payType==='debt').reduce((s,x)=>s+x.revenue,0));
-  const tm={};sales.forEach(s=>s.items.forEach(it=>{if(!tm[it.name])tm[it.name]={rev:0,qty:0,profit:0};tm[it.name].rev+=it.subRev||(it.sellPrice*it.qty);tm[it.name].qty+=it.qty;tm[it.name].profit+=(it.subRev||0)-(it.subCost||0);}));
+ 
+  // Долги покупателей в отчёте
+  const activeDebts=(data.debts||[]).filter(d=>!d.paid);
+  const totalDebt=activeDebts.reduce((s,d)=>s+d.amount,0);
+  const debtRevenue=sales.filter(s=>s.payType==='debt').reduce((s,x)=>s+x.revenue,0);
+  const realCash=revenue-debtRevenue;
+  document.getElementById('r-debts-summary').innerHTML=totalDebt>0?`
+    <div style="background:var(--ambg);border:1.5px solid var(--ambr);border-radius:var(--r);padding:13px 14px">
+      <div style="font-size:11px;font-weight:700;color:var(--am);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Долги покупателей</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;color:var(--tx2)">Выручка за период</span>
+        <span style="font-size:13px;font-weight:700">${fmt(revenue)} сом</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;color:var(--tx2)">Продано в долг</span>
+        <span style="font-size:13px;font-weight:700;color:var(--am)">−${fmt(debtRevenue)} сом</span>
+      </div>
+      <div style="height:1px;background:var(--ambr);margin:8px 0"></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:700">Реально получено</span>
+        <span style="font-size:16px;font-weight:800;color:var(--gn)">${fmt(realCash)} сом</span>
+      </div>
+      <div style="font-size:12px;color:var(--am);font-weight:600">Всего долгов покупателей: ${fmt(totalDebt)} сом (${activeDebts.length} чел.)</div>
+    </div>`:'';
+ 
+  // Что заканчивается (из склада)
+  const stocks=getAllStocks();
+  const lowStock=data.products.filter(p=>{const st=stocks[p.id]||0;return st<=0||(st<=(p.minStock||5));});
+  const lowCard=document.getElementById('r-lowstock-card');
+  const lowEl=document.getElementById('r-lowstock');
+  if(!lowStock.length){
+    lowCard.style.display='none';
+  } else {
+    lowCard.style.display='';
+    lowEl.innerHTML=lowStock.map(p=>{
+      const st=stocks[p.id]||0;
+      const cls=st<=0?'ch-r':'ch-a';
+      const txt=st<=0?'⛔ Нет':'⚠️ '+st+' '+( p.unit||'шт');
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
+        <span style="font-size:20px">${p.emoji||'📦'}</span>
+        <span style="flex:1;font-size:13px;font-weight:600">${p.name}</span>
+        <span class="chip ${cls}">${txt}</span>
+      </div>`;
+    }).join('');
+  }
+ 
+  // Топ товаров
+  const tm={};
+  sales.forEach(s=>s.items.forEach(it=>{
+    if(!tm[it.name])tm[it.name]={rev:0,qty:0,profit:0};
+    tm[it.name].rev+=it.subRev||(it.sellPrice*it.qty);
+    tm[it.name].qty+=it.qty;
+    tm[it.name].profit+=(it.subRev||0)-(it.subCost||0);
+  }));
   const top=Object.entries(tm).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
-  document.getElementById('r-top').innerHTML=top.length?top.map(([name,v],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:800;color:var(--tx3);min-width:16px">${i+1}</span><div><div style="font-size:13px;font-weight:700">${name}</div><div style="font-size:11px;color:var(--tx3)">${v.qty} шт · прибыль ${fmt(v.profit)} сом</div></div></div><div style="font-size:14px;font-weight:800;color:var(--gn)">${fmt(v.rev)}</div></div>`).join(''):`<div class="empty" style="padding:14px 0"><div class="et">Нет данных</div></div>`;
+  document.getElementById('r-top').innerHTML=top.length
+    ?top.map(([name,v],i)=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:11px;font-weight:800;color:var(--tx3);min-width:16px">${i+1}</span>
+          <div>
+            <div style="font-size:13px;font-weight:700">${name}</div>
+            <div style="font-size:11px;color:var(--tx3)">${v.qty} шт · прибыль ${fmt(v.profit)} сом</div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:800;color:var(--gn)">${fmt(v.rev)}</div>
+      </div>`).join('')
+    :`<div class="empty" style="padding:14px 0"><div class="et">Нет данных</div></div>`;
+ 
+  // История продаж
   const log=document.getElementById('sales-log');
   if(!sales.length){log.innerHTML=`<div class="empty" style="padding:14px 0"><div class="ei">📊</div><div class="et">Нет продаж</div></div>`;return;}
-  const pi={cash:'💵',card:'💳',qr:'📱',debt:'🧾'};const pl={cash:'Нал',card:'Карта',qr:'QR',debt:'Долг'};
-  log.innerHTML=[...sales].reverse().slice(0,40).map(s=>{const t=new Date(s.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});const lbl=s.items.length===1?s.items[0].name:`${s.items.length} позиций`;
-    return `<div class="sr"><div><div class="sr-name">${pi[s.payType]||'✓'} ${lbl}${s.buyer?` — ${s.buyer}`:''}</div><div class="sr-t">${t}</div></div><div class="sr-right"><div class="sr-amt" style="color:${s.payType==='debt'?'var(--am)':'var(--gn)'}">${fmt(s.revenue)} сом</div><div class="sr-pay">${pl[s.payType]||''}</div></div></div>`;
+  const pi={cash:'💵',card:'💳',qr:'📱',debt:'🧾'};
+  const pl={cash:'Нал',card:'Карта',qr:'QR',debt:'Долг'};
+  log.innerHTML=[...sales].reverse().slice(0,40).map(s=>{
+    const t=new Date(s.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const lbl=s.items.length===1?s.items[0].name:`${s.items.length} позиций`;
+    return `<div class="sr">
+      <div><div class="sr-name">${pi[s.payType]||'✓'} ${lbl}${s.buyer?` — ${s.buyer}`:''}</div><div class="sr-t">${t}</div></div>
+      <div class="sr-right">
+        <div class="sr-amt" style="color:${s.payType==='debt'?'var(--am)':'var(--gn)'}">${fmt(s.revenue)} сом</div>
+        <div class="sr-pay">${pl[s.payType]||''}</div>
+      </div>
+    </div>`;
   }).join('');
 }
+ 
+// Z-ОТЧЁТ — итог дня
+function showZReport(){
+  const data=db(); const now=new Date();
+  const todaySales=filterSales(data,'day',0);
+  const revenue=todaySales.reduce((s,x)=>s+x.revenue,0);
+  const cost=todaySales.reduce((s,x)=>s+x.cost,0);
+  const profit=revenue-cost;
+  const cash=todaySales.filter(s=>s.payType==='cash').reduce((s,x)=>s+x.revenue,0);
+  const card=todaySales.filter(s=>s.payType==='card').reduce((s,x)=>s+x.revenue,0);
+  const qr=todaySales.filter(s=>s.payType==='qr').reduce((s,x)=>s+x.revenue,0);
+  const debt=todaySales.filter(s=>s.payType==='debt').reduce((s,x)=>s+x.revenue,0);
+  const avgCheck=todaySales.length>0?Math.round(revenue/todaySales.length):0;
+  const storeName=localStorage.getItem('mm_name')||'Мой Магазин';
+  const dateStr=now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+ 
+  // Сколько принято приходов сегодня
+  const todayArrivals=data.operations.filter(o=>o.type==='arrival'&&new Date(o.date).toDateString()===now.toDateString());
+  const arrivalCost=todayArrivals.reduce((s,o)=>s+(o.buyPrice*o.qty),0);
+ 
+  document.getElementById('z-report-body').innerHTML=`
+    <div style="text-align:center;padding:16px 0 12px;border-bottom:1px solid var(--bd);margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--tx2)">${storeName}</div>
+      <div style="font-size:11px;color:var(--tx3);margin-top:3px">${dateStr}</div>
+    </div>
+ 
+    <div style="margin-bottom:14px">
+      <div class="slbl">Продажи</div>
+      ${rowZ('Выручка', fmt(revenue)+' сом', 'var(--gn)')}
+      ${rowZ('Себестоимость', fmt(cost)+' сом', 'var(--rd)')}
+      ${rowZ('Прибыль', fmt(profit)+' сом', 'var(--bl)')}
+      ${rowZ('Количество чеков', todaySales.length+' шт')}
+      ${rowZ('Средний чек', fmt(avgCheck)+' сом')}
+    </div>
+ 
+    <div style="margin-bottom:14px">
+      <div class="slbl">По способу оплаты</div>
+      ${rowZ('💵 Наличные', fmt(cash)+' сом')}
+      ${rowZ('💳 Карта', fmt(card)+' сом')}
+      ${rowZ('📱 QR', fmt(qr)+' сом')}
+      ${rowZ('🧾 В долг', fmt(debt)+' сом', 'var(--am)')}
+    </div>
+ 
+    ${todayArrivals.length?`
+    <div style="margin-bottom:14px">
+      <div class="slbl">Приходы сегодня</div>
+      ${rowZ('Товаров принято', todayArrivals.length+' операций')}
+      ${rowZ('Сумма закупок', fmt(arrivalCost)+' сом', 'var(--am)')}
+    </div>`:''}
+ 
+    <div style="background:var(--sf2);border-radius:var(--rs);padding:13px;text-align:center;margin-top:8px">
+      <div style="font-size:11px;color:var(--tx3);margin-bottom:4px">Чистая прибыль за день</div>
+      <div style="font-size:32px;font-weight:800;color:${profit>=0?'var(--gn)':'var(--rd)'};letter-spacing:-.03em">${fmt(profit)} сом</div>
+    </div>`;
+ 
+  openModal('ov-zreport');
+}
+ 
+function rowZ(label, value, color='var(--tx)'){
+  return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bd)">
+    <span style="font-size:13px;color:var(--tx2)">${label}</span>
+    <span style="font-size:13px;font-weight:800;color:${color}">${value}</span>
+  </div>`;
+}
+ 
+// ══════════════════════════════════════════
+// EXCEL / ДАННЫЕ
+// ══════════════════════════════════════════
+function openImport(){document.getElementById('import-prev').innerHTML='';openModal('ov-import');}
+ 
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      const items=rows.slice(1).filter(r=>r[0]);
+      if(!items.length){toast('⚠️ Файл пустой');return;}
+      let prev=`<div style="font-size:12px;font-weight:700;margin-bottom:7px">Найдено: ${items.length} товаров</div>`;
+      prev+=`<div style="max-height:150px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--rs)">`;
+      items.slice(0,5).forEach(r=>{prev+=`<div style="padding:8px 12px;border-bottom:1px solid var(--bd);font-size:12px">${r[0]} — <b style="color:var(--gn)">${fmt(r[3]||0)} сом</b></div>`;});
+      if(items.length>5)prev+=`<div style="padding:8px 12px;font-size:11px;color:var(--tx3)">+${items.length-5} ещё…</div>`;
+      prev+=`</div><button class="btn btn-dk" onclick="confirmImport()" style="margin-top:10px">Импортировать ${items.length} товаров</button>`;
+      window._importRows=items;
+      document.getElementById('import-prev').innerHTML=prev;
+    }catch(err){toast('⚠️ Ошибка файла');}
+  };
+  r.readAsArrayBuffer(file);
+}
+ 
+function confirmImport(){
+  const rows=window._importRows;if(!rows)return;
+  const data=db();let added=0,updated=0;
+  rows.forEach(r=>{
+    const name=(r[0]||'').toString().trim();if(!name)return;
+    const pd={
+      barcode:(r[1]||'').toString().trim(),
+      buyPrice:parseFloat(r[2])||0,sellPrice:parseFloat(r[3])||0,
+      category:(r[4]||'Другое').toString().trim()||'Другое',
+      unit:(r[5]||'шт').toString().trim()||'шт',
+      emoji:(r[6]||'📦').toString().trim()||'📦',
+      minStock:5, noBarcode:false
+    };
+    const ex=data.products.find(p=>(pd.barcode&&p.barcode===pd.barcode)||p.name.toLowerCase()===name.toLowerCase());
+    if(ex){Object.assign(ex,{name,...pd});updated++;}
+    else{data.products.push({id:uid(),name,...pd});added++;}
+  });
+  save(data);closeModal('ov-import');renderProds();window._importRows=null;
+  toast(`✓ Добавлено: ${added} · Обновлено: ${updated}`);
+}
+ 
+function exportExcel(){
+  const data=db();if(!data.products.length){toast('Нет товаров');return;}
+  const stocks=getAllStocks();
+  const rows=[
+    ['Название','Штрихкод','Цена закупки','Цена продажи','Остаток','Категория','Единица','Эмодзи'],
+    ...data.products.map(p=>[p.name,p.barcode||'',p.buyPrice,p.sellPrice,stocks[p.id]||0,p.category||'',p.unit||'шт',p.emoji||'📦'])
+  ];
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:24},{wch:15},{wch:13},{wch:13},{wch:9},{wch:12},{wch:8},{wch:7}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Товары');
+  XLSX.writeFile(wb,`magazin_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.xlsx`);
+  toast('✓ Excel скачан');
+}
+ 
+function exportJson(){
+  const blob=new Blob([JSON.stringify(db(),null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`backup_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.json`;
+  a.click();
+  toast('✓ Резервная копия скачана');
+}
+ 
+function clearAll(){
+  if(!confirm('Удалить ВСЕ данные? Это необратимо.'))return;
+  localStorage.removeItem(KEY);
+  kCart=[];
+  renderKassaLog();
+  updatePayBtn();
+  toast('Данные удалены');
+}
+ 
+// ══════════════════════════════════════════
+// РОЛИ: ВЛАДЕЛЕЦ / КАССИР
+// ══════════════════════════════════════════
+// Роль хранится только в памяти сессии (не localStorage)
+// При закрытии приложения — снова спрашивает
+let _role = null; // 'owner' | 'cashier'
+let _pinBuffer = '';
+let _pinMode = 'login'; // 'login' | 'setup'
+ 
+const PIN_KEY = 'mm_owner_pin';
+const DEFAULT_PIN = '1234';
+ 
+function getPin() { return localStorage.getItem(PIN_KEY) || DEFAULT_PIN; }
+function isOwner() { return _role === 'owner'; }
+ 
+// Показать экран выбора роли
+function showRoleScreen() {
+  document.getElementById('role-screen').style.display = 'flex';
+  document.getElementById('pin-screen').style.display = 'none';
+}
+ 
+// Нажал "Владелец"
+function showPinScreen() {
+  document.getElementById('role-screen').style.display = 'none';
+  document.getElementById('pin-screen').style.display = 'flex';
+  _pinMode = 'login';
+  _pinBuffer = '';
+  document.getElementById('pin-sub-txt').textContent = 'Введите PIN для входа как владелец';
+  document.getElementById('pin-error').textContent = '';
+  updatePinDots();
+}
+ 
+function backToRoleScreen() {
+  _pinBuffer = '';
+  showRoleScreen();
+}
+ 
+// Нажал "Кассир"
+function loginAsCashier() {
+  _role = 'cashier';
+  document.getElementById('role-screen').style.display = 'none';
+  applyCashierMode();
+  startKassaCamera();
+}
+ 
+// PIN ввод
+function pinKey(d) {
+  if (_pinBuffer.length >= 4) return;
+  _pinBuffer += d;
+  updatePinDots();
+  if (_pinBuffer.length === 4) {
+    setTimeout(() => checkPin(), 120);
+  }
+}
+ 
+function pinDel() {
+  _pinBuffer = _pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+ 
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('pd' + i);
+    dot.classList.toggle('filled', i < _pinBuffer.length);
+  }
+}
+ 
+function checkPin() {
+  if (_pinMode === 'login') {
+    if (_pinBuffer === getPin()) {
+      // Успех — входим как владелец
+      _role = 'owner';
+      document.getElementById('pin-screen').style.display = 'none';
+      applyOwnerMode();
+      startKassaCamera();
+    } else {
+      // Неверный PIN
+      document.getElementById('pin-error').textContent = '⚠️ Неверный PIN';
+      scanBeep('error');
+      _pinBuffer = '';
+      updatePinDots();
+      // Тряска
+      const dots = document.getElementById('pin-screen');
+      dots.style.animation = 'shake .3s ease';
+      setTimeout(() => dots.style.animation = '', 300);
+    }
+  } else if (_pinMode === 'setup') {
+    // Установка нового PIN
+    if (!_pinFirst) {
+      _pinFirst = _pinBuffer;
+      _pinBuffer = '';
+      updatePinDots();
+      document.getElementById('pin-sub-txt').textContent = 'Повторите новый PIN';
+      document.getElementById('pin-error').textContent = '';
+    } else {
+      if (_pinBuffer === _pinFirst) {
+        localStorage.setItem(PIN_KEY, _pinBuffer);
+        _pinFirst = null; _pinBuffer = '';
+        updatePinDots();
+        
+        document.getElementById('pin-screen').style.display = 'none';
+        toast('✓ PIN изменён');
+      } else {
+        document.getElementById('pin-error').textContent = '⚠️ PIN не совпадает, попробуйте снова';
+        _pinFirst = null; _pinBuffer = '';
+        updatePinDots();
+        document.getElementById('pin-sub-txt').textContent = 'Введите новый PIN';
+      }
+    }
+  }
+}
+ 
+let _pinFirst = null;
+ 
+function openChangePinScreen() {
+  
+  _pinMode = 'setup';
+  _pinFirst = null;
+  _pinBuffer = '';
+  document.getElementById('pin-sub-txt').textContent = 'Введите новый PIN';
+  document.getElementById('pin-error').textContent = '';
+  updatePinDots();
+  document.getElementById('pin-screen').style.display = 'flex';
+}
+ 
+// Применить режим владельца — всё видно
+function applyOwnerMode() {
+  document.getElementById('cashier-bar').style.display = 'none';
+  ['nb-sklad','nb-products','nb-report','nb-settings'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
+}
+ 
+// Применить режим кассира — только касса и долги
+function applyCashierMode() {
+  document.getElementById('cashier-bar').style.display = 'flex';
+  ['nb-sklad','nb-products','nb-report','nb-settings'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  // Открываем кассу
+  goPage('kassa', document.getElementById('nb-kassa'));
+}
+ 
+// Сменить роль
+function switchRole() {
+  _role = null;
+  stopKassaCamera();
+  // Скрываем всё и показываем экран выбора
+  applyOwnerMode(); // сбрасываем скрытие вкладок
+  showRoleScreen();
+}
+ 
+// CSS анимация тряски
+const shakeStyle = document.createElement('style');
+shakeStyle.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}';
+document.head.appendChild(shakeStyle);
  
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-initSettings();
-startKassaCamera(); // Камера сразу при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+  initSettings();
+  showRoleScreen();
  
-// Добавить кнопку "В долг" подтвердить на экране 2
-(function(){
+  // Кнопка "В долг" подтвердить на экране 2
   const debtBlock=document.getElementById('ks2-debt-block');
   const btn=document.createElement('button');
   btn.className='btn btn-dk';btn.style.marginTop='10px';
   btn.textContent='→ Перейти к чеку';
   btn.onclick=()=>goToConfirm('debt');
   debtBlock.appendChild(btn);
-})();
+});
+ 
+ 
 </script>
 </body>
 </html>
