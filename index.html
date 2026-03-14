@@ -13,7 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root {
-  --bg:#f8f8f6; --sf:#ffffff; --sf2:#f2f2ef; --sf3:#eaeae6;
+  --bg:#f8f8f6; --sf:#ffffff; --sf2:#f2f2ef;
   --bd:#e2e2dc; --bd2:#c8c8c0;
   --tx:#17170f; --tx2:#606058; --tx3:#9e9e96;
   --gn:#16a34a; --gnbg:#f0fdf4; --gnbr:#bbf7d0;
@@ -26,31 +26,30 @@
   --sh2:0 4px 18px rgba(0,0,0,.08);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px));overflow-x:hidden;font-size:14px;}
-::-webkit-scrollbar{width:3px;height:3px;}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:9px;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;overflow-x:hidden;font-size:14px;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:9px;}
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;}
 input[type=number]{-moz-appearance:textfield;}
-
-/* HEADER */
+ 
+/* ─── HEADER ─── */
 .hdr{position:sticky;top:0;z-index:100;background:rgba(248,248,246,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bd);padding-top:env(safe-area-inset-top,0px);box-shadow:var(--sh);}
 .hdr-in{max-width:640px;margin:0 auto;display:flex;align-items:center;height:52px;padding:0 16px;gap:10px;}
 .logo{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:800;color:var(--tx);letter-spacing:-.02em;flex-shrink:0;cursor:pointer;}
 .logo-sq{width:24px;height:24px;background:var(--tx);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;}
 .hdr-store{flex:1;font-size:12px;font-weight:500;color:var(--tx3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .hdr-time{font-size:11px;font-weight:700;color:var(--tx3);flex-shrink:0;font-variant-numeric:tabular-nums;}
-
-/* BOTTOM NAV */
+ 
+/* ─── BOTTOM NAV ─── */
 .bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.98);backdrop-filter:blur(20px);border-top:1px solid var(--bd);display:flex;padding:5px 2px calc(env(safe-area-inset-bottom,0px)+2px);}
 .nb{flex:1;border:none;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--tx3);font-family:'Plus Jakarta Sans',sans-serif;font-size:9px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;padding:5px 2px;border-radius:9px;transition:all .14s;}
 .nb.active{color:var(--tx);background:var(--sf2);}
 .nb-icon{font-size:19px;line-height:1;}
-
-/* PAGE */
-.page{display:none;}.page.active{display:block;animation:pgIn .17s ease;}
-@keyframes pgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+ 
+/* ─── PAGE ─── */
+.page{display:none;}.page.active{display:block;}
 .wrap{max-width:640px;margin:0 auto;padding:14px;}
-
-/* UTILS */
+ 
+/* ─── UTILS ─── */
 .slbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:7px;}
 .card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:var(--sh);}
 .ctitle{font-size:13px;font-weight:700;margin-bottom:12px;}
@@ -60,181 +59,43 @@ input[type=number]{-moz-appearance:textfield;}
 .fi:focus{border-color:var(--tx);box-shadow:0 0 0 3px rgba(23,23,15,.07);}
 .fi option{background:#fff;}
 .fr{margin-bottom:11px;}.fr2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
-
-/* BUTTONS */
 .btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:13px;border:none;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .13s;letter-spacing:-.01em;}
 .btn:active{transform:scale(.975);filter:brightness(.9);}
 .btn-dk{background:var(--tx);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.16);}
 .btn-gn{background:var(--gn);color:#fff;box-shadow:0 2px 10px rgba(22,163,74,.2);}
 .btn-gh{background:transparent;border:1.5px solid var(--bd2);color:var(--tx2);}
 .btn-rd{background:var(--rdbg);border:1.5px solid var(--rdbr);color:var(--rd);}
-.btn-am{background:var(--ambg);border:1.5px solid var(--ambr);color:var(--am);}
-
 .sm{display:inline-flex;align-items:center;gap:4px;padding:6px 11px;border:none;border-radius:7px;font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .13s;white-space:nowrap;}
 .sm:active{opacity:.72;}
-.sm-dk{background:var(--tx);color:#fff;} .sm-gh{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx2);}
+.sm-dk{background:var(--tx);color:#fff;}.sm-gh{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx2);}
 .sm-gn{background:var(--gnbg);border:1px solid var(--gnbr);color:var(--gn);}
 .sm-rd{background:var(--rdbg);border:1px solid var(--rdbr);color:var(--rd);}
 .sm-am{background:var(--ambg);border:1px solid var(--ambr);color:var(--am);}
 .sm-bl{background:var(--blbg);border:1px solid var(--blbr);color:var(--bl);}
-.sm-pu{background:var(--pubg);border:1px solid var(--pubr);color:var(--pu);}
-
 .ib{width:29px;height:29px;border:1px solid var(--bd2);border-radius:7px;background:var(--sf2);color:var(--tx2);font-size:13px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .13s;flex-shrink:0;}
 .ib:active{background:var(--bd);}
 .ib-rd{border-color:var(--rdbr);background:var(--rdbg);color:var(--rd);}
 .ib-gn{border-color:var(--gnbr);background:var(--gnbg);color:var(--gn);}
-
-/* STAT STRIP */
 .ss{display:grid;gap:8px;margin-bottom:14px;}
 .ss2{grid-template-columns:1fr 1fr;}.ss3{grid-template-columns:1fr 1fr 1fr;}.ss4{grid-template-columns:repeat(4,1fr);}
 .sc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:12px 13px;box-shadow:var(--sh);}
 .sc-v{font-size:19px;font-weight:800;color:var(--tx);letter-spacing:-.02em;line-height:1;}
 .sc-l{font-size:10px;font-weight:600;color:var(--tx3);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
-
-/* CHIP */
 .chip{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;}
 .ch-g{background:var(--gnbg);border:1px solid var(--gnbr);color:var(--gn);}
 .ch-a{background:var(--ambg);border:1px solid var(--ambr);color:var(--am);}
 .ch-r{background:var(--rdbg);border:1px solid var(--rdbr);color:var(--rd);}
 .ch-b{background:var(--blbg);border:1px solid var(--blbr);color:var(--bl);}
-.ch-p{background:var(--pubg);border:1px solid var(--pubr);color:var(--pu);}
 .ch-tx{background:var(--sf2);border:1px solid var(--bd2);color:var(--tx2);}
-
-/* SCANNER */
-.svp{position:relative;width:100%;aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:#000;margin-bottom:12px;}
-.svp video{width:100%;height:100%;object-fit:cover;display:block;}
-.svo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
-.svf{width:60%;aspect-ratio:1;position:relative;box-shadow:0 0 0 2000px rgba(0,0,0,.5);border-radius:10px;}
-.svl{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:svl 1.5s ease-in-out infinite;}
-@keyframes svl{0%{top:4%}50%{top:96%}100%{top:4%}}
-.svc{position:absolute;width:14px;height:14px;border-color:#fff;border-style:solid;}
-.stl{top:-1px;left:-1px;border-width:2.5px 0 0 2.5px;border-radius:3px 0 0 0;}
-.str{top:-1px;right:-1px;border-width:2.5px 2.5px 0 0;border-radius:0 3px 0 0;}
-.sbl{bottom:-1px;left:-1px;border-width:0 0 2.5px 2.5px;border-radius:0 0 0 3px;}
-.sbr{bottom:-1px;right:-1px;border-width:0 2.5px 2.5px 0;border-radius:0 0 3px 0;}
-.svs{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.62);padding:8px;text-align:center;font-size:12px;font-weight:600;color:rgba(255,255,255,.8);}
-
-/* MODAL */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);z-index:300;display:none;align-items:flex-end;justify-content:center;}
-.ov.on{display:flex;animation:pgIn .18s ease;}
-.modal{background:#fff;border-radius:20px 20px 0 0;border:1px solid var(--bd);padding:20px 17px calc(env(safe-area-inset-bottom,0px)+22px);width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;box-shadow:0 -4px 24px rgba(0,0,0,.09);}
-.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px;}
-.mt{font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.02em;}
-.mc{width:28px;height:28px;background:var(--sf2);border:1px solid var(--bd);color:var(--tx2);border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .13s;}
-.mc:active{background:var(--bd);}
-
-/* SEARCH */
+.empty{text-align:center;padding:28px 20px;}
+.ei{font-size:34px;margin-bottom:8px;}
+.et{font-size:13px;color:var(--tx3);font-weight:500;}
+.mprev{font-size:12px;font-weight:700;min-height:16px;margin-bottom:10px;}
+.iz{border:2px dashed var(--bd2);border-radius:var(--r);padding:22px;text-align:center;cursor:pointer;background:var(--sf2);}
+.iz input{display:none;}
 .sw{position:relative;margin-bottom:10px;}
 .sw-ic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;}
 .sw .fi{padding-left:37px;}
-
-/* KASSA */
-.ksz{background:var(--tx);border-radius:var(--r);padding:16px 16px 18px;margin-bottom:12px;box-shadow:var(--sh2);}
-.ksz-lbl{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.38);margin-bottom:8px;}
-.ksz-row{display:flex;gap:8px;}
-.ksz-in{flex:1;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:var(--rs);padding:12px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:700;color:#fff;outline:none;transition:border-color .14s;letter-spacing:.03em;}
-.ksz-in::placeholder{color:rgba(255,255,255,.28);font-weight:400;font-size:14px;}
-.ksz-in:focus{border-color:rgba(255,255,255,.5);}
-.ksz-cam{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.18);border-radius:var(--rs);padding:0 15px;color:#fff;font-size:22px;cursor:pointer;transition:all .14s;display:flex;align-items:center;flex-shrink:0;}
-.ksz-cam:active{background:rgba(255,255,255,.2);}
-.ksz-hint{font-size:11px;color:rgba(255,255,255,.3);margin-top:8px;}
-
-/* Also add manual search toggle */
-.ksz-manual{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1);}
-.ksz-manual-lbl{font-size:11px;color:rgba(255,255,255,.4);font-weight:600;}
-.ksz-manual-in{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:var(--rs);padding:8px 11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#fff;outline:none;}
-.ksz-manual-in::placeholder{color:rgba(255,255,255,.25);}
-
-/* found product */
-.kf{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:15px;margin-bottom:11px;box-shadow:var(--sh);animation:pgIn .17s ease;}
-.kf-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:13px;}
-.kf-emoji{font-size:34px;flex-shrink:0;}
-.kf-name{font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.02em;margin-bottom:3px;}
-.kf-price{font-size:22px;font-weight:800;color:var(--gn);letter-spacing:-.02em;}
-.kf-meta{font-size:12px;font-weight:600;margin-top:3px;}
-.kf-qrow{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1.5px solid var(--bd);border-radius:var(--rs);padding:9px 13px;margin-bottom:12px;}
-.kf-qlbl{font-size:12px;font-weight:700;color:var(--tx2);flex-shrink:0;}
-.kf-qctrl{display:flex;align-items:center;gap:7px;flex:1;justify-content:center;}
-.kf-qbtn{width:32px;height:32px;border-radius:7px;border:1.5px solid var(--bd2);background:var(--sf);color:var(--tx);font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .13s;}
-.kf-qbtn:active{background:var(--bd);}
-.kf-qin{width:66px;text-align:center;background:var(--sf);border:1.5px solid var(--bd2);border-radius:7px;padding:6px;font-size:20px;font-weight:800;color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;outline:none;}
-.kf-qin:focus{border-color:var(--tx);}
-.kf-sub{font-size:14px;font-weight:800;color:var(--gn);flex-shrink:0;min-width:72px;text-align:right;}
-
-/* receipt */
-.receipt{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;margin-bottom:11px;box-shadow:var(--sh);}
-.rh{padding:10px 14px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;background:var(--sf2);}
-.rh-t{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;}
-.rh-b{font-size:11px;font-weight:700;background:var(--sf);border:1px solid var(--bd);color:var(--tx2);padding:3px 9px;border-radius:50px;}
-.ri{display:flex;align-items:center;gap:9px;padding:10px 14px;border-bottom:1px solid var(--bd);}
-.ri:last-child{border-bottom:none;}
-.ri-emo{font-size:21px;flex-shrink:0;}
-.ri-body{flex:1;min-width:0;}
-.ri-name{font-size:13px;font-weight:700;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ri-unit{font-size:11px;color:var(--tx3);font-weight:500;margin-top:1px;}
-.ri-ctrl{display:flex;align-items:center;gap:5px;flex-shrink:0;}
-.ri-qb{width:22px;height:22px;border-radius:5px;border:1px solid var(--bd2);background:var(--sf2);color:var(--tx);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;}
-.ri-qb:active{background:var(--bd);}
-.ri-qn{font-size:13px;font-weight:800;min-width:21px;text-align:center;}
-.ri-sum{font-size:13px;font-weight:800;color:var(--gn);min-width:54px;text-align:right;flex-shrink:0;}
-.ri-del{width:22px;height:22px;border:none;background:transparent;color:var(--tx3);font-size:14px;cursor:pointer;flex-shrink:0;border-radius:5px;}
-.ri-del:active{color:var(--rd);background:var(--rdbg);}
-.rf{padding:13px 14px;border-top:2px solid var(--bd);background:var(--sf2);}
-.rf-grand{display:flex;justify-content:space-between;align-items:center;}
-.rf-gl{font-size:14px;font-weight:700;color:var(--tx2);}
-.rf-gv{font-size:30px;font-weight:800;color:var(--gn);letter-spacing:-.03em;}
-
-/* payment */
-.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.pay-btn{padding:13px 10px;border:2px solid var(--bd);border-radius:var(--r);background:var(--sf2);cursor:pointer;text-align:center;transition:all .14s;font-family:'Plus Jakarta Sans',sans-serif;}
-.pay-btn:active{transform:scale(.97);}
-.pay-btn.sel{border-color:var(--tx);background:var(--tx);}
-.pay-icon{font-size:24px;margin-bottom:5px;}
-.pay-lbl{font-size:13px;font-weight:700;color:var(--tx2);}
-.pay-btn.sel .pay-lbl{color:#fff;}
-
-/* not found */
-.knf{background:var(--rdbg);border:1px solid var(--rdbr);border-radius:var(--r);padding:15px;margin-bottom:11px;text-align:center;animation:pgIn .17s ease;}
-
-/* manual search results */
-.manual-results{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--sh);}
-.mr-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .12s;}
-.mr-item:last-child{border-bottom:none;}
-.mr-item:active{background:var(--sf2);}
-.mr-emo{font-size:22px;flex-shrink:0;}
-.mr-name{font-size:13px;font-weight:700;color:var(--tx);}
-.mr-price{font-size:12px;color:var(--gn);font-weight:700;margin-top:2px;}
-.mr-stock{font-size:11px;font-weight:700;flex-shrink:0;}
-
-/* PRODUCTS */
-.pi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:12px 13px;margin-bottom:7px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh);}
-.pi-emo{font-size:25px;flex-shrink:0;}
-.pi-body{flex:1;min-width:0;}
-.pi-name{font-size:13px;font-weight:700;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.pi-bar{font-size:10px;color:var(--tx3);font-family:monospace;margin-top:1px;}
-.pi-row{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:5px;}
-.pi-sell{font-size:13px;font-weight:800;color:var(--gn);}
-.pi-buy{font-size:11px;color:var(--tx3);font-weight:500;}
-.pi-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
-
-/* SKLAD */
-.op-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
-.op-item:last-child{border-bottom:none;}
-.op-emo{font-size:22px;flex-shrink:0;}
-.op-body{flex:1;min-width:0;}
-.op-name{font-size:13px;font-weight:700;color:var(--tx);}
-.op-meta{font-size:11px;color:var(--tx3);margin-top:1px;}
-.op-qty{font-size:14px;font-weight:800;flex-shrink:0;}
-
-/* DEBT */
-.di{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:13px;margin-bottom:7px;box-shadow:var(--sh);}
-.di-hdr{display:flex;justify-content:space-between;margin-bottom:5px;}
-.di-name{font-size:14px;font-weight:800;color:var(--tx);}
-.di-date{font-size:11px;color:var(--tx3);}
-.di-amount{font-size:22px;font-weight:800;color:var(--rd);letter-spacing:-.02em;margin-bottom:8px;}
-.di-foot{display:flex;justify-content:space-between;align-items:center;}
-
-/* REPORT */
 .period-tabs{display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rs);padding:3px;gap:2px;margin-bottom:13px;}
 .pt{flex:1;padding:7px;border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--tx3);border-radius:6px;cursor:pointer;transition:all .14s;}
 .pt.active{background:var(--sf);color:var(--tx);box-shadow:var(--sh);}
@@ -256,39 +117,385 @@ input[type=number]{-moz-appearance:textfield;}
 .sr-right{text-align:right;flex-shrink:0;}
 .sr-amt{font-size:14px;font-weight:800;}
 .sr-pay{font-size:10px;color:var(--tx3);margin-top:1px;}
-
-/* EMPTY */
-.empty{text-align:center;padding:28px 20px;}
-.ei{font-size:34px;margin-bottom:8px;}
-.et{font-size:13px;color:var(--tx3);font-weight:500;}
-
-/* TOAST */
-.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--tx);border-radius:50px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;z-index:999;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;box-shadow:var(--sh2);max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
-
-/* MARGIN PREVIEW */
-.mprev{font-size:12px;font-weight:700;min-height:16px;margin-bottom:10px;}
-
-/* IMPORT ZONE */
-.iz{border:2px dashed var(--bd2);border-radius:var(--r);padding:22px;text-align:center;cursor:pointer;background:var(--sf2);transition:all .14s;}
-.iz:hover{border-color:var(--tx);}
-.iz input{display:none;}
-
-/* PRIKHOD item */
+.op-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.op-item:last-child{border-bottom:none;}
+.op-emo{font-size:22px;flex-shrink:0;}
+.op-body{flex:1;min-width:0;}
+.op-name{font-size:13px;font-weight:700;color:var(--tx);}
+.op-meta{font-size:11px;color:var(--tx3);margin-top:1px;}
+.op-qty{font-size:14px;font-weight:800;flex-shrink:0;}
+.di{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:13px;margin-bottom:7px;box-shadow:var(--sh);}
+.di-hdr{display:flex;justify-content:space-between;margin-bottom:5px;}
+.di-name{font-size:14px;font-weight:800;color:var(--tx);}
+.di-date{font-size:11px;color:var(--tx3);}
+.di-amount{font-size:22px;font-weight:800;color:var(--rd);letter-spacing:-.02em;margin-bottom:8px;}
+.di-foot{display:flex;justify-content:space-between;align-items:center;}
+.pi{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:12px 13px;margin-bottom:7px;display:flex;align-items:center;gap:10px;box-shadow:var(--sh);}
+.pi-emo{font-size:25px;flex-shrink:0;}
+.pi-body{flex:1;min-width:0;}
+.pi-name{font-size:13px;font-weight:700;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pi-bar{font-size:10px;color:var(--tx3);font-family:monospace;margin-top:1px;}
+.pi-row{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.pi-sell{font-size:13px;font-weight:800;color:var(--gn);}
+.pi-buy{font-size:11px;color:var(--tx3);font-weight:500;}
+.pi-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
 .arr-row{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px 12px;margin-bottom:7px;}
 .arr-info{flex:1;min-width:0;}
 .arr-name{font-size:13px;font-weight:700;color:var(--tx);}
 .arr-sub{font-size:11px;color:var(--tx3);margin-top:1px;}
 .arr-qty-in{width:58px;text-align:center;padding:7px 5px;font-size:15px;font-weight:800;}
-
-/* CORRECTION */
 .corr-types{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
 .corr-btn{padding:12px;border:2px solid var(--bd);border-radius:var(--rs);background:var(--sf2);cursor:pointer;text-align:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--tx2);transition:all .14s;}
 .corr-btn.sel{border-color:var(--tx);background:var(--tx);color:#fff;}
+ 
+/* ════════════════════════════════════════
+   КАССА — 3 ЭКРАНА
+   ════════════════════════════════════════ */
+#pg-kassa {
+  display:none;
+  position:fixed;
+  inset:0;
+  padding-top:env(safe-area-inset-top,0px);
+  background:var(--bg);
+  z-index:10;
+  flex-direction:column;
+}
+#pg-kassa.active { display:flex; }
+ 
+/* Экран */
+.ks { display:none; flex-direction:column; flex:1; overflow:hidden; }
+.ks.active { display:flex; animation:pgIn .2s ease; }
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+ 
+/* ── ЭКРАН 1: СКАНИРОВАНИЕ ── */
+#ks1 {
+  background:#111;
+}
+ 
+/* Видео зона — фиксированная высота */
+.ks1-cam {
+  position:relative;
+  width:100%;
+  flex-shrink:0;
+  background:#000;
+  /* ~56% высоты экрана для камеры */
+  height: 56dvh;
+  overflow:hidden;
+}
+.ks1-cam video {
+  width:100%; height:100%; object-fit:cover; display:block;
+}
+/* Рамка сканера */
+.ks1-frame {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.ks1-box {
+  width:62%; aspect-ratio:1;
+  position:relative;
+  box-shadow:0 0 0 2000px rgba(0,0,0,.5);
+  border-radius:12px;
+}
+.ks1-line {
+  position:absolute; left:0; right:0; height:2.5px;
+  background:linear-gradient(90deg,transparent,#22c55e,transparent);
+  animation:scanLine 1.6s ease-in-out infinite;
+}
+@keyframes scanLine{0%{top:4%}50%{top:96%}100%{top:4%}}
+.ks1-c { position:absolute; width:18px; height:18px; border-color:#fff; border-style:solid; }
+.ks1-c.tl{top:-1px;left:-1px;border-width:3px 0 0 3px;border-radius:4px 0 0 0;}
+.ks1-c.tr{top:-1px;right:-1px;border-width:3px 3px 0 0;border-radius:0 4px 0 0;}
+.ks1-c.bl{bottom:-1px;left:-1px;border-width:0 0 3px 3px;border-radius:0 0 0 4px;}
+.ks1-c.br{bottom:-1px;right:-1px;border-width:0 3px 3px 0;border-radius:0 0 4px 0;}
+ 
+/* Статус сканера */
+.ks1-status {
+  position:absolute; bottom:0; left:0; right:0;
+  background:rgba(0,0,0,.65); padding:8px 14px;
+  display:flex; align-items:center; gap:8px;
+}
+.ks1-dot { width:7px; height:7px; border-radius:50%; background:#22c55e; flex-shrink:0; animation:pulse 1.5s ease-in-out infinite; }
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.ks1-status-txt { font-size:12px; font-weight:600; color:rgba(255,255,255,.8); }
+ 
+/* Нижняя панель экрана 1 */
+.ks1-bottom {
+  flex:1; background:var(--bg);
+  display:flex; flex-direction:column;
+  padding:12px 14px;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px);
+  overflow:hidden;
+}
+ 
+/* Ручной поиск */
+.ks1-search-row { display:flex; gap:8px; margin-bottom:10px; flex-shrink:0; }
+.ks1-search-in {
+  flex:1; background:var(--sf); border:1.5px solid var(--bd2);
+  border-radius:var(--rs); padding:11px 14px;
+  font-family:'Plus Jakarta Sans',sans-serif; font-size:15px; font-weight:500; color:var(--tx);
+  outline:none; transition:border-color .14s;
+}
+.ks1-search-in::placeholder { color:var(--tx3); font-weight:400; font-size:14px; }
+.ks1-search-in:focus { border-color:var(--tx); }
+ 
+/* Лог последних товаров — маленький */
+.ks1-log {
+  flex:1; overflow-y:auto; margin-bottom:10px;
+}
+.ks1-log-empty {
+  display:flex; align-items:center; justify-content:center;
+  height:100%; color:var(--tx3); font-size:12px; font-weight:500;
+  text-align:center; line-height:1.6;
+}
+.ks1-log-item {
+  display:flex; align-items:center; gap:9px;
+  padding:8px 10px; background:var(--sf);
+  border:1px solid var(--bd); border-radius:var(--rs);
+  margin-bottom:6px; animation:pgIn .15s ease;
+}
+.ks1-log-emo { font-size:20px; flex-shrink:0; }
+.ks1-log-name { flex:1; font-size:13px; font-weight:700; color:var(--tx); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ks1-log-qty { font-size:12px; font-weight:700; color:var(--tx3); flex-shrink:0; }
+.ks1-log-price { font-size:13px; font-weight:800; color:var(--gn); flex-shrink:0; min-width:60px; text-align:right; }
+ 
+/* Кнопка оплатить */
+.ks1-pay-btn {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--gn); border:none; border-radius:var(--r);
+  padding:15px 20px; cursor:pointer; flex-shrink:0;
+  box-shadow:0 4px 16px rgba(22,163,74,.3);
+  transition:all .14s; font-family:'Plus Jakarta Sans',sans-serif;
+}
+.ks1-pay-btn:active { transform:scale(.975); filter:brightness(.9); }
+.ks1-pay-btn-left { display:flex; flex-direction:column; align-items:flex-start; }
+.ks1-pay-btn-title { font-size:16px; font-weight:800; color:#fff; letter-spacing:-.01em; }
+.ks1-pay-btn-sub { font-size:11px; color:rgba(255,255,255,.7); margin-top:2px; font-weight:500; }
+.ks1-pay-btn-amount { font-size:24px; font-weight:800; color:#fff; letter-spacing:-.03em; }
+ 
+/* Кнопка неактивна когда нет товаров */
+.ks1-pay-btn.empty-cart {
+  background:var(--bd2); box-shadow:none; cursor:default;
+}
+.ks1-pay-btn.empty-cart .ks1-pay-btn-title,
+.ks1-pay-btn.empty-cart .ks1-pay-btn-amount { color:var(--tx3); }
+.ks1-pay-btn.empty-cart .ks1-pay-btn-sub { color:var(--tx3); }
+ 
+/* Подсказка снизу */
+.ks1-hint {
+  text-align:center; font-size:11px; color:var(--tx3); font-weight:500;
+  margin-top:8px; flex-shrink:0;
+}
+ 
+/* Результаты ручного поиска */
+.ks1-manual-res {
+  position:absolute; left:14px; right:14px;
+  background:var(--sf); border:1px solid var(--bd);
+  border-radius:var(--r); box-shadow:var(--sh2);
+  z-index:50; overflow:hidden; max-height:240px; overflow-y:auto;
+}
+.ks1-mr-item {
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px; border-bottom:1px solid var(--bd);
+  cursor:pointer; transition:background .12s;
+}
+.ks1-mr-item:last-child { border-bottom:none; }
+.ks1-mr-item:active { background:var(--sf2); }
+.ks1-mr-emo { font-size:22px; flex-shrink:0; }
+.ks1-mr-name { font-size:13px; font-weight:700; color:var(--tx); flex:1; }
+.ks1-mr-price { font-size:13px; font-weight:800; color:var(--gn); }
+.ks1-mr-stock { font-size:11px; font-weight:700; margin-top:2px; }
+ 
+/* Кол-во после скана */
+.ks1-qty-popup {
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center;
+  z-index:60; animation:pgIn .15s ease;
+}
+.ks1-qty-card {
+  background:var(--sf); border-radius:20px;
+  padding:24px 20px; width:88%; max-width:320px;
+  box-shadow:0 8px 32px rgba(0,0,0,.22);
+}
+.ks1-qty-prod { display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+.ks1-qty-emo { font-size:36px; }
+.ks1-qty-name { font-size:16px; font-weight:800; color:var(--tx); letter-spacing:-.01em; line-height:1.3; }
+.ks1-qty-price { font-size:14px; font-weight:700; color:var(--gn); margin-top:3px; }
+.ks1-qty-ctrl { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:18px; }
+.ks1-qbtn { width:44px; height:44px; border-radius:11px; border:2px solid var(--bd2); background:var(--sf2); color:var(--tx); font-size:22px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .13s; }
+.ks1-qbtn:active { background:var(--bd); }
+.ks1-qin { width:80px; text-align:center; background:var(--sf); border:2px solid var(--bd2); border-radius:11px; padding:10px; font-size:26px; font-weight:800; color:var(--tx); font-family:'Plus Jakarta Sans',sans-serif; outline:none; }
+.ks1-qin:focus { border-color:var(--tx); }
+.ks1-qty-sub { text-align:center; font-size:13px; font-weight:700; color:var(--tx2); margin-bottom:16px; }
+ 
+/* ── ЭКРАН 2: СПОСОБ ОПЛАТЫ ── */
+#ks2 {
+  background:var(--bg);
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px);
+}
+.ks2-top {
+  max-width:640px; margin:0 auto;
+  padding:14px 14px 0;
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.ks2-back {
+  width:36px; height:36px; border:1.5px solid var(--bd2); border-radius:10px;
+  background:var(--sf); color:var(--tx2); font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:all .13s;
+}
+.ks2-back:active { background:var(--bd); }
+.ks2-title { font-size:17px; font-weight:800; color:var(--tx); letter-spacing:-.02em; }
+ 
+.ks2-total {
+  max-width:640px; margin:0 auto; padding:0 14px 20px;
+  text-align:center;
+}
+.ks2-total-lbl { font-size:12px; font-weight:600; color:var(--tx3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+.ks2-total-amt { font-size:52px; font-weight:800; color:var(--tx); letter-spacing:-.04em; line-height:1; }
+.ks2-total-items { font-size:13px; color:var(--tx3); margin-top:6px; font-weight:500; }
+ 
+/* 4 кнопки оплаты — сетка 2×2, одинаковые */
+.ks2-grid {
+  max-width:640px; margin:0 auto; padding:0 14px;
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.ks2-pay {
+  aspect-ratio:1; border:2.5px solid var(--bd);
+  border-radius:18px; background:var(--sf);
+  cursor:pointer; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+  transition:all .14s; box-shadow:var(--sh);
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+.ks2-pay:active { transform:scale(.96); }
+.ks2-pay-icon { font-size:36px; }
+.ks2-pay-lbl { font-size:16px; font-weight:800; color:var(--tx); letter-spacing:-.01em; }
+ 
+/* QR — внизу справа, выделен */
+.ks2-pay.qr {
+  background:var(--tx); border-color:var(--tx);
+  box-shadow:0 4px 20px rgba(23,23,15,.25);
+}
+.ks2-pay.qr .ks2-pay-lbl { color:#fff; }
+.ks2-pay.qr .ks2-thumb {
+  font-size:10px; font-weight:600; color:rgba(255,255,255,.5);
+  margin-top:-4px; letter-spacing:.04em;
+}
+.ks2-thumb { display:none; }
+ 
+/* В долг */
+.ks2-debt-name {
+  max-width:640px; margin:12px auto 0; padding:0 14px;
+}
+ 
+/* ── ЭКРАН 3: ПОДТВЕРЖДЕНИЕ ── */
+#ks3 {
+  background:var(--bg);
+  overflow-y:auto;
+  padding-bottom:calc(env(safe-area-inset-bottom,0px) + 78px);
+}
+.ks3-top {
+  max-width:640px; margin:0 auto;
+  padding:14px 14px 0;
+  display:flex; align-items:center; gap:10px; margin-bottom:14px;
+}
+.ks3-back {
+  width:36px; height:36px; border:1.5px solid var(--bd2); border-radius:10px;
+  background:var(--sf); color:var(--tx2); font-size:18px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:all .13s;
+}
+.ks3-back:active { background:var(--bd); }
+.ks3-title { font-size:17px; font-weight:800; color:var(--tx); letter-spacing:-.02em; }
+ 
+.ks3-pay-badge {
+  max-width:640px; margin:0 auto; padding:0 14px 14px;
+  display:flex; align-items:center; gap:8px;
+}
+.ks3-pay-ic { font-size:22px; }
+.ks3-pay-name { font-size:14px; font-weight:700; color:var(--tx2); }
+ 
+/* Список товаров */
+.ks3-items {
+  max-width:640px; margin:0 auto; padding:0 14px;
+}
+.ks3-item {
+  display:flex; align-items:center; gap:10px;
+  background:var(--sf); border:1px solid var(--bd);
+  border-radius:var(--rs); padding:12px 13px; margin-bottom:7px;
+  box-shadow:var(--sh);
+}
+.ks3-item-emo { font-size:26px; flex-shrink:0; }
+.ks3-item-body { flex:1; min-width:0; }
+.ks3-item-name { font-size:13px; font-weight:700; color:var(--tx); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ks3-item-unit { font-size:12px; color:var(--tx3); margin-top:2px; }
+.ks3-item-right { flex-shrink:0; text-align:right; }
+.ks3-item-qty { font-size:12px; color:var(--tx3); font-weight:600; }
+.ks3-item-sum { font-size:15px; font-weight:800; color:var(--gn); }
+ 
+/* Итог */
+.ks3-total-card {
+  max-width:640px; margin:10px auto 0; padding:0 14px;
+}
+.ks3-total-inner {
+  background:var(--sf); border:1px solid var(--bd);
+  border-radius:var(--r); padding:16px 18px;
+  box-shadow:var(--sh);
+}
+.ks3-total-row { display:flex; justify-content:space-between; align-items:center; padding:4px 0; }
+.ks3-total-l { font-size:12px; color:var(--tx2); font-weight:500; }
+.ks3-total-v { font-size:12px; font-weight:700; color:var(--tx); }
+.ks3-div { height:1px; background:var(--bd); margin:10px 0; }
+.ks3-grand { display:flex; justify-content:space-between; align-items:center; }
+.ks3-grand-l { font-size:15px; font-weight:700; color:var(--tx2); }
+.ks3-grand-v { font-size:36px; font-weight:800; color:var(--gn); letter-spacing:-.04em; }
+ 
+/* Кнопка Оплачено */
+.ks3-confirm-wrap {
+  max-width:640px; margin:14px auto 0; padding:0 14px;
+}
+.ks3-confirm {
+  width:100%; padding:17px; border:none; border-radius:var(--r);
+  background:var(--gn); color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:18px; font-weight:800; letter-spacing:-.01em;
+  cursor:pointer; transition:all .14s;
+  box-shadow:0 4px 20px rgba(22,163,74,.3);
+}
+.ks3-confirm:active { transform:scale(.975); filter:brightness(.9); }
+ 
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(8px);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.ov.on{display:flex;animation:pgIn .18s ease;}
+.modal{background:#fff;border-radius:20px 20px 0 0;border:1px solid var(--bd);padding:20px 17px calc(env(safe-area-inset-bottom,0px)+22px);width:100%;max-width:640px;max-height:92dvh;overflow-y:auto;box-shadow:0 -4px 24px rgba(0,0,0,.09);}
+.mhdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px;}
+.mt{font-size:17px;font-weight:800;color:var(--tx);letter-spacing:-.02em;}
+.mc{width:28px;height:28px;background:var(--sf2);border:1px solid var(--bd);color:var(--tx2);border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .13s;}
+.mc:active{background:var(--bd);}
+ 
+/* scanner modal inside prikhod/barcode */
+.svp{position:relative;width:100%;aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:#000;margin-bottom:12px;}
+.svp video{width:100%;height:100%;object-fit:cover;display:block;}
+.svo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+.svf{width:60%;aspect-ratio:1;position:relative;box-shadow:0 0 0 2000px rgba(0,0,0,.5);border-radius:10px;}
+.svl{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:scanLine 1.5s ease-in-out infinite;}
+.svc{position:absolute;width:14px;height:14px;border-color:#fff;border-style:solid;}
+.stl{top:-1px;left:-1px;border-width:2.5px 0 0 2.5px;border-radius:3px 0 0 0;}
+.str{top:-1px;right:-1px;border-width:2.5px 2.5px 0 0;border-radius:0 3px 0 0;}
+.sbl{bottom:-1px;left:-1px;border-width:0 0 2.5px 2.5px;border-radius:0 0 0 3px;}
+.sbr{bottom:-1px;right:-1px;border-width:0 2.5px 2.5px 0;border-radius:0 0 3px 0;}
+.svs{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.62);padding:8px;text-align:center;font-size:12px;font-weight:600;color:rgba(255,255,255,.8);}
+ 
+/* TOAST */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--tx);border-radius:50px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;z-index:999;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;box-shadow:var(--sh2);max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
-
+ 
 <header class="hdr">
   <div class="hdr-in">
     <div class="logo" onclick="openSettings()"><div class="logo-sq">М</div>Мой Магазин</div>
@@ -296,47 +503,179 @@ input[type=number]{-moz-appearance:textfield;}
     <div class="hdr-time" id="hdr-time">—</div>
   </div>
 </header>
-
-<!-- ══════ 1. КАССА ══════ -->
+ 
+<!-- ══════════════════════════════════════════
+     КАССА — 3 экрана внутри одной вкладки
+══════════════════════════════════════════ -->
 <div id="pg-kassa" class="page active">
-<div class="wrap">
-  <div class="ksz">
-    <div class="ksz-lbl">Штрихкод товара</div>
-    <div class="ksz-row">
-      <input type="text" class="ksz-in" id="k-in"
-        placeholder="Сканируйте или введите…"
-        inputmode="numeric" autocomplete="off"
-        onkeydown="if(event.key==='Enter'){kLookup(this.value.trim());this.value=''}">
-      <button class="ksz-cam" onclick="openKScanner()">📷</button>
+ 
+  <!-- ▓▓ ЭКРАН 1: СКАНИРОВАНИЕ ▓▓ -->
+  <div class="ks active" id="ks1">
+ 
+    <!-- Камера -->
+    <div class="ks1-cam">
+      <video id="kassa-video" playsinline muted autoplay></video>
+      <div class="ks1-frame">
+        <div class="ks1-box">
+          <div class="ks1-line"></div>
+          <div class="ks1-c tl"></div><div class="ks1-c tr"></div>
+          <div class="ks1-c bl"></div><div class="ks1-c br"></div>
+        </div>
+      </div>
+      <div class="ks1-status">
+        <div class="ks1-dot" id="cam-dot"></div>
+        <span class="ks1-status-txt" id="cam-status">Запуск камеры…</span>
+      </div>
+ 
+      <!-- Попап выбора количества (поверх камеры) -->
+      <div class="ks1-qty-popup" id="qty-popup" style="display:none">
+        <div class="ks1-qty-card">
+          <div class="ks1-qty-prod">
+            <div class="ks1-qty-emo" id="qp-emo">📦</div>
+            <div>
+              <div class="ks1-qty-name" id="qp-name">—</div>
+              <div class="ks1-qty-price" id="qp-price">—</div>
+            </div>
+          </div>
+          <div class="ks1-qty-ctrl">
+            <button class="ks1-qbtn" onclick="qpDelta(-1)">−</button>
+            <input type="number" class="ks1-qin" id="qp-qty" value="1" min="1" inputmode="numeric" onclick="this.select()" oninput="qpUpdate()">
+            <button class="ks1-qbtn" onclick="qpDelta(1)">+</button>
+          </div>
+          <div class="ks1-qty-sub" id="qp-sub">— сом</div>
+          <button class="btn btn-dk" onclick="qpConfirm()">+ Добавить в чек</button>
+          <button class="btn btn-gh" onclick="qpCancel()" style="margin-top:7px">Отмена</button>
+        </div>
+      </div>
     </div>
-    <div class="ksz-manual">
-      <span class="ksz-manual-lbl">Поиск:</span>
-      <input type="text" class="ksz-manual-in" id="k-manual-in"
-        placeholder="Название товара…"
-        oninput="renderManualSearch(this.value)">
+ 
+    <!-- Нижняя часть экрана 1 -->
+    <div class="ks1-bottom" style="position:relative">
+ 
+      <!-- Ручной поиск -->
+      <div class="ks1-search-row">
+        <input type="text" class="ks1-search-in" id="ks1-search"
+          placeholder="🔍 Ручной поиск — хлеб, сахар…"
+          oninput="ks1ManualSearch(this.value)"
+          autocomplete="off">
+      </div>
+ 
+      <!-- Результаты поиска (абсолютно) -->
+      <div class="ks1-manual-res" id="ks1-manual-res" style="display:none;top:62px"></div>
+ 
+      <!-- Лог добавленных товаров -->
+      <div class="ks1-log" id="ks1-log">
+        <div class="ks1-log-empty" id="ks1-log-empty">
+          Сканируйте товар<br>или найдите вручную
+        </div>
+      </div>
+ 
+      <!-- Кнопка оплатить -->
+      <button class="ks1-pay-btn empty-cart" id="ks1-pay-btn" onclick="goToPayment()" disabled>
+        <div class="ks1-pay-btn-left">
+          <div class="ks1-pay-btn-title">Перейти к оплате</div>
+          <div class="ks1-pay-btn-sub" id="ks1-pay-sub">Добавьте товары для оплаты</div>
+        </div>
+        <div class="ks1-pay-btn-amount" id="ks1-pay-amount">0 сом</div>
+      </button>
+      <div class="ks1-hint">Нажмите «Перейти к оплате» когда покупатель завершил выбор</div>
     </div>
   </div>
-  <div id="k-manual-results"></div>
-  <div id="k-found"></div>
-  <div id="k-receipt"></div>
+ 
+  <!-- ▓▓ ЭКРАН 2: СПОСОБ ОПЛАТЫ ▓▓ -->
+  <div class="ks" id="ks2">
+ 
+    <div class="ks2-top">
+      <button class="ks2-back" onclick="goToScan()">←</button>
+      <div class="ks2-title">Способ оплаты</div>
+    </div>
+ 
+    <div class="ks2-total">
+      <div class="ks2-total-lbl">К оплате</div>
+      <div class="ks2-total-amt" id="ks2-amount">0 сом</div>
+      <div class="ks2-total-items" id="ks2-items-count"></div>
+    </div>
+ 
+    <!-- 4 одинаковые кнопки, QR внизу справа -->
+    <div class="ks2-grid">
+      <!-- Верхняя строка: Наличные | Карта -->
+      <div class="ks2-pay" onclick="selectPayType('cash')">
+        <div class="ks2-pay-icon">💵</div>
+        <div class="ks2-pay-lbl">Наличные</div>
+      </div>
+      <div class="ks2-pay" onclick="selectPayType('card')">
+        <div class="ks2-pay-icon">💳</div>
+        <div class="ks2-pay-lbl">Карта</div>
+      </div>
+      <!-- Нижняя строка: Долг | QR (справа — большой палец) -->
+      <div class="ks2-pay" onclick="selectPayType('debt')">
+        <div class="ks2-pay-icon">🧾</div>
+        <div class="ks2-pay-lbl">В долг</div>
+      </div>
+      <div class="ks2-pay qr" onclick="selectPayType('qr')">
+        <div class="ks2-pay-icon">📱</div>
+        <div class="ks2-pay-lbl">QR</div>
+        <div class="ks2-thumb">👍 удобно</div>
+      </div>
+    </div>
+ 
+    <!-- Поле имени если долг -->
+    <div class="ks2-debt-name" id="ks2-debt-block" style="display:none">
+      <div style="height:12px"></div>
+      <label class="lbl">Имя клиента *</label>
+      <input type="text" class="fi" id="ks2-buyer" placeholder="Ахмед Касымов">
+    </div>
+ 
+  </div>
+ 
+  <!-- ▓▓ ЭКРАН 3: ЧЕК И ПОДТВЕРЖДЕНИЕ ▓▓ -->
+  <div class="ks" id="ks3">
+ 
+    <div class="ks3-top">
+      <button class="ks3-back" onclick="goToPaymentType()">←</button>
+      <div class="ks3-title">Подтвердить оплату</div>
+    </div>
+ 
+    <div class="ks3-pay-badge">
+      <div class="ks3-pay-ic" id="ks3-pay-ic">—</div>
+      <div class="ks3-pay-name" id="ks3-pay-name">—</div>
+    </div>
+ 
+    <!-- Список товаров -->
+    <div class="ks3-items" id="ks3-items"></div>
+ 
+    <!-- Итог -->
+    <div class="ks3-total-card">
+      <div class="ks3-total-inner">
+        <div class="ks3-total-row"><span class="ks3-total-l">Товаров</span><span class="ks3-total-v" id="ks3-qty-total">0 шт</span></div>
+        <div class="ks3-div"></div>
+        <div class="ks3-grand">
+          <span class="ks3-grand-l">Итого</span>
+          <span class="ks3-grand-v" id="ks3-grand">0 сом</span>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="ks3-confirm-wrap">
+      <button class="ks3-confirm" onclick="confirmCheckout()">✓ Оплачено</button>
+    </div>
+ 
+  </div>
 </div>
-</div>
-
-<!-- ══════ 2. СКЛАД ══════ -->
+ 
+<!-- ══════ СКЛАД ══════ -->
 <div id="pg-sklad" class="page">
-<div class="wrap">
+<div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
   <div class="ss ss4" id="sklad-stats"></div>
   <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;">
-    <button class="sm sm-dk" onclick="openPrikhod('scan')" style="flex:1">📷 Приход по сканеру</button>
-    <button class="sm sm-bl" onclick="openPrikhod('manual')" style="flex:1">📝 Приход вручную</button>
+    <button class="sm sm-dk" onclick="openPrikhod('scan')" style="flex:1">📷 По сканеру</button>
+    <button class="sm sm-bl" onclick="openPrikhod('manual')" style="flex:1">📝 Вручную</button>
   </div>
-  <!-- Остатки -->
   <div class="card">
-    <div class="ctitle">Остатки на складе</div>
+    <div class="ctitle">Остатки</div>
     <div class="sw"><span class="sw-ic">🔍</span><input type="text" class="fi" id="sklad-q" placeholder="Поиск…" oninput="renderSkladList()"></div>
     <div id="sklad-list"></div>
   </div>
-  <!-- История операций -->
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
       <div class="ctitle" style="margin:0">История операций</div>
@@ -346,29 +685,29 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 </div>
 </div>
-
-<!-- ══════ 3. ТОВАРЫ ══════ -->
+ 
+<!-- ══════ ТОВАРЫ ══════ -->
 <div id="pg-products" class="page">
-<div class="wrap">
+<div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
   <div class="ss ss3">
     <div class="sc"><div class="sc-v" id="ss-total">0</div><div class="sc-l">Товаров</div></div>
     <div class="sc"><div class="sc-v" style="color:var(--am)" id="ss-low">0</div><div class="sc-l">Мало</div></div>
     <div class="sc"><div class="sc-v" style="color:var(--rd)" id="ss-out">0</div><div class="sc-l">Нет</div></div>
   </div>
   <div style="display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;">
-    <button class="sm sm-dk" onclick="openProdForm(null)" style="flex:1">+ Добавить товар</button>
+    <button class="sm sm-dk" onclick="openProdForm(null)" style="flex:1">+ Добавить</button>
     <button class="sm sm-gh" onclick="openImport()">⬆ Excel</button>
     <button class="sm sm-gh" onclick="exportExcel()">⬇ Excel</button>
   </div>
   <div id="cat-filter" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;"></div>
-  <div class="sw"><span class="sw-ic">🔍</span><input type="text" class="fi" id="prod-q" placeholder="Поиск по названию или штрихкоду…" oninput="renderProds()"></div>
+  <div class="sw"><span class="sw-ic">🔍</span><input type="text" class="fi" id="prod-q" placeholder="Поиск…" oninput="renderProds()"></div>
   <div id="prod-list"></div>
 </div>
 </div>
-
-<!-- ══════ 4. ДОЛГИ ══════ -->
+ 
+<!-- ══════ ДОЛГИ ══════ -->
 <div id="pg-debts" class="page">
-<div class="wrap">
+<div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
   <div class="ss ss2">
     <div class="sc"><div class="sc-v" style="color:var(--rd);font-size:18px" id="ss-debt">0 сом</div><div class="sc-l">Общий долг</div></div>
     <div class="sc"><div class="sc-v" id="ss-debtors">0</div><div class="sc-l">Должников</div></div>
@@ -376,10 +715,10 @@ input[type=number]{-moz-appearance:textfield;}
   <div id="debt-list"></div>
 </div>
 </div>
-
-<!-- ══════ 5. ОТЧЁТЫ ══════ -->
+ 
+<!-- ══════ ОТЧЁТЫ ══════ -->
 <div id="pg-report" class="page">
-<div class="wrap">
+<div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
   <div class="period-tabs">
     <button class="pt active" onclick="setPeriod('day',this)">Сегодня</button>
     <button class="pt" onclick="setPeriod('week',this)">Неделя</button>
@@ -409,38 +748,23 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
 </div>
 </div>
-
+ 
 <!-- BOTTOM NAV -->
 <nav class="bnav">
-  <button class="nb active" onclick="goPage('kassa',this)"><span class="nb-icon">🧾</span>Касса</button>
+  <button class="nb active" id="nb-kassa" onclick="goPage('kassa',this)"><span class="nb-icon">🧾</span>Касса</button>
   <button class="nb" onclick="goPage('sklad',this)"><span class="nb-icon">🏪</span>Склад</button>
   <button class="nb" onclick="goPage('products',this)"><span class="nb-icon">📦</span>Товары</button>
   <button class="nb" onclick="goPage('debts',this)"><span class="nb-icon">💳</span>Долги</button>
   <button class="nb" onclick="goPage('report',this)"><span class="nb-icon">📊</span>Отчёты</button>
 </nav>
-
-<!-- ═══ MODAL: СКАНЕР ═══ -->
-<div class="ov" id="ov-scan">
-<div class="modal">
-  <div class="mhdr"><div class="mt" id="scan-title">Сканер</div><button class="mc" onclick="closeScanner()">×</button></div>
-  <div class="svp"><video id="scan-video" playsinline muted autoplay></video>
-    <div class="svo"><div class="svf"><div class="svl"></div>
-      <div class="svc stl"></div><div class="svc str"></div><div class="svc sbl"></div><div class="svc sbr"></div>
-    </div></div>
-    <div class="svs" id="scan-st">Наведите на штрихкод</div>
-  </div>
-  <div id="scan-extra"></div>
-</div>
-</div>
-
-<!-- ═══ MODAL: ТОВАР ФОРМА ═══ -->
+ 
+<!-- MODALS -->
 <div class="ov" id="ov-prod">
 <div class="modal">
   <div class="mhdr"><div class="mt" id="prod-form-t">Новый товар</div><button class="mc" onclick="closeModal('ov-prod')">×</button></div>
   <input type="hidden" id="ep-id">
-  <div class="fr"><label class="lbl">Название *</label><input type="text" class="fi" id="ep-name" placeholder="Кола 1л, Хлеб белый…"></div>
-  <div class="fr">
-    <label class="lbl">Штрихкод</label>
+  <div class="fr"><label class="lbl">Название *</label><input type="text" class="fi" id="ep-name" placeholder="Кола 1л, Хлеб…"></div>
+  <div class="fr"><label class="lbl">Штрихкод</label>
     <div style="display:flex;gap:8px">
       <input type="text" class="fi" id="ep-bar" placeholder="4601234567890" inputmode="numeric" style="flex:1">
       <button class="sm sm-gh" onclick="scanBarcode4Prod()">📷</button>
@@ -469,74 +793,76 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="mprev" id="mprev"></div>
   <div class="fr"><label class="lbl">Эмодзи</label><input type="text" class="fi" id="ep-emo" placeholder="🍞"></div>
   <div style="background:var(--blbg);border:1px solid var(--blbr);border-radius:var(--rs);padding:11px 13px;font-size:12px;color:var(--bl);font-weight:500;margin-bottom:14px;line-height:1.6">
-    💡 <b>Начальный остаток</b> добавляется через вкладку <b>Склад → Приход</b> после сохранения карточки товара.
+    💡 Начальный остаток добавляется через <b>Склад → Приход</b>
   </div>
   <button class="btn btn-dk" onclick="saveProd()">Сохранить</button>
 </div>
 </div>
-
-<!-- ═══ MODAL: ПРИХОД ═══ -->
+ 
+<div class="ov" id="ov-scan-generic">
+<div class="modal">
+  <div class="mhdr"><div class="mt" id="scan-gen-title">Сканер</div><button class="mc" onclick="closeGenericScanner()">×</button></div>
+  <div class="svp"><video id="gen-video" playsinline muted autoplay></video>
+    <div class="svo"><div class="svf"><div class="svl"></div>
+      <div class="svc stl"></div><div class="svc str"></div><div class="svc sbl"></div><div class="svc sbr"></div>
+    </div></div>
+    <div class="svs" id="gen-st">Наведите на штрихкод</div>
+  </div>
+  <div id="gen-extra"></div>
+</div>
+</div>
+ 
 <div class="ov" id="ov-prikhod">
 <div class="modal">
   <div class="mhdr"><div class="mt">📦 Приход товара</div><button class="mc" onclick="closePrikhod()">×</button></div>
   <div id="prikhod-body"></div>
 </div>
 </div>
-
-<!-- ═══ MODAL: КОРРЕКЦИЯ ═══ -->
+ 
 <div class="ov" id="ov-corr">
 <div class="modal">
-  <div class="mhdr"><div class="mt">⚙️ Коррекция склада</div><button class="mc" onclick="closeModal('ov-corr')">×</button></div>
+  <div class="mhdr"><div class="mt">⚙️ Коррекция</div><button class="mc" onclick="closeModal('ov-corr')">×</button></div>
   <div class="fr">
-    <label class="lbl">Товар</label>
     <div class="sw" style="margin-bottom:0"><span class="sw-ic">🔍</span><input type="text" class="fi" id="corr-q" placeholder="Найти товар…" oninput="renderCorrSearch()"></div>
     <div id="corr-search-res" style="margin-top:6px"></div>
   </div>
   <input type="hidden" id="corr-pid">
   <div id="corr-form" style="display:none">
-    <div class="fr">
-      <label class="lbl">Тип операции</label>
+    <div class="fr"><label class="lbl">Тип</label>
       <div class="corr-types">
         <div class="corr-btn sel" id="cb-corr" onclick="setCorrType('correction',this)">📝 Коррекция</div>
         <div class="corr-btn" id="cb-write" onclick="setCorrType('writeoff',this)">🗑 Списание</div>
         <div class="corr-btn" id="cb-ret" onclick="setCorrType('return',this)">↩️ Возврат</div>
       </div>
     </div>
-    <div class="fr">
-      <label class="lbl" id="corr-qty-lbl">Количество</label>
-      <input type="number" class="fi" id="corr-qty" placeholder="0" min="1" inputmode="numeric">
-    </div>
+    <div class="fr"><label class="lbl" id="corr-qty-lbl">Количество</label><input type="number" class="fi" id="corr-qty" placeholder="0" min="1" inputmode="numeric"></div>
     <div class="fr"><label class="lbl">Комментарий</label><input type="text" class="fi" id="corr-note" placeholder="Причина…"></div>
     <button class="btn btn-dk" onclick="applyCorrection()">Применить</button>
   </div>
 </div>
 </div>
-
-<!-- ═══ MODAL: EXCEL ═══ -->
+ 
 <div class="ov" id="ov-import">
 <div class="modal">
-  <div class="mhdr"><div class="mt">Импорт из Excel</div><button class="mc" onclick="closeModal('ov-import')">×</button></div>
+  <div class="mhdr"><div class="mt">Импорт Excel</div><button class="mc" onclick="closeModal('ov-import')">×</button></div>
   <div style="background:var(--blbg);border:1px solid var(--blbr);border-radius:var(--rs);padding:12px;margin-bottom:12px;font-size:12px;color:var(--bl);line-height:1.7;font-weight:500">
-    <b>Столбцы:</b> Название · Штрихкод · Цена закупки · Цена продажи · Категория · Единица · Эмодзи<br>
-    Первая строка — заголовок (пропускается).
+    <b>Столбцы:</b> Название · Штрихкод · Цена закупки · Цена продажи · Категория · Единица · Эмодзи
   </div>
   <label class="iz" for="xl-inp">
     <input type="file" id="xl-inp" accept=".xlsx,.xls,.csv" onchange="handleImport(event)">
     <div style="font-size:28px;margin-bottom:7px">📂</div>
     <div style="font-size:13px;font-weight:700;color:var(--tx2)">Выбрать файл</div>
-    <div style="font-size:11px;color:var(--tx3);margin-top:3px">.xlsx · .xls · .csv</div>
   </label>
   <div id="import-prev" style="margin-top:11px"></div>
 </div>
 </div>
-
-<!-- ═══ MODAL: ДОЛГ ═══ -->
+ 
 <div class="ov" id="ov-debt">
 <div class="modal">
   <div class="mhdr"><div class="mt" id="debt-mname">—</div><button class="mc" onclick="closeModal('ov-debt')">×</button></div>
   <div id="debt-mbody"></div>
   <div style="background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:13px;margin-top:12px">
-    <label class="lbl">Принять частичную оплату (сом)</label>
+    <label class="lbl">Частичная оплата (сом)</label>
     <div style="display:flex;gap:8px;margin-top:4px">
       <input type="number" class="fi" id="partial-amt" placeholder="0" min="0" inputmode="numeric" style="flex:1">
       <button class="sm sm-am" onclick="partialPay()">Принять</button>
@@ -546,8 +872,7 @@ input[type=number]{-moz-appearance:textfield;}
   <button class="btn btn-gh" onclick="closeModal('ov-debt')" style="margin-top:7px">Закрыть</button>
 </div>
 </div>
-
-<!-- ═══ MODAL: НАСТРОЙКИ ═══ -->
+ 
 <div class="ov" id="ov-settings">
 <div class="modal">
   <div class="mhdr"><div class="mt">⚙️ Настройки</div><button class="mc" onclick="closeModal('ov-settings')">×</button></div>
@@ -563,31 +888,22 @@ input[type=number]{-moz-appearance:textfield;}
   <div class="card">
     <div class="ctitle">О приложении</div>
     <div style="font-size:13px;color:var(--tx2);line-height:1.75">
-      <b style="color:var(--tx)">Мой Магазин</b> — профессиональная кассовая система для малого бизнеса Кыргызстана.<br><br>
-      Архитектура: остаток = Σ приходы − Σ продажи − Σ списания + Σ возвраты<br><br>
-      <span style="color:var(--tx3)">v5.0 · Умар Элдияров</span>
+      <b style="color:var(--tx)">Мой Магазин</b> — кассовая система для малого бизнеса Кыргызстана.<br><br>
+      <span style="color:var(--tx3)">v6.0 · Умар Элдияров</span>
     </div>
     <a href="https://wa.me/996502516726" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;padding:13px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none;margin-top:13px">💬 Написать разработчику</a>
   </div>
 </div>
 </div>
-
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script>
-// ══════════════════════════════════════════════════════════
-// DATABASE SCHEMA
-// products:   [{id, name, barcode, buyPrice, sellPrice, category, unit, emoji}]
-//             — НЕТ поля stock. Остаток ВСЕГДА вычисляется из операций.
-//
-// operations: [{id, pid, type, qty, buyPrice, note, date}]
-//             type: 'arrival' | 'sale' | 'return' | 'writeoff' | 'correction'
-//             qty > 0 всегда (направление определяет type)
-//
-// sales:      [{id, date, items:[{pid,name,qty,sellPrice,buyPrice}], revenue, cost, profit, payType, buyer}]
-// debts:      [{id, name, amount, date, saleIds, paid, payments}]
-// ══════════════════════════════════════════════════════════
-const KEY = 'mm5';
+// ══════════════════════════════════════════
+// DATABASE — операционная архитектура
+// stock = Σ arrivals + Σ returns − Σ sales − Σ writeoffs ± corrections
+// ══════════════════════════════════════════
+const KEY = 'mm6';
 function db() {
   try { return JSON.parse(localStorage.getItem(KEY)) || {products:[],operations:[],sales:[],debts:[]}; }
   catch(e) { return {products:[],operations:[],sales:[],debts:[]}; }
@@ -595,470 +911,469 @@ function db() {
 function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
 const fmt = n => Math.round(n||0).toLocaleString('ru-RU');
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-
-// ══════════════════════════════════════════════════════════
-// CORE: ОСТАТОК ВЫЧИСЛЯЕТСЯ ИЗ ОПЕРАЦИЙ
-// Остаток = Σ arrivals + Σ returns - Σ sales - Σ writeoffs ± corrections
-// correction qty может быть отрицательным (если correction уменьшает)
-// Мы храним qty всегда > 0 и используем sign
-// ══════════════════════════════════════════════════════════
-const OP_SIGN = { arrival:+1, return:+1, sale:-1, writeoff:-1, correction:+1 };
-
+const OP_SIGN = {arrival:+1, return:+1, sale:-1, writeoff:-1, correction:+1};
+ 
 function getStock(pid, ops) {
-  // Остаток = сумма (qty × sign) по всем операциям товара
-  return (ops || db().operations)
-    .filter(o => o.pid === pid)
-    .reduce((sum, o) => sum + (o.qty * (OP_SIGN[o.type] || 0)), 0);
+  return (ops||db().operations).filter(o=>o.pid===pid).reduce((s,o)=>s+(o.qty*(OP_SIGN[o.type]||0)),0);
 }
-
 function getAllStocks() {
-  const data = db();
-  const map = {};
-  data.operations.forEach(o => {
-    if (!map[o.pid]) map[o.pid] = 0;
-    map[o.pid] += o.qty * (OP_SIGN[o.type] || 0);
-  });
-  return map; // {pid: stock}
+  const map={};
+  db().operations.forEach(o=>{if(!map[o.pid])map[o.pid]=0;map[o.pid]+=o.qty*(OP_SIGN[o.type]||0);});
+  return map;
 }
-
-// ══════════════════════════════════════════════════════════
+ 
+// ══════════════════════════════════════════
 // CLOCK
-// ══════════════════════════════════════════════════════════
-setInterval(() => {
-  document.getElementById('hdr-time').textContent =
-    new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-},1000);
-document.getElementById('hdr-time').textContent =
-  new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════
+setInterval(()=>{document.getElementById('hdr-time').textContent=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});},1000);
+document.getElementById('hdr-time').textContent=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+ 
+// ══════════════════════════════════════════
 // TOAST
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════
 let _tt;
-function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('on');
-  clearTimeout(_tt); _tt = setTimeout(() => el.classList.remove('on'), 2800);
-}
-
-// ══════════════════════════════════════════════════════════
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>el.classList.remove('on'),2800);}
+ 
+// ══════════════════════════════════════════
 // NAV
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════
+let _currentPage = 'kassa';
 function goPage(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Если уходим с кассы — останавливаем камеру кассы
+  if (_currentPage === 'kassa' && name !== 'kassa') stopKassaCamera();
+  // Если возвращаемся на кассу — запускаем камеру
+  if (name === 'kassa') startKassaCamera();
+ 
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('pg-'+name).classList.add('active');
-  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  ({sklad:renderSklad, products:renderProds, debts:renderDebts, report:renderReport})[name]?.();
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  _currentPage = name;
+  ({sklad:renderSklad,products:renderProds,debts:renderDebts,report:renderReport})[name]?.();
 }
-function openModal(id)  { document.getElementById(id).classList.add('on'); }
-function closeModal(id) { document.getElementById(id).classList.remove('on'); }
-
-// ══════════════════════════════════════════════════════════
-// SETTINGS
-// ══════════════════════════════════════════════════════════
-function openSettings() {
-  document.getElementById('set-name').value = localStorage.getItem('mm_name') || '';
-  openModal('ov-settings');
-}
-function saveSetting() {
-  const v = document.getElementById('set-name').value.trim() || 'Мой Магазин';
-  localStorage.setItem('mm_name', v);
-  document.getElementById('hdr-store').textContent = v;
-}
-function initSettings() {
-  const v = localStorage.getItem('mm_name') || '';
-  document.getElementById('hdr-store').textContent = v;
-}
-
-// ══════════════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('on');}
+function closeModal(id){document.getElementById(id).classList.remove('on');}
+ 
+// ══════════════════════════════════════════
 // SCANNER ENGINE
-// ══════════════════════════════════════════════════════════
-let _readers = {};
-let _scanCallback = null;
-
-function _startReader(videoId, statusId, onCode) {
+// ══════════════════════════════════════════
+let _readers={};
+function _startReader(videoId,statusId,onCode){
   _stopReader(videoId);
-  if (!window.ZXing) { setTimeout(() => _startReader(videoId, statusId, onCode), 400); return; }
-  document.getElementById(statusId).textContent = 'Запуск камеры…';
-  const r = new ZXing.BrowserMultiFormatReader();
-  _readers[videoId] = { r, active:true };
-  r.decodeFromVideoDevice(null, videoId, res => {
-    if (!_readers[videoId]?.active) return;
-    if (res) {
-      const code = res.getText();
-      if (code) {
+  if(!window.ZXing){setTimeout(()=>_startReader(videoId,statusId,onCode),400);return;}
+  if(statusId) document.getElementById(statusId).textContent='Запуск…';
+  const r=new ZXing.BrowserMultiFormatReader();
+  _readers[videoId]={r,active:true};
+  r.decodeFromVideoDevice(null,videoId,res=>{
+    if(!_readers[videoId]?.active) return;
+    if(res){
+      const code=res.getText();
+      if(code){
         navigator.vibrate?.([55]);
-        document.getElementById(statusId).textContent = '✓ ' + code;
-        _readers[videoId].active = false;
+        if(statusId) document.getElementById(statusId).textContent='✓ '+code;
+        _readers[videoId].active=false;
         onCode(code);
-        setTimeout(() => {
-          if (_readers[videoId]) {
-            _readers[videoId].active = true;
-            document.getElementById(statusId).textContent = 'Наведите на штрихкод';
-          }
-        }, 2200);
+        setTimeout(()=>{if(_readers[videoId]){_readers[videoId].active=true;if(statusId)document.getElementById(statusId).textContent='Наведите на штрихкод';}},1800);
       }
     }
   });
 }
-
-function _stopReader(videoId) {
-  if (_readers[videoId]) {
-    _readers[videoId].active = false;
-    try { _readers[videoId].r.reset(); } catch(e) {}
-    delete _readers[videoId];
+function _stopReader(videoId){if(_readers[videoId]){_readers[videoId].active=false;try{_readers[videoId].r.reset();}catch(e){}delete _readers[videoId];}}
+ 
+// Generic scanner (для товаров, прихода)
+function openGenericScanner(title,onCode){
+  document.getElementById('scan-gen-title').textContent=title;
+  document.getElementById('gen-extra').innerHTML='';
+  document.getElementById('gen-st').textContent='Наведите на штрихкод';
+  openModal('ov-scan-generic');
+  _startReader('gen-video','gen-st',code=>{onCode(code);});
+}
+function closeGenericScanner(){_stopReader('gen-video');closeModal('ov-scan-generic');}
+ 
+// ══════════════════════════════════════════
+// КАССА — КАМЕРА (всегда активна на экране 1)
+// ══════════════════════════════════════════
+let _kassaCamRunning = false;
+ 
+function startKassaCamera(){
+  if(_kassaCamRunning) return;
+  _kassaCamRunning=true;
+  document.getElementById('cam-status').textContent='Запуск камеры…';
+  _startReader('kassa-video', null, code=>{
+    // Нашли штрихкод — показываем popup
+    kassaScanFound(code);
+  });
+  // Обновляем статус
+  setTimeout(()=>{
+    if(_readers['kassa-video']){
+      document.getElementById('cam-status').textContent='Наведите на штрихкод';
+      document.getElementById('cam-dot').style.background='#22c55e';
+    }
+  },1500);
+}
+ 
+function stopKassaCamera(){
+  _kassaCamRunning=false;
+  _stopReader('kassa-video');
+}
+ 
+function kassaScanFound(code){
+  const p=db().products.find(pr=>pr.barcode===code||pr.name.toLowerCase()===code.toLowerCase());
+  if(!p){
+    toast(`⚠️ Товар не найден: ${code}`);
+    document.getElementById('cam-status').textContent='Не найден: '+code;
+    setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',2000);
+    return;
   }
+  const st=getStock(p.id);
+  if(st<=0){
+    toast(`⛔ ${p.name} — нет на складе`);
+    return;
+  }
+  // Показываем popup выбора количества
+  _qpProd=p;
+  document.getElementById('qp-emo').textContent=p.emoji||'📦';
+  document.getElementById('qp-name').textContent=p.name;
+  document.getElementById('qp-price').textContent=fmt(p.sellPrice)+' сом / '+( p.unit||'шт');
+  document.getElementById('qp-qty').value=1;
+  document.getElementById('qp-sub').textContent=fmt(p.sellPrice)+' сом';
+  document.getElementById('qty-popup').style.display='flex';
+  // Пауза камеры пока popup открыт
+  if(_readers['kassa-video']) _readers['kassa-video'].active=false;
 }
-
-function closeScanner() {
-  _stopReader('scan-video');
-  closeModal('ov-scan');
-  if (_scanCallback) { _scanCallback = null; }
+ 
+// ══════════════════════════════════════════
+// КАССА — POPUP КОЛИЧЕСТВО
+// ══════════════════════════════════════════
+let _qpProd=null;
+let kCart=[];
+ 
+function qpDelta(d){
+  const inp=document.getElementById('qp-qty');
+  const st=getStock(_qpProd.id);
+  inp.value=Math.max(1,Math.min(st,(parseInt(inp.value)||1)+d));
+  qpUpdate();
 }
-
-function openScannerWith(title, onCode) {
-  document.getElementById('scan-title').textContent = title;
-  document.getElementById('scan-extra').innerHTML = '';
-  document.getElementById('scan-st').textContent = 'Наведите на штрихкод';
-  _scanCallback = onCode;
-  openModal('ov-scan');
-  _startReader('scan-video', 'scan-st', code => { onCode(code); });
+function qpUpdate(){
+  const inp=document.getElementById('qp-qty');
+  if(!_qpProd) return;
+  const st=getStock(_qpProd.id);
+  let qty=parseInt(inp.value)||1;
+  if(qty>st){qty=st;inp.value=qty;toast(`⚠️ Максимум ${st} ${_qpProd.unit||'шт'}`);}
+  if(qty<1){qty=1;inp.value=1;}
+  document.getElementById('qp-sub').textContent=fmt(_qpProd.sellPrice*qty)+' сом';
 }
-
-// ══════════════════════════════════════════════════════════
-// КАССА
-// ══════════════════════════════════════════════════════════
-let kCart = [];
-let kFoundProd = null;
-let kPayType = 'cash';
-let _lastBuyer = '';
-
-function openKScanner() {
-  document.getElementById('k-manual-in').value = '';
-  document.getElementById('k-manual-results').innerHTML = '';
-  openScannerWith('Сканер кассы', code => {
-    closeScanner();
-    kLookup(code);
+function qpConfirm(){
+  if(!_qpProd) return;
+  const qty=parseInt(document.getElementById('qp-qty').value)||1;
+  const st=getStock(_qpProd.id);
+  const alreadyInCart=kCart.find(c=>c.pid===_qpProd.id)?.qty||0;
+  if(alreadyInCart+qty>st){toast(`⚠️ Только ${st} ${_qpProd.unit||'шт'} на складе`);return;}
+  const ex=kCart.find(c=>c.pid===_qpProd.id);
+  if(ex) ex.qty+=qty;
+  else kCart.push({pid:_qpProd.id,name:_qpProd.name,emoji:_qpProd.emoji||'📦',unit:_qpProd.unit||'шт',sellPrice:_qpProd.sellPrice,buyPrice:_qpProd.buyPrice,qty});
+  navigator.vibrate?.([40,20,40]);
+  qpClose();
+  renderKassaLog();
+  updatePayBtn();
+}
+function qpCancel(){qpClose();}
+function qpClose(){
+  document.getElementById('qty-popup').style.display='none';
+  _qpProd=null;
+  // Возобновляем камеру
+  if(_readers['kassa-video']) _readers['kassa-video'].active=true;
+}
+ 
+// ══════════════════════════════════════════
+// КАССА — ЛОГ (маленький список добавленных)
+// ══════════════════════════════════════════
+function renderKassaLog(){
+  const log=document.getElementById('ks1-log');
+  const empty=document.getElementById('ks1-log-empty');
+  if(!kCart.length){
+    if(empty) empty.style.display='flex';
+    // Убираем все items кроме empty
+    log.querySelectorAll('.ks1-log-item').forEach(el=>el.remove());
+    return;
+  }
+  if(empty) empty.style.display='none';
+  log.querySelectorAll('.ks1-log-item').forEach(el=>el.remove());
+  // Показываем в обратном порядке (последний добавленный сверху)
+  [...kCart].reverse().forEach(c=>{
+    const sub=c.sellPrice*c.qty;
+    const div=document.createElement('div');
+    div.className='ks1-log-item';
+    div.innerHTML=`
+      <div class="ks1-log-emo">${c.emoji}</div>
+      <div class="ks1-log-name">${c.name}</div>
+      <div class="ks1-log-qty">${c.qty} ${c.unit}</div>
+      <div class="ks1-log-price">${fmt(sub)} сом</div>`;
+    log.insertBefore(div,log.firstChild);
   });
 }
-
-function renderManualSearch(q) {
-  const res = document.getElementById('k-manual-results');
-  if (!q || q.length < 1) { res.innerHTML = ''; return; }
-  const data = db();
-  const stocks = getAllStocks();
-  const found = data.products.filter(p =>
-    p.name.toLowerCase().includes(q.toLowerCase()) ||
-    (p.barcode||'').includes(q)
-  ).slice(0,6);
-  if (!found.length) { res.innerHTML = `<div style="padding:10px;font-size:12px;color:var(--tx3);text-align:center">Не найдено</div>`; return; }
-  res.innerHTML = `<div class="manual-results">${found.map(p => {
-    const st = stocks[p.id] || 0;
-    const scol = st<=0?'color:var(--rd)':st<=5?'color:var(--am)':'color:var(--gn)';
-    return `<div class="mr-item" onclick="kSelectProduct('${p.id}')">
-      <div class="mr-emo">${p.emoji||'📦'}</div>
+ 
+function updatePayBtn(){
+  const btn=document.getElementById('ks1-pay-btn');
+  const sub=document.getElementById('ks1-pay-sub');
+  const amt=document.getElementById('ks1-pay-amount');
+  if(!kCart.length){
+    btn.classList.add('empty-cart'); btn.disabled=true;
+    sub.textContent='Добавьте товары для оплаты';
+    amt.textContent='0 сом'; return;
+  }
+  let total=0,totalQty=0;
+  kCart.forEach(c=>{total+=c.sellPrice*c.qty;totalQty+=c.qty;});
+  btn.classList.remove('empty-cart'); btn.disabled=false;
+  sub.textContent=`${kCart.length} товар${kCart.length>1?'а':''} · ${totalQty} шт`;
+  amt.textContent=fmt(total)+' сом';
+}
+ 
+// ══════════════════════════════════════════
+// КАССА — РУЧНОЙ ПОИСК
+// ══════════════════════════════════════════
+function ks1ManualSearch(q){
+  const res=document.getElementById('ks1-manual-res');
+  if(!q||q.length<1){res.style.display='none';return;}
+  const stocks=getAllStocks();
+  const found=db().products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||(p.barcode||'').includes(q)).slice(0,6);
+  if(!found.length){res.style.display='none';return;}
+  res.style.display='block';
+  res.innerHTML=found.map(p=>{
+    const st=stocks[p.id]||0;
+    const scol=st<=0?'color:var(--rd)':st<=5?'color:var(--am)':'color:var(--gn)';
+    return `<div class="ks1-mr-item" onclick="ks1SelectProd('${p.id}')">
+      <div class="ks1-mr-emo">${p.emoji||'📦'}</div>
       <div style="flex:1;min-width:0">
-        <div class="mr-name">${p.name}</div>
-        <div class="mr-price">${fmt(p.sellPrice)} сом</div>
+        <div class="ks1-mr-name">${p.name}</div>
+        <div class="ks1-mr-price">${fmt(p.sellPrice)} сом / ${p.unit||'шт'}</div>
       </div>
-      <div class="mr-stock" style="${scol}">${st} ${p.unit||'шт'}</div>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-function kSelectProduct(pid) {
-  document.getElementById('k-manual-in').value = '';
-  document.getElementById('k-manual-results').innerHTML = '';
-  kLookup(pid, true); // true = lookup by id
-}
-
-function kLookup(codeOrId, byId = false) {
-  document.getElementById('k-in').value = '';
-  const data = db();
-  const p = byId
-    ? data.products.find(pr => pr.id === codeOrId)
-    : data.products.find(pr => pr.barcode === codeOrId || pr.name.toLowerCase() === codeOrId.toLowerCase());
-  kFoundProd = p || null;
-  if (p) {
-    renderKFound(p);
-  } else {
-    document.getElementById('k-found').innerHTML = `
-      <div class="knf">
-        <div style="font-size:14px;font-weight:800;color:var(--rd);margin-bottom:5px">Товар не найден</div>
-        <div style="font-size:12px;color:var(--tx2);margin-bottom:11px">«${codeOrId}»</div>
-        <button class="sm sm-dk" onclick="prefillNew('${codeOrId}')">+ Добавить в базу товаров</button>
-      </div>`;
-  }
-  document.getElementById('k-in').focus();
-}
-
-function renderKFound(p) {
-  const st = getStock(p.id);
-  const stockOk = st > 0;
-  const scol = st<=0?'color:var(--rd)':st<=(p.minStock||5)?'color:var(--am)':'color:var(--gn)';
-  const inCart = kCart.find(c => c.pid === p.id);
-  document.getElementById('k-found').innerHTML = `
-    <div class="kf">
-      <div class="kf-top">
-        <div class="kf-emoji">${p.emoji||'📦'}</div>
-        <div>
-          <div class="kf-name">${p.name}</div>
-          <div class="kf-price">${fmt(p.sellPrice)} сом</div>
-          <div class="kf-meta" style="${scol}">На складе: ${st} ${p.unit||'шт'}${inCart?` · В чеке: ${inCart.qty}`:''}</div>
-        </div>
-      </div>
-      ${stockOk ? `
-      <div class="kf-qrow">
-        <span class="kf-qlbl">Кол-во:</span>
-        <div class="kf-qctrl">
-          <button class="kf-qbtn" onclick="kfDelta(-1)">−</button>
-          <input type="number" class="kf-qin" id="kf-qin" value="1" min="1" max="${st}" inputmode="numeric" onclick="this.select()" oninput="kfUpdate()">
-          <button class="kf-qbtn" onclick="kfDelta(1)">+</button>
-        </div>
-        <div class="kf-sub" id="kf-sub">${fmt(p.sellPrice)} сом</div>
-      </div>
-      <button class="btn btn-dk" onclick="addToKCart()">+ Добавить в чек</button>
-      ` : `<div style="text-align:center;padding:10px 0;color:var(--rd);font-weight:700;font-size:13px">⛔ Нет на складе — продажа запрещена</div>`}
-    </div>`;
-}
-
-function kfDelta(d) {
-  const inp = document.getElementById('kf-qin');
-  if (!inp || !kFoundProd) return;
-  const st = getStock(kFoundProd.id);
-  inp.value = Math.max(1, Math.min(st, (parseInt(inp.value)||1) + d));
-  kfUpdate();
-}
-
-function kfUpdate() {
-  const inp = document.getElementById('kf-qin');
-  const sub = document.getElementById('kf-sub');
-  if (!inp || !sub || !kFoundProd) return;
-  const st = getStock(kFoundProd.id);
-  let qty = parseInt(inp.value) || 1;
-  if (qty > st) { qty = st; inp.value = qty; toast(`⚠️ Максимум ${st} ${kFoundProd.unit||'шт'}`); }
-  if (qty < 1) { qty = 1; inp.value = 1; }
-  sub.textContent = fmt(kFoundProd.sellPrice * qty) + ' сом';
-}
-
-function addToKCart() {
-  if (!kFoundProd) return;
-  const qty = parseInt(document.getElementById('kf-qin').value) || 1;
-  const st = getStock(kFoundProd.id);
-  // ЗАЩИТА: нельзя продать больше остатка
-  const alreadyInCart = kCart.find(c => c.pid === kFoundProd.id)?.qty || 0;
-  if (alreadyInCart + qty > st) { toast(`⚠️ Только ${st} ${kFoundProd.unit||'шт'} на складе`); return; }
-  if (qty <= 0) return;
-
-  const ex = kCart.find(c => c.pid === kFoundProd.id);
-  if (ex) { ex.qty += qty; }
-  else {
-    kCart.push({
-      pid:kFoundProd.id, name:kFoundProd.name,
-      emoji:kFoundProd.emoji||'📦', unit:kFoundProd.unit||'шт',
-      sellPrice:kFoundProd.sellPrice, buyPrice:kFoundProd.buyPrice, qty
-    });
-  }
-  document.getElementById('k-found').innerHTML = '';
-  kFoundProd = null;
-  renderReceipt();
-  toast(`✓ ${qty} шт добавлено`);
-  document.getElementById('k-in').focus();
-}
-
-function kCartQty(pid, d) {
-  const i = kCart.findIndex(c => c.pid === pid);
-  if (i < 0) return;
-  const nq = kCart[i].qty + d;
-  if (nq <= 0) { kCart.splice(i, 1); }
-  else {
-    const st = getStock(pid);
-    if (nq > st) { toast(`⚠️ На складе только ${st} шт`); return; }
-    kCart[i].qty = nq;
-  }
-  renderReceipt();
-}
-
-function kCartDel(pid) { kCart = kCart.filter(c => c.pid !== pid); renderReceipt(); }
-function clearKCart() { kCart = []; kFoundProd = null; document.getElementById('k-found').innerHTML = ''; renderReceipt(); }
-
-function renderReceipt() {
-  const zone = document.getElementById('k-receipt');
-  if (!kCart.length) { zone.innerHTML = ''; return; }
-
-  // MATH: grand = Σ (sellPrice × qty)
-  let totalQty = 0, grand = 0;
-  kCart.forEach(c => { totalQty += c.qty; grand += c.sellPrice * c.qty; });
-
-  const items = kCart.map(c => {
-    const sub = c.sellPrice * c.qty;
-    return `<div class="ri">
-      <div class="ri-emo">${c.emoji}</div>
-      <div class="ri-body"><div class="ri-name">${c.name}</div><div class="ri-unit">${fmt(c.sellPrice)} сом / ${c.unit}</div></div>
-      <div class="ri-ctrl">
-        <button class="ri-qb" onclick="kCartQty('${c.pid}',-1)">−</button>
-        <span class="ri-qn">${c.qty}</span>
-        <button class="ri-qb" onclick="kCartQty('${c.pid}',1)">+</button>
-      </div>
-      <div class="ri-sum">${fmt(sub)}</div>
-      <button class="ri-del" onclick="kCartDel('${c.pid}')">✕</button>
+      <div style="${scol}" class="ks1-mr-stock">${st} ${p.unit||'шт'}</div>
     </div>`;
   }).join('');
-
-  const payTypes = [{id:'cash',icon:'💵',lbl:'Наличные'},{id:'card',icon:'💳',lbl:'Карта'},{id:'qr',icon:'📱',lbl:'QR'},{id:'debt',icon:'🧾',lbl:'В долг'}];
-  const payBtns = payTypes.map(t =>
-    `<div class="pay-btn${kPayType===t.id?' sel':''}" onclick="setPayType('${t.id}')">
-      <div class="pay-icon">${t.icon}</div><div class="pay-lbl">${t.lbl}</div>
-    </div>`).join('');
-
-  const debtBlock = kPayType === 'debt' ? `
-    <div class="fr" style="margin-bottom:10px">
-      <label class="lbl">Имя клиента *</label>
-      <input type="text" class="fi" id="k-buyer" placeholder="Ахмед Касымов" value="${_lastBuyer}">
-    </div>` : '';
-
-  zone.innerHTML = `
-    <div class="receipt">
-      <div class="rh"><span class="rh-t">Чек</span><span class="rh-b">${kCart.length} поз · ${totalQty} шт</span></div>
-      <div>${items}</div>
-      <div class="rf"><div class="rf-grand"><span class="rf-gl">К оплате</span><span class="rf-gv">${fmt(grand)} сом</span></div></div>
-    </div>
-    <div class="slbl" style="margin-top:4px">Способ оплаты</div>
-    <div class="pay-grid">${payBtns}</div>
-    ${debtBlock}
-    <button class="btn btn-gn" onclick="checkout()">✓ Провести оплату — ${fmt(grand)} сом</button>
-    <button class="btn btn-gh" onclick="clearKCart()" style="margin-top:7px">Очистить чек</button>`;
 }
-
-function setPayType(t) { kPayType = t; renderReceipt(); }
-
-function checkout() {
-  if (!kCart.length) { toast('Чек пустой'); return; }
-  const buyer = kPayType === 'debt' ? (document.getElementById('k-buyer')?.value||'').trim() : '';
-  if (kPayType === 'debt' && !buyer) { toast('⚠️ Введите имя клиента'); return; }
-  _lastBuyer = buyer;
-
-  const data = db(); const now = new Date().toISOString();
-
-  // MATH: revenue = Σ(sell×qty), cost = Σ(buy×qty), profit = revenue − cost
-  let revenue = 0, cost = 0;
-  const saleItems = [];
-
-  kCart.forEach(c => {
-    const rev = c.sellPrice * c.qty;
-    const co  = c.buyPrice  * c.qty;
-    revenue += rev; cost += co;
-    saleItems.push({pid:c.pid, name:c.name, qty:c.qty, unit:c.unit,
-      sellPrice:c.sellPrice, buyPrice:c.buyPrice, subRev:rev, subCost:co});
-
-    // ЗАПИСЫВАЕМ ОПЕРАЦИЮ: тип 'sale'
-    data.operations.push({
-      id:uid(), pid:c.pid, type:'sale',
-      qty:c.qty, buyPrice:c.buyPrice, sellPrice:c.sellPrice,
-      note:'Продажа', date:now
-    });
-  });
-
-  const profit = revenue - cost;
-  const sale = {id:uid(), date:now, items:saleItems, revenue, cost, profit, payType:kPayType, buyer:buyer||null};
-  data.sales.push(sale);
-
-  // Долг
-  if (kPayType === 'debt') {
-    const ex = data.debts.find(d => d.name.toLowerCase() === buyer.toLowerCase() && !d.paid);
-    if (ex) { ex.amount += revenue; (ex.saleIds||=[]).push(sale.id); }
-    else data.debts.push({id:uid(), name:buyer, amount:revenue, date:now, saleIds:[sale.id], paid:false, payments:[]});
+ 
+function ks1SelectProd(pid){
+  document.getElementById('ks1-search').value='';
+  document.getElementById('ks1-manual-res').style.display='none';
+  const p=db().products.find(x=>x.id===pid);
+  if(!p) return;
+  const st=getStock(p.id);
+  if(st<=0){toast(`⛔ ${p.name} — нет на складе`);return;}
+  _qpProd=p;
+  document.getElementById('qp-emo').textContent=p.emoji||'📦';
+  document.getElementById('qp-name').textContent=p.name;
+  document.getElementById('qp-price').textContent=fmt(p.sellPrice)+' сом / '+(p.unit||'шт');
+  document.getElementById('qp-qty').value=1;
+  document.getElementById('qp-sub').textContent=fmt(p.sellPrice)+' сом';
+  document.getElementById('qty-popup').style.display='flex';
+  if(_readers['kassa-video']) _readers['kassa-video'].active=false;
+}
+ 
+// ══════════════════════════════════════════
+// КАССА — ПЕРЕХОДЫ МЕЖДУ ЭКРАНАМИ
+// ══════════════════════════════════════════
+let _selectedPayType=null;
+ 
+function setKassaScreen(id){
+  document.querySelectorAll('.ks').forEach(k=>k.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+ 
+function goToPayment(){
+  if(!kCart.length) return;
+  let total=0,totalQty=0;
+  kCart.forEach(c=>{total+=c.sellPrice*c.qty;totalQty+=c.qty;});
+  document.getElementById('ks2-amount').textContent=fmt(total)+' сом';
+  document.getElementById('ks2-items-count').textContent=`${kCart.length} позиции · ${totalQty} шт`;
+  document.getElementById('ks2-debt-block').style.display='none';
+  document.getElementById('ks2-buyer').value='';
+  _selectedPayType=null;
+  setKassaScreen('ks2');
+}
+ 
+function goToScan(){
+  setKassaScreen('ks1');
+}
+ 
+function selectPayType(type){
+  _selectedPayType=type;
+  if(type==='debt'){
+    document.getElementById('ks2-debt-block').style.display='block';
+    return; // Ждём ввода имени
   }
-
-  save(data);
-  clearKCart();
-  kPayType = 'cash';
-  const ic = {cash:'💵',card:'💳',qr:'📱',debt:'🧾'}[sale.payType];
-  toast(`${ic} ${fmt(revenue)} сом · прибыль ${fmt(profit)} сом`);
+  goToConfirm(type);
 }
-
-// ══════════════════════════════════════════════════════════
+ 
+function goToConfirm(type){
+  if(type==='debt'){
+    const buyer=(document.getElementById('ks2-buyer').value||'').trim();
+    if(!buyer){toast('⚠️ Введите имя клиента');return;}
+  }
+  // Заполняем экран 3
+  const ic={cash:'💵',card:'💳',qr:'📱',debt:'🧾'}[type];
+  const nm={cash:'Наличные',card:'Карта',qr:'QR',debt:'В долг — '+(document.getElementById('ks2-buyer').value||'')}[type];
+  document.getElementById('ks3-pay-ic').textContent=ic;
+  document.getElementById('ks3-pay-name').textContent=nm;
+ 
+  // Список товаров
+  let total=0,totalQty=0;
+  document.getElementById('ks3-items').innerHTML=kCart.map(c=>{
+    const sub=c.sellPrice*c.qty;
+    total+=sub; totalQty+=c.qty;
+    return `<div class="ks3-item">
+      <div class="ks3-item-emo">${c.emoji}</div>
+      <div class="ks3-item-body">
+        <div class="ks3-item-name">${c.name}</div>
+        <div class="ks3-item-unit">${fmt(c.sellPrice)} сом / ${c.unit}</div>
+      </div>
+      <div class="ks3-item-right">
+        <div class="ks3-item-qty">${c.qty} ${c.unit}</div>
+        <div class="ks3-item-sum">${fmt(sub)} сом</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('ks3-qty-total').textContent=totalQty+' шт';
+  document.getElementById('ks3-grand').textContent=fmt(total)+' сом';
+  setKassaScreen('ks3');
+}
+ 
+function goToPaymentType(){
+  setKassaScreen('ks2');
+}
+ 
+// ══════════════════════════════════════════
+// КАССА — ОПЛАТА
+// ══════════════════════════════════════════
+function confirmCheckout(){
+  if(!kCart.length) return;
+  const type=_selectedPayType;
+  const buyer=type==='debt'?(document.getElementById('ks2-buyer').value||'').trim():'';
+ 
+  const data=db(); const now=new Date().toISOString();
+  let revenue=0,cost=0;
+  const saleItems=[];
+ 
+  kCart.forEach(c=>{
+    const rev=c.sellPrice*c.qty;
+    const co=c.buyPrice*c.qty;
+    revenue+=rev; cost+=co;
+    saleItems.push({pid:c.pid,name:c.name,qty:c.qty,unit:c.unit,sellPrice:c.sellPrice,buyPrice:c.buyPrice,subRev:rev,subCost:co});
+    data.operations.push({id:uid(),pid:c.pid,type:'sale',qty:c.qty,buyPrice:c.buyPrice,sellPrice:c.sellPrice,note:'Продажа',date:now});
+  });
+ 
+  const profit=revenue-cost;
+  data.sales.push({id:uid(),date:now,items:saleItems,revenue,cost,profit,payType:type,buyer:buyer||null});
+ 
+  if(type==='debt'){
+    const ex=data.debts.find(d=>d.name.toLowerCase()===buyer.toLowerCase()&&!d.paid);
+    if(ex){ex.amount+=revenue;(ex.saleIds=ex.saleIds||[]).push(data.sales[data.sales.length-1].id);}
+    else data.debts.push({id:uid(),name:buyer,amount:revenue,date:now,saleIds:[data.sales[data.sales.length-1].id],paid:false,payments:[]});
+  }
+ 
+  save(data);
+ 
+  // Сброс и переход на экран 1
+  kCart=[]; _selectedPayType=null;
+  renderKassaLog();
+  updatePayBtn();
+  setKassaScreen('ks1');
+ 
+  const ic={cash:'💵',card:'💳',qr:'📱',debt:'🧾'}[type];
+  toast(`${ic} Продажа ${fmt(revenue)} сом · прибыль ${fmt(profit)} сом`);
+}
+ 
+// Кнопка "В долг" на экране 2 — нужна отдельная кнопка подтвердить
+document.getElementById('ks2-buyer').addEventListener('keydown',function(e){
+  if(e.key==='Enter') goToConfirm('debt');
+});
+ 
+// ══════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════
+function openSettings(){
+  document.getElementById('set-name').value=localStorage.getItem('mm_name')||'';
+  openModal('ov-settings');
+}
+function saveSetting(){
+  const v=document.getElementById('set-name').value.trim()||'Мой Магазин';
+  localStorage.setItem('mm_name',v);
+  document.getElementById('hdr-store').textContent=v;
+}
+function initSettings(){
+  const v=localStorage.getItem('mm_name')||'';
+  document.getElementById('hdr-store').textContent=v;
+}
+ 
+// ══════════════════════════════════════════
 // СКЛАД
-// ══════════════════════════════════════════════════════════
-let prikh_qtys = {};
-
-function openPrikhod(mode) {
-  prikh_qtys = {};
-  const body = document.getElementById('prikhod-body');
-  if (mode === 'scan') {
-    body.innerHTML = `
+// ══════════════════════════════════════════
+let prikh_qtys={};
+function openPrikhod(mode){
+  prikh_qtys={};
+  const body=document.getElementById('prikhod-body');
+  if(mode==='scan'){
+    body.innerHTML=`
       <div class="svp"><video id="pv" playsinline muted autoplay></video>
         <div class="svo"><div class="svf"><div class="svl"></div>
           <div class="svc stl"></div><div class="svc str"></div><div class="svc sbl"></div><div class="svc sbr"></div>
         </div></div>
-        <div class="svs" id="pv-st">Сканируйте штрихкод товара</div>
+        <div class="svs" id="pv-st">Сканируйте штрихкод</div>
       </div>
       <div id="pv-res"></div>`;
     openModal('ov-prikhod');
-    _startReader('pv','pv-st', code => {
-      const p = db().products.find(x => x.barcode===code || x.name.toLowerCase()===code.toLowerCase());
-      const area = document.getElementById('pv-res');
-      const st = p ? getStock(p.id) : 0;
-      document.getElementById('pv-st').textContent = p ? `✓ ${p.name}` : 'Не найден: '+code;
-      if (p) {
-        area.innerHTML = `
-          <div style="background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:13px;margin-top:4px">
-            <div style="font-size:15px;font-weight:800;margin-bottom:5px">${p.emoji||'📦'} ${p.name}</div>
-            <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">Текущий остаток: <b>${st} ${p.unit||'шт'}</b></div>
-            <label class="lbl">Количество прихода *</label>
-            <div style="display:flex;gap:8px;margin-top:4px">
-              <input type="number" class="fi" id="pv-qty" value="1" min="1" inputmode="numeric" style="flex:1" onclick="this.select()">
-              <button class="btn btn-gn" style="width:auto;padding:0 20px" onclick="doArrival('${p.id}','pv-qty')">✓ Принять</button>
-            </div>
-          </div>`;
+    _startReader('pv','pv-st',code=>{
+      const p=db().products.find(x=>x.barcode===code||x.name.toLowerCase()===code.toLowerCase());
+      const area=document.getElementById('pv-res');
+      const st=p?getStock(p.id):0;
+      document.getElementById('pv-st').textContent=p?`✓ ${p.name}`:'Не найден: '+code;
+      if(p){
+        area.innerHTML=`<div style="background:var(--gnbg);border:1px solid var(--gnbr);border-radius:var(--rs);padding:13px;margin-top:4px">
+          <div style="font-size:15px;font-weight:800;margin-bottom:5px">${p.emoji||'📦'} ${p.name}</div>
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">Текущий остаток: <b>${st} ${p.unit||'шт'}</b></div>
+          <label class="lbl">Количество прихода *</label>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <input type="number" class="fi" id="pv-qty" value="1" min="1" inputmode="numeric" style="flex:1" onclick="this.select()">
+            <button class="btn btn-gn" style="width:auto;padding:0 20px" onclick="doArrival('${p.id}','pv-qty')">✓ Принять</button>
+          </div>
+        </div>`;
       } else {
-        area.innerHTML = `<div style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:var(--rs);padding:13px;text-align:center;margin-top:4px">
+        area.innerHTML=`<div style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:var(--rs);padding:13px;text-align:center;margin-top:4px">
           <div style="font-size:13px;color:var(--rd);font-weight:700;margin-bottom:5px">Товар не найден</div>
-          <div style="font-size:11px;color:var(--tx2)">Сначала добавьте карточку товара в раздел Товары</div>
+          <div style="font-size:11px;color:var(--tx2)">Сначала добавьте в Товары</div>
         </div>`;
       }
     });
   } else {
-    // manual
-    body.innerHTML = `
+    body.innerHTML=`
       <div class="sw"><span class="sw-ic">🔍</span><input type="text" class="fi" id="pk-q" placeholder="Поиск товара…" oninput="renderPrikhList()"></div>
-      <div id="pk-list" style="max-height:320px;overflow-y:auto"></div>
+      <div id="pk-list" style="max-height:300px;overflow-y:auto"></div>
       <button class="btn btn-dk" onclick="applyPrikhod()" style="margin-top:10px">✓ Оприходовать</button>`;
     openModal('ov-prikhod');
     renderPrikhList();
   }
 }
-
-function doArrival(pid, qtyInputId) {
-  const qty = parseInt(document.getElementById(qtyInputId).value) || 0;
-  if (qty <= 0) { toast('⚠️ Введите количество'); return; }
-  const data = db();
-  const p = data.products.find(x => x.id === pid);
-  if (!p) return;
-  // ЗАПИСЫВАЕМ ОПЕРАЦИЮ: тип 'arrival'
-  data.operations.push({ id:uid(), pid, type:'arrival', qty, buyPrice:p.buyPrice, note:'Приход от поставщика', date:new Date().toISOString() });
+ 
+function doArrival(pid,qtyId){
+  const qty=parseInt(document.getElementById(qtyId).value)||0;
+  if(qty<=0){toast('⚠️ Введите количество');return;}
+  const data=db(); const p=data.products.find(x=>x.id===pid); if(!p) return;
+  data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:p.buyPrice,note:'Приход от поставщика',date:new Date().toISOString()});
   save(data);
-  const newStock = getStock(pid, data.operations);
-  document.getElementById('pv-res').innerHTML = `
-    <div style="text-align:center;padding:16px;color:var(--gn);font-weight:800;font-size:15px">
-      ✓ Принято ${qty} ${p.unit||'шт'}<br>
-      <span style="font-size:12px;font-weight:600;color:var(--tx2)">Новый остаток: ${newStock} ${p.unit||'шт'}</span>
-    </div>`;
-  toast(`✓ Приход: ${p.name} +${qty}`);
+  const ns=getStock(pid,data.operations);
+  document.getElementById('pv-res').innerHTML=`<div style="text-align:center;padding:16px;color:var(--gn);font-weight:800;font-size:15px">✓ Принято ${qty} ${p.unit||'шт'}<br><span style="font-size:12px;font-weight:600;color:var(--tx2)">Новый остаток: ${ns} ${p.unit||'шт'}</span></div>`;
+  toast(`✓ ${p.name} +${qty}`);
   renderSklad();
 }
-
-function renderPrikhList() {
-  const data = db();
-  const q = (document.getElementById('pk-q')?.value || '').toLowerCase();
-  const filtered = data.products.filter(p => p.name.toLowerCase().includes(q));
-  const el = document.getElementById('pk-list');
-  if (!filtered.length) { el.innerHTML = `<div class="empty" style="padding:16px 0"><div class="et">Нет товаров</div></div>`; return; }
-  el.innerHTML = filtered.map(p => {
-    const st = getStock(p.id, data.operations);
-    return `<div class="arr-row">
-      <span style="font-size:22px">${p.emoji||'📦'}</span>
+ 
+function renderPrikhList(){
+  const data=db(); const q=(document.getElementById('pk-q')?.value||'').toLowerCase();
+  const filtered=data.products.filter(p=>p.name.toLowerCase().includes(q));
+  const el=document.getElementById('pk-list'); if(!el) return;
+  if(!filtered.length){el.innerHTML=`<div class="empty" style="padding:14px 0"><div class="et">Нет товаров</div></div>`;return;}
+  el.innerHTML=filtered.map(p=>{
+    const st=getStock(p.id,data.operations);
+    return `<div class="arr-row"><span style="font-size:22px">${p.emoji||'📦'}</span>
       <div class="arr-info"><div class="arr-name">${p.name}</div><div class="arr-sub">Остаток: ${st} ${p.unit||'шт'}</div></div>
       <input type="number" class="fi arr-qty-in" id="pk-${p.id}" value="${prikh_qtys[p.id]||''}" placeholder="0" min="0" inputmode="numeric"
         oninput="prikh_qtys['${p.id}']=parseInt(this.value)||0" onclick="this.select()">
@@ -1066,546 +1381,272 @@ function renderPrikhList() {
     </div>`;
   }).join('');
 }
-
-function applyPrikhod() {
-  const data = db(); let count = 0;
-  const now = new Date().toISOString();
-  Object.entries(prikh_qtys).forEach(([pid,qty]) => {
-    if (qty > 0) {
-      const p = data.products.find(x => x.id === pid);
-      if (p) {
-        // ЗАПИСЫВАЕМ ОПЕРАЦИЮ: тип 'arrival'
-        data.operations.push({ id:uid(), pid, type:'arrival', qty, buyPrice:p.buyPrice, note:'Приход (ручной ввод)', date:now });
-        count++;
-      }
-    }
+ 
+function applyPrikhod(){
+  const data=db(); let count=0; const now=new Date().toISOString();
+  Object.entries(prikh_qtys).forEach(([pid,qty])=>{
+    if(qty>0){const p=data.products.find(x=>x.id===pid);if(p){data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:p.buyPrice,note:'Приход (вручную)',date:now});count++;}}
   });
-  if (!count) { toast('⚠️ Укажите количество'); return; }
-  save(data);
-  prikh_qtys = {};
-  closePrikhod();
-  renderSklad();
-  toast(`✓ Оприходовано ${count} позиций`);
+  if(!count){toast('⚠️ Укажите количество');return;}
+  save(data); prikh_qtys={}; closePrikhod(); renderSklad(); toast(`✓ Оприходовано ${count} позиций`);
 }
-
-function closePrikhod() { _stopReader('pv'); closeModal('ov-prikhod'); }
-
-function renderSklad() {
-  const data = db();
-  const stocks = getAllStocks();
-  const today = new Date().toDateString();
-  const todayArrivals = data.operations.filter(o => o.type==='arrival' && new Date(o.date).toDateString()===today);
-
-  let low = 0, out = 0;
-  data.products.forEach(p => {
-    const st = stocks[p.id]||0;
-    if (st<=0) out++; else if (st<=(p.minStock||5)) low++;
-  });
-  document.getElementById('sklad-stats').innerHTML = `
+ 
+function closePrikhod(){_stopReader('pv');closeModal('ov-prikhod');}
+ 
+function renderSklad(){
+  const data=db(); const stocks=getAllStocks();
+  const today=new Date().toDateString();
+  const todayArr=data.operations.filter(o=>o.type==='arrival'&&new Date(o.date).toDateString()===today);
+  let low=0,out=0;
+  data.products.forEach(p=>{const st=stocks[p.id]||0;if(st<=0)out++;else if(st<=(p.minStock||5))low++;});
+  document.getElementById('sklad-stats').innerHTML=`
     <div class="sc"><div class="sc-v">${data.products.length}</div><div class="sc-l">Товаров</div></div>
     <div class="sc"><div class="sc-v" style="color:var(--am)">${low}</div><div class="sc-l">Мало</div></div>
     <div class="sc"><div class="sc-v" style="color:var(--rd)">${out}</div><div class="sc-l">Нет</div></div>
-    <div class="sc"><div class="sc-v" style="color:var(--bl)">${todayArrivals.length}</div><div class="sc-l">Приходов сег.</div></div>`;
-
-  // Остатки
-  const sq = (document.getElementById('sklad-q')?.value || '').toLowerCase();
-  renderSkladList(sq);
-
-  // История операций (последние 50)
-  const hist = document.getElementById('ops-history');
-  const sorted = [...data.operations].reverse().slice(0,50);
-  if (!sorted.length) { hist.innerHTML = `<div class="empty" style="padding:16px 0"><div class="ei">📦</div><div class="et">Нет операций</div></div>`; return; }
-  const opLabel = {arrival:'↑ Приход',sale:'↓ Продажа',return:'↩ Возврат',writeoff:'🗑 Списание',correction:'📝 Коррекция'};
-  const opCol = {arrival:'color:var(--bl)',sale:'color:var(--gn)',return:'color:var(--pu)',writeoff:'color:var(--rd)',correction:'color:var(--am)'};
-  const opSign = {arrival:'+',sale:'−',return:'+',writeoff:'−',correction:'±'};
-  hist.innerHTML = sorted.map(o => {
-    const p = data.products.find(x => x.id === o.pid);
-    const d = new Date(o.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-    return `<div class="op-item">
-      <div class="op-emo">${p?.emoji||'📦'}</div>
-      <div class="op-body">
-        <div class="op-name">${p?.name||'—'}</div>
-        <div class="op-meta">${d}${o.note?` · ${o.note}`:''}</div>
-      </div>
-      <div>
-        <div class="op-qty" style="${opCol[o.type]||''}">${opSign[o.type]}${o.qty} ${p?.unit||'шт'}</div>
-        <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:2px">${opLabel[o.type]||o.type}</div>
-      </div>
+    <div class="sc"><div class="sc-v" style="color:var(--bl)">${todayArr.length}</div><div class="sc-l">Приходов сег.</div></div>`;
+  renderSkladList();
+  const hist=document.getElementById('ops-history');
+  const sorted=[...data.operations].reverse().slice(0,50);
+  if(!sorted.length){hist.innerHTML=`<div class="empty" style="padding:14px 0"><div class="ei">📦</div><div class="et">Нет операций</div></div>`;return;}
+  const opLbl={arrival:'↑ Приход',sale:'↓ Продажа',return:'↩ Возврат',writeoff:'🗑 Списание',correction:'📝 Коррекция'};
+  const opCol={arrival:'color:var(--bl)',sale:'color:var(--gn)',return:'color:var(--pu)',writeoff:'color:var(--rd)',correction:'color:var(--am)'};
+  const opSign={arrival:'+',sale:'−',return:'+',writeoff:'−',correction:'±'};
+  hist.innerHTML=sorted.map(o=>{
+    const p=data.products.find(x=>x.id===o.pid);
+    const d=new Date(o.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    return `<div class="op-item"><div class="op-emo">${p?.emoji||'📦'}</div>
+      <div class="op-body"><div class="op-name">${p?.name||'—'}</div><div class="op-meta">${d}${o.note?` · ${o.note}`:''}</div></div>
+      <div><div class="op-qty" style="${opCol[o.type]||''}">${opSign[o.type]}${o.qty} ${p?.unit||'шт'}</div>
+      <div style="font-size:10px;color:var(--tx3);text-align:right;margin-top:2px">${opLbl[o.type]||o.type}</div></div>
     </div>`;
   }).join('');
 }
-
-function renderSkladList(q='') {
-  const data = db();
-  const stocks = getAllStocks();
-  const filtered = data.products.filter(p => !q || p.name.toLowerCase().includes(q));
-  const list = document.getElementById('sklad-list');
-  if (!list) return;
-  if (!filtered.length) { list.innerHTML = `<div class="empty" style="padding:16px 0"><div class="et">${q?'Не найдено':'Нет товаров'}</div></div>`; return; }
-  list.innerHTML = filtered.map(p => {
-    const st = stocks[p.id]||0;
-    const scls = st<=0?'ch-r':st<=(p.minStock||5)?'ch-a':'ch-g';
-    const stxt = st<=0?'⛔ Нет':st<=(p.minStock||5)?`⚠️ ${st}`:`✓ ${st}`;
-    return `<div class="op-item">
-      <div class="op-emo">${p.emoji||'📦'}</div>
-      <div class="op-body">
-        <div class="op-name">${p.name}</div>
-        <div class="op-meta">${p.category||''} · ${fmt(p.sellPrice)} сом</div>
-      </div>
+ 
+function renderSkladList(){
+  const data=db(); const stocks=getAllStocks();
+  const q=(document.getElementById('sklad-q')?.value||'').toLowerCase();
+  const filtered=data.products.filter(p=>!q||p.name.toLowerCase().includes(q));
+  const list=document.getElementById('sklad-list'); if(!list) return;
+  if(!filtered.length){list.innerHTML=`<div class="empty" style="padding:14px 0"><div class="et">${q?'Не найдено':'Нет товаров'}</div></div>`;return;}
+  list.innerHTML=filtered.map(p=>{
+    const st=stocks[p.id]||0;
+    const scls=st<=0?'ch-r':st<=(p.minStock||5)?'ch-a':'ch-g';
+    const stxt=st<=0?'⛔ Нет':st<=(p.minStock||5)?`⚠️ ${st}`:`✓ ${st}`;
+    return `<div class="op-item"><div class="op-emo">${p.emoji||'📦'}</div>
+      <div class="op-body"><div class="op-name">${p.name}</div><div class="op-meta">${p.category||''} · ${fmt(p.sellPrice)} сом</div></div>
       <span class="chip ${scls}">${stxt} ${p.unit||'шт'}</span>
     </div>`;
   }).join('');
 }
-
-// ══════════════════════════════════════════════════════════
-// КОРРЕКЦИЯ СКЛАДА
-// ══════════════════════════════════════════════════════════
-let _corrType = 'correction';
-
-function openCorrection() {
-  document.getElementById('corr-q').value = '';
-  document.getElementById('corr-search-res').innerHTML = '';
-  document.getElementById('corr-form').style.display = 'none';
-  document.getElementById('corr-pid').value = '';
-  openModal('ov-corr');
+ 
+// ══════════════════════════════════════════
+// КОРРЕКЦИЯ
+// ══════════════════════════════════════════
+let _corrType='correction';
+function openCorrection(){document.getElementById('corr-q').value='';document.getElementById('corr-search-res').innerHTML='';document.getElementById('corr-form').style.display='none';document.getElementById('corr-pid').value='';openModal('ov-corr');}
+function setCorrType(t,el){_corrType=t;document.querySelectorAll('.corr-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');const lbl={correction:'Новое количество',writeoff:'Кол-во для списания',return:'Кол-во возврата'};document.getElementById('corr-qty-lbl').textContent=lbl[t]||'Количество';}
+function renderCorrSearch(){
+  const q=document.getElementById('corr-q').value.toLowerCase();
+  const res=document.getElementById('corr-search-res');
+  if(!q){res.innerHTML='';return;}
+  const found=db().products.filter(p=>p.name.toLowerCase().includes(q)).slice(0,5);
+  res.innerHTML=found.map(p=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:5px;cursor:pointer;background:var(--sf)" onclick="selectCorrProd('${p.id}')">
+    <span style="font-size:20px">${p.emoji||'📦'}</span>
+    <div><div style="font-size:13px;font-weight:700">${p.name}</div><div style="font-size:11px;color:var(--tx3)">Остаток: ${getStock(p.id)} ${p.unit||'шт'}</div></div>
+  </div>`).join('');
 }
-
-function setCorrType(t, el) {
-  _corrType = t;
-  document.querySelectorAll('.corr-btn').forEach(b => b.classList.remove('sel'));
-  el.classList.add('sel');
-  const labels = {correction:'Новое количество (установить)', writeoff:'Количество для списания', return:'Количество возврата'};
-  document.getElementById('corr-qty-lbl').textContent = labels[t] || 'Количество';
+function selectCorrProd(pid){
+  document.getElementById('corr-pid').value=pid;
+  document.getElementById('corr-search-res').innerHTML='';
+  document.getElementById('corr-q').value='';
+  document.getElementById('corr-qty').value='';
+  document.getElementById('corr-note').value='';
+  document.getElementById('corr-form').style.display='';
+  const p=db().products.find(x=>x.id===pid);
+  toast(`${p?.name} · остаток: ${getStock(pid)}`);
 }
-
-function renderCorrSearch() {
-  const q = document.getElementById('corr-q').value.toLowerCase();
-  const res = document.getElementById('corr-search-res');
-  if (!q) { res.innerHTML = ''; return; }
-  const found = db().products.filter(p => p.name.toLowerCase().includes(q)).slice(0,5);
-  res.innerHTML = found.map(p => `
-    <div class="mr-item" style="border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:5px" onclick="selectCorrProd('${p.id}')">
-      <div class="mr-emo">${p.emoji||'📦'}</div>
-      <div><div class="mr-name">${p.name}</div><div style="font-size:11px;color:var(--tx3)">Остаток: ${getStock(p.id)} ${p.unit||'шт'}</div></div>
-    </div>`).join('');
+function applyCorrection(){
+  const pid=document.getElementById('corr-pid').value; if(!pid){toast('⚠️ Выберите товар');return;}
+  const rawQty=parseInt(document.getElementById('corr-qty').value)||0; if(rawQty<=0){toast('⚠️ Введите количество');return;}
+  const note=document.getElementById('corr-note').value.trim();
+  const data=db(); let qty=rawQty,type=_corrType;
+  if(_corrType==='correction'){const cur=getStock(pid,data.operations);const diff=rawQty-cur;if(diff===0){toast('Без изменений');closeModal('ov-corr');return;}qty=Math.abs(diff);type=diff>0?'arrival':'writeoff';}
+  data.operations.push({id:uid(),pid,type,qty,note:note||`Коррекция`,date:new Date().toISOString()});
+  save(data); closeModal('ov-corr'); renderSklad();
+  const p=data.products.find(x=>x.id===pid);
+  toast(`✓ ${p?.name} · новый остаток: ${getStock(pid,data.operations)}`);
 }
-
-function selectCorrProd(pid) {
-  document.getElementById('corr-pid').value = pid;
-  document.getElementById('corr-search-res').innerHTML = '';
-  document.getElementById('corr-q').value = '';
-  document.getElementById('corr-qty').value = '';
-  document.getElementById('corr-note').value = '';
-  document.getElementById('corr-form').style.display = '';
-  const p = db().products.find(x => x.id === pid);
-  const st = getStock(pid);
-  toast(`${p?.name} · остаток: ${st} ${p?.unit||'шт'}`);
-}
-
-function applyCorrection() {
-  const pid = document.getElementById('corr-pid').value;
-  if (!pid) { toast('⚠️ Выберите товар'); return; }
-  const rawQty = parseInt(document.getElementById('corr-qty').value) || 0;
-  if (rawQty <= 0) { toast('⚠️ Введите количество'); return; }
-  const note = document.getElementById('corr-note').value.trim();
-  const data = db();
-
-  let qty = rawQty;
-  let type = _corrType;
-
-  if (_corrType === 'correction') {
-    // Устанавливаем конкретное количество
-    // Для этого вычисляем разницу и создаём операцию с нужным знаком
-    const current = getStock(pid, data.operations);
-    const diff = rawQty - current;
-    if (diff === 0) { toast('Остаток не изменился'); closeModal('ov-corr'); return; }
-    qty = Math.abs(diff);
-    type = diff > 0 ? 'arrival' : 'writeoff';
-  }
-
-  data.operations.push({ id:uid(), pid, type, qty, note: note || `Коррекция: ${_corrType}`, date:new Date().toISOString() });
-  save(data);
-  closeModal('ov-corr');
-  renderSklad();
-  const p = data.products.find(x => x.id === pid);
-  toast(`✓ ${p?.name} · новый остаток: ${getStock(pid, data.operations)} ${p?.unit||'шт'}`);
-}
-
-// ══════════════════════════════════════════════════════════
-// PRODUCTS
-// ══════════════════════════════════════════════════════════
-function openProdForm(id) {
-  document.getElementById('prod-form-t').textContent = id ? 'Редактировать' : 'Новый товар';
-  document.getElementById('ep-id').value = id || '';
-  document.getElementById('mprev').textContent = '';
-  if (id) {
-    const p = db().products.find(x => x.id === id);
-    if (p) {
-      document.getElementById('ep-name').value  = p.name;
-      document.getElementById('ep-bar').value   = p.barcode||'';
-      document.getElementById('ep-buy').value   = p.buyPrice;
-      document.getElementById('ep-sell').value  = p.sellPrice;
-      document.getElementById('ep-emo').value   = p.emoji||'';
-      document.getElementById('ep-cat').value   = p.category||'Другое';
-      document.getElementById('ep-unit').value  = p.unit||'шт';
-      showMprev();
-    }
-  } else {
-    ['ep-name','ep-bar','ep-buy','ep-sell','ep-emo'].forEach(f => document.getElementById(f).value='');
-    document.getElementById('ep-cat').value  = 'Другое';
-    document.getElementById('ep-unit').value = 'шт';
-  }
+ 
+// ══════════════════════════════════════════
+// ТОВАРЫ
+// ══════════════════════════════════════════
+function openProdForm(id){
+  document.getElementById('prod-form-t').textContent=id?'Редактировать':'Новый товар';
+  document.getElementById('ep-id').value=id||'';
+  document.getElementById('mprev').textContent='';
+  if(id){const p=db().products.find(x=>x.id===id);if(p){document.getElementById('ep-name').value=p.name;document.getElementById('ep-bar').value=p.barcode||'';document.getElementById('ep-buy').value=p.buyPrice;document.getElementById('ep-sell').value=p.sellPrice;document.getElementById('ep-emo').value=p.emoji||'';document.getElementById('ep-cat').value=p.category||'Другое';document.getElementById('ep-unit').value=p.unit||'шт';showMprev();}}
+  else{['ep-name','ep-bar','ep-buy','ep-sell','ep-emo'].forEach(f=>document.getElementById(f).value='');document.getElementById('ep-cat').value='Другое';document.getElementById('ep-unit').value='шт';}
   openModal('ov-prod');
 }
-
-function showMprev() {
-  const buy  = parseFloat(document.getElementById('ep-buy').value)  || 0;
-  const sell = parseFloat(document.getElementById('ep-sell').value) || 0;
-  const el   = document.getElementById('mprev');
-  if (buy > 0 && sell > 0) {
-    const profit = sell - buy;
-    const pct = ((profit / buy) * 100).toFixed(1);
-    el.innerHTML = `<span style="color:${profit>=0?'var(--gn)':'var(--rd)'}">Наценка: ${fmt(profit)} сом · ${pct}%</span>`;
-  } else el.textContent = '';
+function showMprev(){
+  const buy=parseFloat(document.getElementById('ep-buy').value)||0;
+  const sell=parseFloat(document.getElementById('ep-sell').value)||0;
+  const el=document.getElementById('mprev');
+  if(buy>0&&sell>0){const p=sell-buy;const pct=((p/buy)*100).toFixed(1);el.innerHTML=`<span style="color:${p>=0?'var(--gn)':'var(--rd)'}">Наценка: ${fmt(p)} сом · ${pct}%</span>`;}else el.textContent='';
 }
-
-function saveProd() {
-  const name = document.getElementById('ep-name').value.trim();
-  if (!name) { toast('⚠️ Введите название'); return; }
-  const data = db();
-  const eid = document.getElementById('ep-id').value;
-  const pd = {
-    name,
-    barcode:   document.getElementById('ep-bar').value.trim(),
-    buyPrice:  parseFloat(document.getElementById('ep-buy').value)||0,
-    sellPrice: parseFloat(document.getElementById('ep-sell').value)||0,
-    emoji:     document.getElementById('ep-emo').value.trim()||'📦',
-    category:  document.getElementById('ep-cat').value,
-    unit:      document.getElementById('ep-unit').value,
-    minStock:  5
-  };
-  if (eid) {
-    const i = data.products.findIndex(p => p.id === eid);
-    if (i >= 0) data.products[i] = {...data.products[i], ...pd};
-  } else {
-    pd.id = uid();
-    data.products.push(pd);
-  }
-  save(data);
-  closeModal('ov-prod');
-  renderProds();
-  toast(eid ? '✓ Обновлено' : '✓ Товар добавлен');
+function saveProd(){
+  const name=document.getElementById('ep-name').value.trim(); if(!name){toast('⚠️ Введите название');return;}
+  const data=db(); const eid=document.getElementById('ep-id').value;
+  const pd={name,barcode:document.getElementById('ep-bar').value.trim(),buyPrice:parseFloat(document.getElementById('ep-buy').value)||0,sellPrice:parseFloat(document.getElementById('ep-sell').value)||0,emoji:document.getElementById('ep-emo').value.trim()||'📦',category:document.getElementById('ep-cat').value,unit:document.getElementById('ep-unit').value,minStock:5};
+  if(eid){const i=data.products.findIndex(p=>p.id===eid);if(i>=0)data.products[i]={...data.products[i],...pd};}
+  else{pd.id=uid();data.products.push(pd);}
+  save(data); closeModal('ov-prod'); renderProds(); toast(eid?'✓ Обновлено':'✓ Товар добавлен');
 }
-
-function deleteProd(id) {
-  if (!confirm('Удалить товар? Все операции по нему сохранятся.')) return;
-  const data = db();
-  data.products = data.products.filter(p => p.id !== id);
-  save(data);
-  renderProds();
-  toast('Товар удалён');
-}
-
-let _activeCat = 'Все';
-
-function renderProds() {
-  const data = db();
-  const stocks = getAllStocks();
-  const q = (document.getElementById('prod-q').value||'').toLowerCase();
-  let low=0, out=0;
-  data.products.forEach(p => { const st=stocks[p.id]||0; if(st<=0) out++; else if(st<=(p.minStock||5)) low++; });
-  document.getElementById('ss-total').textContent = data.products.length;
-  document.getElementById('ss-low').textContent   = low;
-  document.getElementById('ss-out').textContent   = out;
-
-  const cats = ['Все', ...new Set(data.products.map(p => p.category||'Другое'))];
-  document.getElementById('cat-filter').innerHTML = cats.map(c =>
-    `<button class="sm ${_activeCat===c?'sm-dk':'sm-gh'}" onclick="_activeCat='${c}';renderProds()">${c}</button>`
-  ).join('');
-
-  const filtered = data.products.filter(p => {
-    const catOk = _activeCat==='Все' || (p.category||'Другое')===_activeCat;
-    const qOk   = p.name.toLowerCase().includes(q)||(p.barcode||'').includes(q);
-    return catOk && qOk;
-  });
-  const list = document.getElementById('prod-list');
-  if (!filtered.length) { list.innerHTML=`<div class="empty"><div class="ei">📦</div><div class="et">${q?'Ничего не найдено':'Нет товаров'}</div></div>`; return; }
-  list.innerHTML = filtered.map(p => {
-    const st = stocks[p.id]||0;
-    // margin% = (sell − buy) / buy × 100
-    const m = p.buyPrice>0?((p.sellPrice-p.buyPrice)/p.buyPrice*100).toFixed(0):0;
-    const mcls = m>=20?'ch-g':m>=5?'ch-a':'ch-r';
-    const scls = st<=0?'ch-r':st<=(p.minStock||5)?'ch-a':'ch-g';
-    const stxt = st<=0?'⛔ Нет':st<=(p.minStock||5)?`⚠️ ${st}`:`✓ ${st}`;
-    return `<div class="pi">
-      <div class="pi-emo">${p.emoji||'📦'}</div>
-      <div class="pi-body">
-        <div class="pi-name">${p.name}</div>
-        ${p.barcode?`<div class="pi-bar">${p.barcode}</div>`:''}
-        <div class="pi-row">
-          <span class="pi-sell">${fmt(p.sellPrice)} сом</span>
-          <span class="pi-buy">закуп ${fmt(p.buyPrice)}</span>
-          <span class="chip ${mcls}">+${m}%</span>
-          <span class="chip ch-tx">${p.category||''}</span>
-        </div>
+function deleteProd(id){if(!confirm('Удалить товар?'))return;const data=db();data.products=data.products.filter(p=>p.id!==id);save(data);renderProds();toast('Удалён');}
+let _activeCat='Все';
+function renderProds(){
+  const data=db(); const stocks=getAllStocks();
+  const q=(document.getElementById('prod-q').value||'').toLowerCase();
+  let low=0,out=0;
+  data.products.forEach(p=>{const st=stocks[p.id]||0;if(st<=0)out++;else if(st<=(p.minStock||5))low++;});
+  document.getElementById('ss-total').textContent=data.products.length;
+  document.getElementById('ss-low').textContent=low;
+  document.getElementById('ss-out').textContent=out;
+  const cats=['Все',...new Set(data.products.map(p=>p.category||'Другое'))];
+  document.getElementById('cat-filter').innerHTML=cats.map(c=>`<button class="sm ${_activeCat===c?'sm-dk':'sm-gh'}" onclick="_activeCat='${c}';renderProds()">${c}</button>`).join('');
+  const filtered=data.products.filter(p=>{const catOk=_activeCat==='Все'||(p.category||'Другое')===_activeCat;const qOk=p.name.toLowerCase().includes(q)||(p.barcode||'').includes(q);return catOk&&qOk;});
+  const list=document.getElementById('prod-list');
+  if(!filtered.length){list.innerHTML=`<div class="empty"><div class="ei">📦</div><div class="et">${q?'Ничего не найдено':'Нет товаров'}</div></div>`;return;}
+  list.innerHTML=filtered.map(p=>{
+    const st=stocks[p.id]||0;
+    const m=p.buyPrice>0?((p.sellPrice-p.buyPrice)/p.buyPrice*100).toFixed(0):0;
+    const mcls=m>=20?'ch-g':m>=5?'ch-a':'ch-r';
+    const scls=st<=0?'ch-r':st<=(p.minStock||5)?'ch-a':'ch-g';
+    const stxt=st<=0?'⛔ Нет':st<=(p.minStock||5)?`⚠️ ${st}`:`✓ ${st}`;
+    return `<div class="pi"><div class="pi-emo">${p.emoji||'📦'}</div>
+      <div class="pi-body"><div class="pi-name">${p.name}</div>${p.barcode?`<div class="pi-bar">${p.barcode}</div>`:''}
+        <div class="pi-row"><span class="pi-sell">${fmt(p.sellPrice)} сом</span><span class="pi-buy">закуп ${fmt(p.buyPrice)}</span><span class="chip ${mcls}">+${m}%</span><span class="chip ch-tx">${p.category||''}</span></div>
       </div>
-      <div class="pi-right">
-        <span class="chip ${scls}">${stxt} ${p.unit||'шт'}</span>
-        <div style="display:flex;gap:4px">
-          <button class="ib" onclick="openProdForm('${p.id}')">✏️</button>
-          <button class="ib ib-rd" onclick="deleteProd('${p.id}')">×</button>
-        </div>
+      <div class="pi-right"><span class="chip ${scls}">${stxt} ${p.unit||'шт'}</span>
+        <div style="display:flex;gap:4px"><button class="ib" onclick="openProdForm('${p.id}')">✏️</button><button class="ib ib-rd" onclick="deleteProd('${p.id}')">×</button></div>
       </div>
     </div>`;
   }).join('');
 }
-
-// Barcode scan for product form
-function scanBarcode4Prod() {
+function scanBarcode4Prod(){
   closeModal('ov-prod');
-  openScannerWith('Штрихкод товара', code => {
-    closeScanner();
-    document.getElementById('ep-bar').value = code;
+  openGenericScanner('Штрихкод товара',code=>{
+    closeGenericScanner();
+    document.getElementById('ep-bar').value=code;
     openModal('ov-prod');
-    toast('✓ Штрихкод: '+code);
+    toast('✓ '+code);
   });
 }
-
-function prefillNew(code) {
-  closeScanner(); closeModal('ov-scan');
-  openProdForm(null);
-  document.getElementById('ep-bar').value = code;
-  goPage('products', document.querySelectorAll('.nb')[2]);
-}
-
-// ══════════════════════════════════════════════════════════
+ 
+// ══════════════════════════════════════════
 // EXCEL
-// ══════════════════════════════════════════════════════════
-function openImport() { document.getElementById('import-prev').innerHTML=''; openModal('ov-import'); }
-
-function handleImport(e) {
-  const file=e.target.files[0]; if(!file) return;
+// ══════════════════════════════════════════
+function openImport(){document.getElementById('import-prev').innerHTML='';openModal('ov-import');}
+function handleImport(e){
+  const file=e.target.files[0];if(!file)return;
   const r=new FileReader();
-  r.onload=ev=>{
-    try{
-      const wb=XLSX.read(ev.target.result,{type:'array'});
-      const ws=wb.Sheets[wb.SheetNames[0]];
-      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
-      const items=rows.slice(1).filter(r=>r[0]);
-      if(!items.length){toast('⚠️ Файл пустой');return;}
-      let prev=`<div style="font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:7px">Найдено: ${items.length} товаров</div>`;
-      prev+=`<div style="max-height:160px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--rs)">`;
-      items.slice(0,6).forEach(r=>{prev+=`<div style="padding:8px 12px;border-bottom:1px solid var(--bd);font-size:12px">${r[0]} — <b style="color:var(--gn)">${fmt(r[3]||0)} сом</b></div>`;});
-      if(items.length>6) prev+=`<div style="padding:8px 12px;font-size:11px;color:var(--tx3)">+${items.length-6} ещё…</div>`;
-      prev+=`</div><button class="btn btn-dk" onclick="confirmImport()" style="margin-top:10px">Импортировать ${items.length} товаров</button>`;
-      window._importRows=items;
-      document.getElementById('import-prev').innerHTML=prev;
-    }catch(err){toast('⚠️ Ошибка файла');}
-  };
+  r.onload=ev=>{try{const wb=XLSX.read(ev.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});const items=rows.slice(1).filter(r=>r[0]);if(!items.length){toast('⚠️ Пусто');return;}
+    let prev=`<div style="font-size:12px;font-weight:700;margin-bottom:7px">Найдено: ${items.length} товаров</div><div style="max-height:150px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--rs)">`;
+    items.slice(0,5).forEach(r=>{prev+=`<div style="padding:8px 12px;border-bottom:1px solid var(--bd);font-size:12px">${r[0]} — <b style="color:var(--gn)">${fmt(r[3]||0)} сом</b></div>`;});
+    if(items.length>5)prev+=`<div style="padding:8px 12px;font-size:11px;color:var(--tx3)">+${items.length-5} ещё…</div>`;
+    prev+=`</div><button class="btn btn-dk" onclick="confirmImport()" style="margin-top:10px">Импортировать</button>`;
+    window._importRows=items;document.getElementById('import-prev').innerHTML=prev;
+  }catch(err){toast('⚠️ Ошибка');}};
   r.readAsArrayBuffer(file);
 }
-
 function confirmImport(){
-  const rows=window._importRows; if(!rows) return;
-  const data=db(); let added=0,updated=0;
-  rows.forEach(r=>{
-    const name=(r[0]||'').toString().trim(); if(!name) return;
-    const pd={barcode:(r[1]||'').toString().trim(),buyPrice:parseFloat(r[2])||0,sellPrice:parseFloat(r[3])||0,
-      category:(r[4]||'Другое').toString().trim()||'Другое',unit:(r[5]||'шт').toString().trim()||'шт',
-      emoji:(r[6]||'📦').toString().trim()||'📦',minStock:5};
+  const rows=window._importRows;if(!rows)return;
+  const data=db();let added=0,updated=0;
+  rows.forEach(r=>{const name=(r[0]||'').toString().trim();if(!name)return;
+    const pd={barcode:(r[1]||'').toString().trim(),buyPrice:parseFloat(r[2])||0,sellPrice:parseFloat(r[3])||0,category:(r[4]||'Другое').toString().trim()||'Другое',unit:(r[5]||'шт').toString().trim()||'шт',emoji:(r[6]||'📦').toString().trim()||'📦',minStock:5};
     const ex=data.products.find(p=>(pd.barcode&&p.barcode===pd.barcode)||p.name.toLowerCase()===name.toLowerCase());
-    if(ex){Object.assign(ex,{name,...pd});updated++;}
-    else{data.products.push({id:uid(),name,...pd});added++;}
+    if(ex){Object.assign(ex,{name,...pd});updated++;}else{data.products.push({id:uid(),name,...pd});added++;}
   });
-  save(data); closeModal('ov-import'); renderProds(); window._importRows=null;
-  toast(`✓ Добавлено: ${added} · Обновлено: ${updated}`);
+  save(data);closeModal('ov-import');renderProds();window._importRows=null;toast(`✓ +${added} обновлено: ${updated}`);
 }
-
 function exportExcel(){
-  const data=db(); if(!data.products.length){toast('Нет товаров');return;}
+  const data=db();if(!data.products.length){toast('Нет товаров');return;}
   const stocks=getAllStocks();
-  const rows=[
-    ['Название','Штрихкод','Цена закупки','Цена продажи','Остаток','Категория','Единица','Эмодзи'],
-    ...data.products.map(p=>[p.name,p.barcode||'',p.buyPrice,p.sellPrice,stocks[p.id]||0,p.category||'',p.unit||'шт',p.emoji||'📦'])
-  ];
-  const ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[{wch:24},{wch:15},{wch:13},{wch:13},{wch:9},{wch:12},{wch:8},{wch:7}];
-  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Товары');
-  XLSX.writeFile(wb,`magazin_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.xlsx`);
-  toast('✓ Excel скачан');
+  const rows=[['Название','Штрихкод','Цена закупки','Цена продажи','Остаток','Категория','Единица','Эмодзи'],...data.products.map(p=>[p.name,p.barcode||'',p.buyPrice,p.sellPrice,stocks[p.id]||0,p.category||'',p.unit||'шт',p.emoji||'📦'])];
+  const ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:24},{wch:15},{wch:13},{wch:13},{wch:9},{wch:12},{wch:8},{wch:7}];
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Товары');
+  XLSX.writeFile(wb,`magazin_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.xlsx`);toast('✓ Excel скачан');
 }
-
-function exportJson(){
-  const blob=new Blob([JSON.stringify(db(),null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`backup_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.json`; a.click();
-  toast('✓ Резервная копия скачана');
-}
-
-function clearAll(){
-  if(!confirm('Удалить ВСЕ данные? Это необратимо.')) return;
-  localStorage.removeItem(KEY); kCart=[];
-  document.getElementById('k-found').innerHTML='';
-  document.getElementById('k-receipt').innerHTML='';
-  closeModal('ov-settings'); toast('Данные удалены');
-}
-
-// ══════════════════════════════════════════════════════════
+function exportJson(){const blob=new Blob([JSON.stringify(db(),null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`backup_${new Date().toLocaleDateString('ru-RU').replace(/\./g,'-')}.json`;a.click();toast('✓ Копия скачана');}
+function clearAll(){if(!confirm('Удалить ВСЕ данные?'))return;localStorage.removeItem(KEY);kCart=[];renderKassaLog();updatePayBtn();closeModal('ov-settings');toast('Данные удалены');}
+ 
+// ══════════════════════════════════════════
 // ДОЛГИ
-// долг += сумма продажи; долг −= оплата
-// ══════════════════════════════════════════════════════════
-let _activeDebt = null;
-
+// ══════════════════════════════════════════
+let _activeDebt=null;
 function renderDebts(){
-  const data=db();
-  const active=data.debts.filter(d=>!d.paid);
-  const total=active.reduce((s,d)=>s+d.amount,0);
-  document.getElementById('ss-debt').textContent=fmt(total)+' сом';
-  document.getElementById('ss-debtors').textContent=active.length;
+  const data=db();const active=data.debts.filter(d=>!d.paid);const total=active.reduce((s,d)=>s+d.amount,0);
+  document.getElementById('ss-debt').textContent=fmt(total)+' сом';document.getElementById('ss-debtors').textContent=active.length;
   const list=document.getElementById('debt-list');
   if(!active.length){list.innerHTML=`<div class="empty"><div class="ei">🎉</div><div class="et">Долгов нет!</div></div>`;return;}
-  list.innerHTML=active.map(d=>{
-    const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
-    return `<div class="di">
-      <div class="di-hdr"><div class="di-name">👤 ${d.name}</div><div class="di-date">${date}</div></div>
+  list.innerHTML=active.map(d=>{const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'short'});
+    return `<div class="di"><div class="di-hdr"><div class="di-name">👤 ${d.name}</div><div class="di-date">${date}</div></div>
       <div class="di-amount">${fmt(d.amount)} сом</div>
-      <div class="di-foot">
-        <div style="font-size:12px;color:var(--tx2)">${(d.saleIds||[]).length} покупок</div>
-        <div style="display:flex;gap:6px">
-          <button class="sm sm-bl" onclick="openDebtDetail('${d.id}')">Подробно</button>
-          <button class="sm sm-gn" onclick="quickPaid('${d.id}')">✓ Вернул</button>
-        </div>
-      </div>
-    </div>`;
+      <div class="di-foot"><div style="font-size:12px;color:var(--tx2)">${(d.saleIds||[]).length} покупок</div>
+        <div style="display:flex;gap:6px"><button class="sm sm-bl" onclick="openDebtDetail('${d.id}')">Подробно</button><button class="sm sm-gn" onclick="quickPaid('${d.id}')">✓ Вернул</button></div>
+      </div></div>`;
   }).join('');
 }
-
-function openDebtDetail(id){
-  const d=db().debts.find(x=>x.id===id); if(!d) return;
-  _activeDebt=id;
-  document.getElementById('debt-mname').textContent=d.name;
+function openDebtDetail(id){const d=db().debts.find(x=>x.id===id);if(!d)return;_activeDebt=id;document.getElementById('debt-mname').textContent=d.name;
   const date=new Date(d.date).toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
-  const payHist=(d.payments||[]).map(p=>
-    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px">
-      <span style="color:var(--tx2)">${new Date(p.date).toLocaleDateString('ru-RU')}</span>
-      <span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span>
-    </div>`).join('');
-  document.getElementById('debt-mbody').innerHTML=`
-    <div style="text-align:center;padding:18px 0 12px">
-      <div style="font-size:36px;font-weight:800;color:var(--rd);letter-spacing:-.03em">${fmt(d.amount)} сом</div>
-      <div style="font-size:12px;color:var(--tx3);margin-top:5px">С ${date} · ${(d.saleIds||[]).length} покупок</div>
-    </div>
-    ${payHist?`<div style="margin-bottom:4px"><div class="slbl">История выплат</div>${payHist}</div>`:''}`;
-  document.getElementById('partial-amt').value='';
-  openModal('ov-debt');
+  const ph=(d.payments||[]).map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px"><span style="color:var(--tx2)">${new Date(p.date).toLocaleDateString('ru-RU')}</span><span style="font-weight:700;color:var(--gn)">−${fmt(p.amount)} сом</span></div>`).join('');
+  document.getElementById('debt-mbody').innerHTML=`<div style="text-align:center;padding:16px 0 12px"><div style="font-size:34px;font-weight:800;color:var(--rd);letter-spacing:-.03em">${fmt(d.amount)} сом</div><div style="font-size:12px;color:var(--tx3);margin-top:5px">С ${date} · ${(d.saleIds||[]).length} покупок</div></div>${ph?`<div style="margin-bottom:6px"><div class="slbl">Выплаты</div>${ph}</div>`:''}`;
+  document.getElementById('partial-amt').value='';openModal('ov-debt');
 }
-
-function partialPay(){
-  const amt=parseFloat(document.getElementById('partial-amt').value)||0;
-  if(amt<=0){toast('⚠️ Введите сумму');return;}
-  const data=db(); const d=data.debts.find(x=>x.id===_activeDebt); if(!d) return;
-  if(amt>=d.amount){d.paid=true;d.paidDate=new Date().toISOString();toast('✓ Долг погашен полностью!');}
-  else{
-    // долг = долг − оплата
-    d.amount-=amt; d.payments=d.payments||[];
-    d.payments.push({amount:amt,date:new Date().toISOString()});
-    toast(`✓ Принято ${fmt(amt)} сом · Осталось ${fmt(d.amount)} сом`);
-  }
-  save(data); closeModal('ov-debt'); renderDebts();
-}
-
-function markPaid(){
-  const data=db(); const d=data.debts.find(x=>x.id===_activeDebt);
-  if(d){d.paid=true;d.paidDate=new Date().toISOString();}
-  save(data); closeModal('ov-debt'); renderDebts(); toast('✓ Долг погашен!');
-}
-
-function quickPaid(id){
-  const data=db(); const d=data.debts.find(x=>x.id===id);
-  if(d){d.paid=true;d.paidDate=new Date().toISOString();}
-  save(data); renderDebts(); toast('✓ Долг погашен!');
-}
-
-// ══════════════════════════════════════════════════════════
+function partialPay(){const amt=parseFloat(document.getElementById('partial-amt').value)||0;if(amt<=0){toast('⚠️ Введите сумму');return;}const data=db();const d=data.debts.find(x=>x.id===_activeDebt);if(!d)return;if(amt>=d.amount){d.paid=true;d.paidDate=new Date().toISOString();toast('✓ Погашен полностью!');}else{d.amount-=amt;(d.payments=d.payments||[]).push({amount:amt,date:new Date().toISOString()});toast(`✓ ${fmt(amt)} сом · Осталось ${fmt(d.amount)}`);}save(data);closeModal('ov-debt');renderDebts();}
+function markPaid(){const data=db();const d=data.debts.find(x=>x.id===_activeDebt);if(d){d.paid=true;d.paidDate=new Date().toISOString();}save(data);closeModal('ov-debt');renderDebts();toast('✓ Долг погашен!');}
+function quickPaid(id){const data=db();const d=data.debts.find(x=>x.id===id);if(d){d.paid=true;d.paidDate=new Date().toISOString();}save(data);renderDebts();toast('✓ Долг погашен!');}
+ 
+// ══════════════════════════════════════════
 // ОТЧЁТЫ
-// profit = revenue − cost (из операций продажи)
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════
 let _period='day';
-function setPeriod(p,btn){
-  _period=p;
-  document.querySelectorAll('.pt').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderReport();
-}
-
+function setPeriod(p,btn){_period=p;document.querySelectorAll('.pt').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');renderReport();}
 function renderReport(){
-  const data=db(); const now=new Date();
-  const sales=data.sales.filter(s=>{
-    const d=new Date(s.date);
-    if(_period==='day') return d.toDateString()===now.toDateString();
-    if(_period==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}
-    if(_period==='month'){const m=new Date(now);m.setDate(m.getDate()-30);return d>=m;}
-    return true;
-  });
-
-  // MATH: revenue=Σ sale.revenue, cost=Σ sale.cost, profit=revenue−cost
-  const revenue=sales.reduce((s,x)=>s+x.revenue,0);
-  const cost=sales.reduce((s,x)=>s+x.cost,0);
-  const profit=revenue-cost;
-  const margin=revenue>0?(profit/revenue*100).toFixed(1):0;
-
-  document.getElementById('r-rev').textContent=fmt(revenue);
-  document.getElementById('r-cost').textContent=fmt(cost);
-  document.getElementById('r-profit').textContent=fmt(profit);
-  document.getElementById('r-pct').textContent=margin+'% маржа';
-  document.getElementById('r-sales').textContent=sales.length;
-
+  const data=db();const now=new Date();
+  const sales=data.sales.filter(s=>{const d=new Date(s.date);if(_period==='day')return d.toDateString()===now.toDateString();if(_period==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}if(_period==='month'){const m=new Date(now);m.setDate(m.getDate()-30);return d>=m;}return true;});
+  const revenue=sales.reduce((s,x)=>s+x.revenue,0);const cost=sales.reduce((s,x)=>s+x.cost,0);const profit=revenue-cost;const margin=revenue>0?(profit/revenue*100).toFixed(1):0;
+  document.getElementById('r-rev').textContent=fmt(revenue);document.getElementById('r-cost').textContent=fmt(cost);document.getElementById('r-profit').textContent=fmt(profit);document.getElementById('r-pct').textContent=margin+'% маржа';document.getElementById('r-sales').textContent=sales.length;
   document.getElementById('pb-cash').textContent=fmt(sales.filter(s=>s.payType==='cash').reduce((s,x)=>s+x.revenue,0));
   document.getElementById('pb-card').textContent=fmt(sales.filter(s=>s.payType==='card').reduce((s,x)=>s+x.revenue,0));
-  document.getElementById('pb-qr').textContent  =fmt(sales.filter(s=>s.payType==='qr').reduce((s,x)=>s+x.revenue,0));
+  document.getElementById('pb-qr').textContent=fmt(sales.filter(s=>s.payType==='qr').reduce((s,x)=>s+x.revenue,0));
   document.getElementById('pb-debt').textContent=fmt(sales.filter(s=>s.payType==='debt').reduce((s,x)=>s+x.revenue,0));
-
-  // Top products
-  const tm={};
-  sales.forEach(s=>s.items.forEach(it=>{
-    if(!tm[it.name]) tm[it.name]={rev:0,qty:0,profit:0};
-    tm[it.name].rev+=it.subRev||(it.sellPrice*it.qty);
-    tm[it.name].qty+=it.qty;
-    tm[it.name].profit+=(it.subRev||0)-(it.subCost||0);
-  }));
+  const tm={};sales.forEach(s=>s.items.forEach(it=>{if(!tm[it.name])tm[it.name]={rev:0,qty:0,profit:0};tm[it.name].rev+=it.subRev||(it.sellPrice*it.qty);tm[it.name].qty+=it.qty;tm[it.name].profit+=(it.subRev||0)-(it.subCost||0);}));
   const top=Object.entries(tm).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
-  document.getElementById('r-top').innerHTML=top.length
-    ?top.map(([name,v],i)=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px;font-weight:800;color:var(--tx3);min-width:16px">${i+1}</span>
-          <div><div style="font-size:13px;font-weight:700">${name}</div><div style="font-size:11px;color:var(--tx3)">${v.qty} шт · прибыль ${fmt(v.profit)} сом</div></div>
-        </div>
-        <div style="font-size:14px;font-weight:800;color:var(--gn)">${fmt(v.rev)}</div>
-      </div>`).join('')
-    :`<div class="empty" style="padding:14px 0"><div class="et">Нет данных</div></div>`;
-
+  document.getElementById('r-top').innerHTML=top.length?top.map(([name,v],i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;font-weight:800;color:var(--tx3);min-width:16px">${i+1}</span><div><div style="font-size:13px;font-weight:700">${name}</div><div style="font-size:11px;color:var(--tx3)">${v.qty} шт · прибыль ${fmt(v.profit)} сом</div></div></div><div style="font-size:14px;font-weight:800;color:var(--gn)">${fmt(v.rev)}</div></div>`).join(''):`<div class="empty" style="padding:14px 0"><div class="et">Нет данных</div></div>`;
   const log=document.getElementById('sales-log');
-  if(!sales.length){log.innerHTML=`<div class="empty" style="padding:16px 0"><div class="ei">📊</div><div class="et">Нет продаж</div></div>`;return;}
-  const pi={cash:'💵',card:'💳',qr:'📱',debt:'🧾'};
-  const pl={cash:'Нал',card:'Карта',qr:'QR',debt:'Долг'};
-  log.innerHTML=[...sales].reverse().slice(0,40).map(s=>{
-    const t=new Date(s.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-    const lbl=s.items.length===1?s.items[0].name:`${s.items.length} позиций`;
-    return `<div class="sr">
-      <div><div class="sr-name">${pi[s.payType]||'✓'} ${lbl}${s.buyer?` — ${s.buyer}`:''}</div><div class="sr-t">${t}</div></div>
-      <div class="sr-right">
-        <div class="sr-amt" style="color:${s.payType==='debt'?'var(--am)':'var(--gn)'}">${fmt(s.revenue)} сом</div>
-        <div class="sr-pay">${pl[s.payType]||''}</div>
-      </div>
-    </div>`;
+  if(!sales.length){log.innerHTML=`<div class="empty" style="padding:14px 0"><div class="ei">📊</div><div class="et">Нет продаж</div></div>`;return;}
+  const pi={cash:'💵',card:'💳',qr:'📱',debt:'🧾'};const pl={cash:'Нал',card:'Карта',qr:'QR',debt:'Долг'};
+  log.innerHTML=[...sales].reverse().slice(0,40).map(s=>{const t=new Date(s.date).toLocaleString('ru-RU',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});const lbl=s.items.length===1?s.items[0].name:`${s.items.length} позиций`;
+    return `<div class="sr"><div><div class="sr-name">${pi[s.payType]||'✓'} ${lbl}${s.buyer?` — ${s.buyer}`:''}</div><div class="sr-t">${t}</div></div><div class="sr-right"><div class="sr-amt" style="color:${s.payType==='debt'?'var(--am)':'var(--gn)'}">${fmt(s.revenue)} сом</div><div class="sr-pay">${pl[s.payType]||''}</div></div></div>`;
   }).join('');
 }
-
-// ══════════════════════════════════════════════════════════
+ 
+// ══════════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════
 initSettings();
+startKassaCamera(); // Камера сразу при загрузке
+ 
+// Добавить кнопку "В долг" подтвердить на экране 2
+(function(){
+  const debtBlock=document.getElementById('ks2-debt-block');
+  const btn=document.createElement('button');
+  btn.className='btn btn-dk';btn.style.marginTop='10px';
+  btn.textContent='→ Перейти к чеку';
+  btn.onclick=()=>goToConfirm('debt');
+  debtBlock.appendChild(btn);
+})();
 </script>
 </body>
 </html>
