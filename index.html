@@ -1131,6 +1131,7 @@ function closeModal(id){document.getElementById(id).classList.remove('on');}
 // ЗВУК + ВИБРАЦИЯ ПРИ СКАНЕ
 // ══════════════════════════════════════════
 let _audioCtx = null;
+let _readers = {};
  
 function scanBeep(type = 'success') {
   // Вибрация
