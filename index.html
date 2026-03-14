@@ -1056,6 +1056,7 @@ input[type=number]{-moz-appearance:textfield;}
       <div>
         <div class="qe-name" id="qe-name">—</div>
         <div class="qe-price" id="qe-price">—</div>
+        <div id="qe-stock" style="font-size:11px;font-weight:600;color:var(--tx3);margin-top:2px"></div>
       </div>
     </div>
     <div class="qe-input-row">
@@ -1127,23 +1128,73 @@ function closeModal(id){document.getElementById(id).classList.remove('on');}
 // ══════════════════════════════════════════
 // SCANNER ENGINE
 // ══════════════════════════════════════════
-let _readers={};
+// ЗВУК + ВИБРАЦИЯ ПРИ СКАНЕ
+// ══════════════════════════════════════════
+let _audioCtx = null;
+ 
+function scanBeep(type = 'success') {
+  // Вибрация
+  if (type === 'success') navigator.vibrate?.([60]);
+  else if (type === 'error') navigator.vibrate?.([80, 60, 80]);
+ 
+  // Звук через Web Audio API
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ctx = _audioCtx;
+ 
+    if (type === 'success') {
+      // Короткий высокий бип — как в кассе супермаркета
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1800, ctx.currentTime);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.12);
+    } else if (type === 'error') {
+      // Два низких сигнала — ошибка
+      [0, 0.18].forEach(delay => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.14);
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.14);
+      });
+    }
+  } catch(e) {}
+}
 function _startReader(videoId,statusId,onCode){
   _stopReader(videoId);
   if(!window.ZXing){setTimeout(()=>_startReader(videoId,statusId,onCode),400);return;}
   if(statusId) document.getElementById(statusId).textContent='Запуск…';
   const r=new ZXing.BrowserMultiFormatReader();
-  _readers[videoId]={r,active:true};
+  _readers[videoId]={r,active:true,lastCode:'',lastTime:0};
   r.decodeFromVideoDevice(null,videoId,res=>{
     if(!_readers[videoId]?.active) return;
     if(res){
       const code=res.getText();
       if(code){
-        navigator.vibrate?.([55]);
+        const now=Date.now();
+        const rd=_readers[videoId];
+        // Двойная защита: тот же код повторно игнорируем 3 секунды
+        if(code===rd.lastCode && now-rd.lastTime < 3000) return;
+        rd.lastCode=code;
+        rd.lastTime=now;
+        scanBeep('success');
         if(statusId) document.getElementById(statusId).textContent='✓ '+code;
-        _readers[videoId].active=false;
+        rd.active=false;
         onCode(code);
-        setTimeout(()=>{if(_readers[videoId]){_readers[videoId].active=true;if(statusId)document.getElementById(statusId).textContent='Наведите на штрихкод';}},1800);
+        // Для кассы — 3 секунды, для остального — 1.8
+        const delay = videoId==='kassa-video' ? 3000 : 1800;
+        setTimeout(()=>{if(_readers[videoId]){_readers[videoId].active=true;if(statusId)document.getElementById(statusId).textContent='Наведите на штрихкод';}},delay);
       }
     }
   });
@@ -1173,12 +1224,18 @@ function renderNobarStrip() {
     return;
   }
   wrap.innerHTML = `<div class="ks1-nobar-strip">
-    ${nobar.map(p => `
-      <button class="nobar-chip" onclick="nobarSelect('${p.id}')">
+    ${nobar.map(p => {
+      const st = getStock(p.id);
+      const empty = st <= 0;
+      return `<button class="nobar-chip" onclick="nobarSelect('${p.id}')"
+        style="${empty ? 'opacity:.4;' : ''}">
         <div class="nobar-chip-emo">${p.emoji||'📦'}</div>
         <div class="nobar-chip-name">${p.name}</div>
-        <div class="nobar-chip-price">${fmt(p.sellPrice)} ${p.unit||'шт'}</div>
-      </button>`).join('')}
+        <div class="nobar-chip-price" style="color:${empty?'var(--rd)':'var(--gn)'}">
+          ${empty ? '⛔ Нет' : fmt(p.sellPrice)+' / '+( p.unit||'шт')}
+        </div>
+      </button>`;
+    }).join('')}
   </div>`;
 }
  
@@ -1189,16 +1246,25 @@ let _qeProd = null;
 function nobarSelect(pid) {
   const p = db().products.find(x => x.id === pid);
   if (!p) return;
+  // ЗАЩИТА: проверяем остаток
+  const st = getStock(p.id);
+  if (st <= 0) {
+    toast(`⛔ ${p.name} — нет на складе`);
+    return;
+  }
   _qeProd = p;
   document.getElementById('qe-emo').textContent   = p.emoji || '📦';
   document.getElementById('qe-name').textContent  = p.name;
   document.getElementById('qe-price').textContent = fmt(p.sellPrice) + ' сом / ' + (p.unit||'шт');
   document.getElementById('qe-unit').textContent  = p.unit || 'шт';
+  // Показываем остаток в попапе
+  document.getElementById('qe-stock').textContent = `На складе: ${st} ${p.unit||'шт'}`;
   // Для кг — дробный ввод, для шт — целый
   const inp = document.getElementById('qe-qty');
-  inp.step        = p.unit === 'кг' || p.unit === 'л' ? '0.1' : '1';
-  inp.inputMode   = p.unit === 'кг' || p.unit === 'л' ? 'decimal' : 'numeric';
-  inp.value       = p.unit === 'кг' || p.unit === 'л' ? '1.0' : '1';
+  inp.step      = p.unit === 'кг' || p.unit === 'л' ? '0.1' : '1';
+  inp.inputMode = p.unit === 'кг' || p.unit === 'л' ? 'decimal' : 'numeric';
+  inp.max       = st;
+  inp.value     = p.unit === 'кг' || p.unit === 'л' ? '1.0' : '1';
   qeUpdate();
   document.getElementById('qty-entry-overlay').style.display = 'flex';
   setTimeout(() => inp.select(), 100);
@@ -1214,14 +1280,20 @@ function qeConfirm() {
   if (!_qeProd) return;
   const qty = parseFloat(document.getElementById('qe-qty').value) || 0;
   if (qty <= 0) { toast('⚠️ Введите количество'); return; }
+  // ЗАЩИТА: проверяем остаток перед добавлением
+  const st = getStock(_qeProd.id);
+  const alreadyInCart = kCart.find(c => c.pid === _qeProd.id)?.qty || 0;
+  if (alreadyInCart + qty > st) {
+    toast(`⚠️ На складе только ${st} ${_qeProd.unit||'шт'}`);
+    return;
+  }
   const ex = kCart.find(c => c.pid === _qeProd.id);
   if (ex) ex.qty = parseFloat((ex.qty + qty).toFixed(3));
   else kCart.push({pid:_qeProd.id, name:_qeProd.name, emoji:_qeProd.emoji||'📦', unit:_qeProd.unit||'шт', sellPrice:_qeProd.sellPrice, buyPrice:_qeProd.buyPrice, qty});
-  navigator.vibrate?.([40]);
+  scanBeep('success');
   qeCancel();
   renderKassaLog();
   updatePayBtn();
-  // Синхронизируем вторую кнопку оплаты
   updatePayBtn2();
 }
  
@@ -1260,6 +1332,7 @@ function stopKassaCamera(){
 function kassaScanFound(code){
   const p=db().products.find(pr=>pr.barcode===code||pr.name.toLowerCase()===code.toLowerCase());
   if(!p){
+    scanBeep('error');
     toast(`⚠️ Не найден: ${code}`);
     document.getElementById('cam-status').textContent='Не найден: '+code;
     setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',2000);
@@ -1267,6 +1340,7 @@ function kassaScanFound(code){
   }
   const st=getStock(p.id);
   if(st<=0){
+    scanBeep('error');
     toast(`⛔ ${p.name} — нет на складе`);
     document.getElementById('cam-status').textContent='⛔ Нет на складе';
     setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',2000);
@@ -1275,12 +1349,12 @@ function kassaScanFound(code){
   // 1 скан = 1 товар сразу в чек
   const ex=kCart.find(c=>c.pid===p.id);
   if(ex){
-    if(ex.qty+1>st){ toast(`⚠️ ${p.name} — максимум ${st} шт`); return; }
+    if(ex.qty+1>st){ scanBeep('error'); toast(`⚠️ ${p.name} — максимум ${st} шт`); return; }
     ex.qty+=1;
   } else {
     kCart.push({pid:p.id,name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',sellPrice:p.sellPrice,buyPrice:p.buyPrice,qty:1});
   }
-  navigator.vibrate?.([40]);
+  scanBeep('success');
   document.getElementById('cam-status').textContent=`✓ ${p.name}`;
   setTimeout(()=>document.getElementById('cam-status').textContent='Наведите на штрихкод',1500);
   renderKassaLog();
@@ -1377,7 +1451,7 @@ function ks1SelectProd(pid){
   } else {
     kCart.push({pid:p.id,name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',sellPrice:p.sellPrice,buyPrice:p.buyPrice,qty:1});
   }
-  navigator.vibrate?.([40]);
+  scanBeep('success');
   toast(`✓ ${p.name} добавлен`);
   renderKassaLog();
   updatePayBtn();
