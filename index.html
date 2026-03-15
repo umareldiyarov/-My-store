@@ -1046,13 +1046,14 @@ input[type=number]{-moz-appearance:textfield;}
     </label>
     <div class="fr2">
       <div><label class="lbl">Категория</label>
-        <select class="fi" id="ep-cat"></select>
+        <select class="fi" id="ep-cat" onchange="onCatChange(this.value)"></select>
       </div>
       <div><label class="lbl">Единица</label>
         <select class="fi" id="ep-unit">
           <option value="шт" selected>шт</option><option value="кг">кг</option>
           <option value="л">л</option><option value="пач">пачка</option><option value="бут">бутылка</option>
         </select>
+        <div id="ep-unit-hint" style="font-size:10px;color:var(--tx3);margin-top:3px;font-weight:500"></div>
       </div>
     </div>
     <div class="fr2">
@@ -1762,7 +1763,30 @@ document.getElementById('ks2-buyer').addEventListener('keydown',function(e){
 // ══════════════════════════════════════════
 // НАСТРОЙКИ
 // ══════════════════════════════════════════
-const DEFAULT_CATS = ['Напитки','Продукты','Молочное','Хлеб','Снеки','Хозтовары','Другое'];
+const DEFAULT_CATS = [
+  'Напитки','Молочное и яйца','Хлеб и выпечка','Крупы и макароны',
+  'Овощи и фрукты','Мясо и рыба','Снеки','Хозтовары и гигиена',
+  'Замороженное','Консервы','Другое'
+];
+ 
+// Единица измерения по умолчанию для каждой категории
+const CAT_DEFAULT_UNIT = {
+  'Напитки':            'шт',
+  'Молочное и яйца':    'шт',
+  'Хлеб и выпечка':    'шт',
+  'Крупы и макароны':  'шт',
+  'Овощи и фрукты':    'кг',
+  'Мясо и рыба':       'кг',
+  'Снеки':             'шт',
+  'Хозтовары и гигиена':'шт',
+  'Замороженное':      'шт',
+  'Консервы':          'шт',
+  'Другое':            'шт'
+};
+ 
+function getDefaultUnit(cat) {
+  return CAT_DEFAULT_UNIT[cat] || 'шт';
+}
  
 function getCategories() {
   try { return JSON.parse(localStorage.getItem('mm_cats')) || DEFAULT_CATS; }
@@ -1845,14 +1869,31 @@ function deleteCat(i) {
   toast(`Категория удалена`);
 }
  
-// Заполняем select категорий в форме товара
-function fillCatSelect(selected) {
+function fillCatSelect(selected, setUnit=false) {
   const sel = document.getElementById('ep-cat');
   if (!sel) return;
   const cats = getCategories();
+  const chosen = selected || 'Другое';
   sel.innerHTML = cats.map(c =>
-    `<option value="${c}" ${c === (selected || 'Другое') ? 'selected' : ''}>${c}</option>`
+    `<option value="${c}" ${c === chosen ? 'selected' : ''}>${c}</option>`
   ).join('');
+  // При новом товаре — подставляем единицу по умолчанию
+  if (setUnit) {
+    const unitSel = document.getElementById('ep-unit');
+    if (unitSel) unitSel.value = getDefaultUnit(chosen);
+  }
+}
+ 
+// При смене категории — подставляем единицу по умолчанию
+// Только если это новый товар (поле единицы ещё не трогали)
+function onCatChange(cat) {
+  const unitSel = document.getElementById('ep-unit');
+  if (!unitSel) return;
+  const defaultUnit = getDefaultUnit(cat);
+  unitSel.value = defaultUnit;
+  // Показываем подсказку
+  const hint = document.getElementById('ep-unit-hint');
+  if (hint) hint.textContent = `По умолчанию для «${cat}»: ${defaultUnit}`;
 }
  
 // Импорт резервной копии JSON
@@ -1882,6 +1923,105 @@ function openSettings(){
 // ══════════════════════════════════════════
 let prikh_qtys={};
 let prikh_buys={};
+let prikh_expiry={};
+ 
+// ══════════════════════════════════════════
+// СРОК ГОДНОСТИ — хелперы
+// ══════════════════════════════════════════
+function daysUntilExpiry(dateStr) {
+  if (!dateStr) return null;
+  const exp = new Date(dateStr);
+  exp.setHours(23,59,59,999);
+  const now = new Date();
+  return Math.ceil((exp - now) / (1000*60*60*24));
+}
+ 
+function expiryBadge(dateStr) {
+  if (!dateStr) return '';
+  const days = daysUntilExpiry(dateStr);
+  const dateFormatted = new Date(dateStr).toLocaleDateString('ru-RU',{day:'numeric',month:'short',year:'numeric'});
+  if (days < 0) {
+    return `<span style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--rd)">⛔ Истёк ${Math.abs(days)} дн. назад · ${dateFormatted}</span>`;
+  } else if (days === 0) {
+    return `<span style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--rd)">⛔ Истекает сегодня · ${dateFormatted}</span>`;
+  } else if (days <= 3) {
+    return `<span style="background:var(--rdbg);border:1px solid var(--rdbr);border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--rd)">🔴 ${days} дн. · ${dateFormatted}</span>`;
+  } else if (days <= 7) {
+    return `<span style="background:var(--ambg);border:1px solid var(--ambr);border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--am)">🟡 ${days} дн. · ${dateFormatted}</span>`;
+  } else {
+    return `<span style="background:var(--gnbg);border:1px solid var(--gnbr);border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;color:var(--gn)">✓ ${days} дн. · ${dateFormatted}</span>`;
+  }
+}
+ 
+// Проверка просрочек при открытии приложения
+function checkExpiryAlerts() {
+  const data = db();
+  const expiredItems = [];
+  const soonItems = [];
+  // Собираем все партии с датой из операций
+  const batches = {};
+  data.operations.filter(o=>o.type==='arrival'&&o.expiry).forEach(o=>{
+    if (!batches[o.pid]) batches[o.pid] = [];
+    batches[o.pid].push(o.expiry);
+  });
+  Object.entries(batches).forEach(([pid, dates]) => {
+    const p = data.products.find(x=>x.id===pid&&!x.archived);
+    if (!p) return;
+    const st = getStock(pid);
+    if (st <= 0) return; // нет остатка — неважно
+    // Берём самую ближайшую дату
+    const nearest = dates.sort()[0];
+    const days = daysUntilExpiry(nearest);
+    if (days === null) return;
+    if (days < 0) expiredItems.push({name:p.name, days, date:nearest});
+    else if (days <= 3) soonItems.push({name:p.name, days, date:nearest});
+  });
+ 
+  if (!expiredItems.length && !soonItems.length) return;
+ 
+  let msg = '';
+  if (expiredItems.length) {
+    msg += `⛔ ПРОСРОЧЕНО (${expiredItems.length}):\n`;
+    expiredItems.forEach(i => msg += `• ${i.name}\n`);
+    msg += '\n';
+  }
+  if (soonItems.length) {
+    msg += `🟡 Истекает скоро (${soonItems.length}):\n`;
+    soonItems.forEach(i => msg += `• ${i.name} — ${i.days} дн.\n`);
+  }
+ 
+  // Показываем уведомление через toast + баннер
+  showExpiryAlert(expiredItems, soonItems);
+}
+ 
+function showExpiryAlert(expired, soon) {
+  const existing = document.getElementById('expiry-alert-banner');
+  if (existing) existing.remove();
+  if (!expired.length && !soon.length) return;
+ 
+  const banner = document.createElement('div');
+  banner.id = 'expiry-alert-banner';
+  banner.style.cssText = `position:fixed;top:0;left:0;right:0;z-index:999;background:${expired.length?'var(--rd)':'var(--am)'};color:#fff;padding:10px 16px;padding-top:calc(env(safe-area-inset-top,0px) + 10px);font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;`;
+  banner.innerHTML = `
+    <div style="max-width:640px;margin:0 auto;display:flex;align-items:center;gap:8px">
+      <span style="font-size:18px">${expired.length?'⛔':'⚠️'}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:800">
+          ${expired.length ? `${expired.length} просроченных товаров!` : ''}
+          ${expired.length && soon.length ? ' · ' : ''}
+          ${soon.length ? `${soon.length} истекают скоро` : ''}
+        </div>
+        <div style="font-size:11px;opacity:.85">Нажмите чтобы посмотреть на складе</div>
+      </div>
+      <button onclick="document.getElementById('expiry-alert-banner').remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer">✕</button>
+    </div>`;
+  banner.onclick = (e) => {
+    if (e.target.tagName === 'BUTTON') return;
+    document.getElementById('expiry-alert-banner').remove();
+    goPage('sklad', document.getElementById('nb-sklad'));
+  };
+  document.body.prepend(banner);
+}
  
 function pvUpdatePrice(oldBuy, oldSell) {
   const inp = document.getElementById('pv-buy');
@@ -1973,7 +2113,13 @@ function openPrikhod(mode){
  
             <div id="pv-price-info" style="margin-bottom:10px"></div>
  
-            <button class="btn btn-gn" onclick="doArrival('${p.id}','pv-qty','pv-buy')">✓ Принять</button>
+            <div class="fr" style="margin-bottom:10px">
+              <label class="lbl">Срок годности (если есть)</label>
+              <input type="date" class="fi" id="pv-expiry">
+              <div style="font-size:10px;color:var(--tx3);margin-top:3px;font-weight:500">Если есть — укажите дату «годен до» с упаковки</div>
+            </div>
+ 
+            <button class="btn btn-gn" onclick="doArrival('${p.id}','pv-qty','pv-buy','pv-expiry')">✓ Принять</button>
           </div>`;
         pvUpdatePrice(p.buyPrice, p.sellPrice);
       } else {
@@ -2024,67 +2170,59 @@ function createSupDebtFromArrival(items, now) {
   return true;
 }
  
-function doArrival(pid, qtyId, buyPriceId){
-  const qty=parseInt(document.getElementById(qtyId).value)||0;
+function doArrival(pid, qtyId, buyPriceId, expiryId){
+  const qty=parseInt(document.getElementById(qtyId)?.value)||0;
   if(qty<=0){toast('⚠️ Введите количество');return;}
   const data=db();
   const p=data.products.find(x=>x.id===pid); if(!p) return;
   const now=new Date().toISOString();
- 
-  // Новая закупочная цена из поля ввода
-  const newBuyPrice = buyPriceId
-    ? (parseFloat(document.getElementById(buyPriceId)?.value)||p.buyPrice)
-    : p.buyPrice;
+  const newBuyPrice = buyPriceId ? (parseFloat(document.getElementById(buyPriceId)?.value)||p.buyPrice) : p.buyPrice;
   const oldBuyPrice = p.buyPrice;
+  const expiry = expiryId ? (document.getElementById(expiryId)?.value||'') : '';
+ 
   if (newBuyPrice !== oldBuyPrice) p.buyPrice = newBuyPrice;
  
-  // Операция прихода с актуальной ценой
-  data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:newBuyPrice,note:'Приход от поставщика',date:now});
+  data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:newBuyPrice,note:'Приход от поставщика',date:now,expiry:expiry||null});
  
-  // Долг поставщику — записываем в тот же объект data
+  // Долг поставщику
   const isDebt = document.getElementById('sup-debt-chk')?.checked;
-  let supOk = true;
   if (isDebt) {
-    const supName = (document.getElementById('sup-name')?.value||'').trim();
-    if (!supName) { toast('⚠️ Введите название поставщика'); return; }
-    const phone = (document.getElementById('sup-phone')?.value||'').trim();
-    const fullPhone = phone ? '+996'+phone.replace(/\s/g,'') : '';
-    const totalAmt = newBuyPrice * qty;
-    if (!data.supDebts) data.supDebts = [];
-    const ex = data.supDebts.find(d=>d.name.toLowerCase()===supName.toLowerCase()&&!d.paid);
-    if (ex) {
-      ex.amount += totalAmt;
-      if (fullPhone) ex.phone = fullPhone;
-      ex.arrivals = ex.arrivals||[];
+    const supName=(document.getElementById('sup-name')?.value||'').trim();
+    if(!supName){toast('⚠️ Введите название поставщика');return;}
+    const phone=(document.getElementById('sup-phone')?.value||'').trim();
+    const fullPhone=phone?'+996'+phone.replace(/\s/g,''):'';
+    const totalAmt=newBuyPrice*qty;
+    if(!data.supDebts) data.supDebts=[];
+    const ex=data.supDebts.find(d=>d.name.toLowerCase()===supName.toLowerCase()&&!d.paid);
+    if(ex){
+      ex.amount+=totalAmt; if(fullPhone) ex.phone=fullPhone;
+      ex.arrivals=ex.arrivals||[];
       ex.arrivals.push({date:now,items:[{name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuyPrice}],totalAmt});
     } else {
-      data.supDebts.push({
-        id:uid(), name:supName, phone:fullPhone,
-        amount:totalAmt, date:now, paid:false, payments:[],
-        arrivals:[{date:now,items:[{name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuyPrice}],totalAmt}]
-      });
+      data.supDebts.push({id:uid(),name:supName,phone:fullPhone,amount:totalAmt,date:now,paid:false,payments:[],
+        arrivals:[{date:now,items:[{name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuyPrice}],totalAmt}]});
     }
   }
  
-  // Один save — всё вместе
   save(data);
- 
   const ns=getStock(pid,data.operations);
+  const pcColor = newBuyPrice>oldBuyPrice?'var(--rd)':'var(--gn)';
+  const pcArrow = newBuyPrice>oldBuyPrice?'📈':'📉';
   const priceChangeTxt = newBuyPrice!==oldBuyPrice
-    ? `<br><span style="font-size:12px;font-weight:700;color:${newBuyPrice>oldBuyPrice?'var(--rd)':'var(--gn)'}">
-        ${newBuyPrice>oldBuyPrice?'📈':'📉'} Закупочная: ${fmt(oldBuyPrice)} → ${fmt(newBuyPrice)} сом</span>`
+    ? '<br><span style="font-size:12px;font-weight:700;color:'+pcColor+'">'+pcArrow+' Закупочная: '+fmt(oldBuyPrice)+' → '+fmt(newBuyPrice)+' сом</span>'
     : '';
-  document.getElementById('pv-res').innerHTML=`
-    <div style="text-align:center;padding:16px;color:var(--gn);font-weight:800;font-size:15px">
-      ✓ Принято ${qty} ${p.unit||'шт'}<br>
-      <span style="font-size:12px;font-weight:600;color:var(--tx2)">Новый остаток: ${ns} ${p.unit||'шт'}</span>
-      ${priceChangeTxt}
-      ${isDebt?`<br><span style="font-size:12px;font-weight:700;color:var(--am)">🏭 Долг поставщику: ${fmt(newBuyPrice*qty)} сом</span>`:''}
-    </div>`;
-  toast(`✓ ${p.name} +${qty}${newBuyPrice!==oldBuyPrice?` · цена ${fmt(oldBuyPrice)}→${fmt(newBuyPrice)} сом`:''}${isDebt?` · долг записан`:''}`);
+  const expiryTxt = expiry ? '<br>' + expiryBadge(expiry) : '';
+  const debtHtml = isDebt ? '<br><span style="font-size:12px;font-weight:700;color:var(--am)">🏭 Долг: '+fmt(newBuyPrice*qty)+' сом</span>' : '';
+  const expiryHtml = expiry ? '<br>'+expiryBadge(expiry) : '';
+  document.getElementById('pv-res').innerHTML=
+    '<div style="text-align:center;padding:16px;color:var(--gn);font-weight:800;font-size:15px">'
+    +'✓ Принято '+qty+' '+(p.unit||'шт')+'<br>'
+    +'<span style="font-size:12px;font-weight:600;color:var(--tx2)">Новый остаток: '+ns+' '+(p.unit||'шт')+'</span>'
+    +priceChangeTxt+expiryHtml+debtHtml+'</div>';
+  const expDateStr = expiry ? ' · срок до '+new Date(expiry).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}) : '';
+  toast('✓ '+p.name+' +'+qty+expDateStr);
   renderSklad();
 }
- 
 function renderPrikhList(){
   const data=db(); const q=(document.getElementById('pk-q')?.value||'').toLowerCase();
   const filtered=data.products.filter(p=>!p.archived&&p.name.toLowerCase().includes(q));
@@ -2097,24 +2235,26 @@ function renderPrikhList(){
         <span style="font-size:22px">${p.emoji||'📦'}</span>
         <div class="arr-info">
           <div class="arr-name">${p.name}</div>
-          <div class="arr-sub">Остаток: ${st} ${p.unit||'шт'} · Текущая закупочная: ${fmt(p.buyPrice)} сом</div>
+          <div class="arr-sub">Остаток: ${st} ${p.unit||'шт'} · Закупочная: ${fmt(p.buyPrice)} сом</div>
         </div>
       </div>
-      <div style="display:flex;gap:6px;width:100%;align-items:center">
+      <div style="display:flex;gap:6px;width:100%;align-items:flex-end">
         <div style="flex:1">
-          <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Закупочная цена (сом)</div>
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Закупочная (сом)</div>
           <input type="number" class="fi" id="pb-${p.id}" value="${p.buyPrice}" min="0" step="0.01"
-            inputmode="decimal" onclick="this.select()"
-            style="padding:8px 10px;font-size:14px"
+            inputmode="decimal" onclick="this.select()" style="padding:8px 10px;font-size:14px"
             oninput="prikh_buys['${p.id}']=parseFloat(this.value)||0">
         </div>
         <div style="flex:1">
-          <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Количество (${p.unit||'шт'})</div>
+          <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Кол-во (${p.unit||'шт'})</div>
           <input type="number" class="fi arr-qty-in" id="pk-${p.id}" value="${prikh_qtys[p.id]||''}" placeholder="0" min="0"
-            inputmode="numeric" onclick="this.select()"
-            style="padding:8px 10px;font-size:14px"
+            inputmode="numeric" onclick="this.select()" style="padding:8px 10px;font-size:14px"
             oninput="prikh_qtys['${p.id}']=parseInt(this.value)||0">
         </div>
+      </div>
+      <div style="width:100%">
+        <div style="font-size:10px;font-weight:600;color:var(--tx3);margin-bottom:3px">Срок годности — если есть, укажите дату «годен до»</div>
+        <input type="date" class="fi" id="pe-${p.id}" style="padding:8px 10px;font-size:13px">
       </div>
     </div>`;
   }).join('');
@@ -2136,7 +2276,8 @@ function applyPrikhod(){
           p.buyPrice = newBuy;
           priceChanges.push(`${p.name}: ${fmt(oldBuy)}→${fmt(newBuy)} сом`);
         }
-        data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:newBuy,note:'Приход (вручную)',date:now});
+        data.operations.push({id:uid(),pid,type:'arrival',qty,buyPrice:newBuy,note:'Приход (вручную)',date:now,
+          expiry:document.getElementById('pe-'+pid)?.value||null});
         arrivedItems.push({name:p.name,emoji:p.emoji||'📦',unit:p.unit||'шт',qty,buyPrice:newBuy});
         count++;
       }
@@ -2209,12 +2350,26 @@ function renderSkladList(){
   const filtered=data.products.filter(p=>!p.archived&&(!q||p.name.toLowerCase().includes(q)));
   const list=document.getElementById('sklad-list'); if(!list) return;
   if(!filtered.length){list.innerHTML=`<div class="empty" style="padding:14px 0"><div class="et">${q?'Не найдено':'Нет товаров'}</div></div>`;return;}
+ 
+  // Для каждого товара находим ближайший срок годности из операций прихода
+  const expiryMap={};
+  data.operations.filter(o=>o.type==='arrival'&&o.expiry).forEach(o=>{
+    if(!expiryMap[o.pid]||o.expiry<expiryMap[o.pid]) expiryMap[o.pid]=o.expiry;
+  });
+ 
   list.innerHTML=filtered.map(p=>{
     const st=stocks[p.id]||0;
-    const scls=st<=0?'ch-r':st<=(p.minStock||5)?'ch-a':'ch-g';
-    const stxt=st<=0?'⛔ Нет':st<=(p.minStock||5)?`⚠️ ${st}`:`✓ ${st}`;
-    return `<div class="op-item"><div class="op-emo">${p.emoji||'📦'}</div>
-      <div class="op-body"><div class="op-name">${p.name}</div><div class="op-meta">${p.category||''} · ${fmt(p.sellPrice)} сом</div></div>
+    const scls=st<=0?'ch-r':st<=(p.minStock||getMinStock())?'ch-a':'ch-g';
+    const stxt=st<=0?'⛔ Нет':st<=(p.minStock||getMinStock())?`⚠️ ${st}`:`✓ ${st}`;
+    const exp=expiryMap[p.id];
+    const expHtml=exp?`<div style="margin-top:4px">${expiryBadge(exp)}</div>`:'';
+    return `<div class="op-item" style="flex-wrap:wrap">
+      <div class="op-emo">${p.emoji||'📦'}</div>
+      <div class="op-body" style="flex:1">
+        <div class="op-name">${p.name}</div>
+        <div class="op-meta">${p.category||''} · ${fmt(p.sellPrice)} ${getCurrency()}</div>
+        ${expHtml}
+      </div>
       <span class="chip ${scls}">${stxt} ${p.unit||'шт'}</span>
     </div>`;
   }).join('');
@@ -2269,7 +2424,7 @@ function openProdForm(id) {
   if (id) {
     const p = db().products.find(x => x.id === id);
     if (p) {
-      fillCatSelect(p.category || 'Другое');
+      fillCatSelect(p.category || 'Другое', false); // редактирование — не трогаем единицу
       document.getElementById('ep-name').value  = p.name;
       document.getElementById('ep-bar').value   = p.barcode || '';
       document.getElementById('ep-bar-show').textContent = p.barcode || '—';
@@ -2284,7 +2439,7 @@ function openProdForm(id) {
     document.getElementById('ep-form-step').style.display = '';
     openModal('ov-prod');
   } else {
-    fillCatSelect('Другое');
+    fillCatSelect('Другое', true); // новый товар — подставляем единицу
     document.getElementById('ep-scan-step').style.display = '';
     document.getElementById('ep-form-step').style.display = 'none';
     document.getElementById('ep-bar-manual').value = '';
@@ -2744,25 +2899,64 @@ function renderReport(){
       <div style="font-size:12px;color:var(--am);font-weight:600">Всего долгов покупателей: ${fmt(totalDebt)} сом (${activeDebts.length} чел.)</div>
     </div>`:'';
  
-  // Что заканчивается (из склада)
+  // Что заканчивается (из склада) + просрочки
   const stocks=getAllStocks();
   const lowStock=data.products.filter(p=>!p.archived&&(()=>{const st=stocks[p.id]||0;return st<=0||(st<=(p.minStock||getMinStock()));})());
+ 
+  // Просрочки
+  const expiryMap={};
+  data.operations.filter(o=>o.type==='arrival'&&o.expiry).forEach(o=>{
+    if(!expiryMap[o.pid]||o.expiry<expiryMap[o.pid]) expiryMap[o.pid]=o.expiry;
+  });
+  const expiredProds=data.products.filter(p=>!p.archived&&expiryMap[p.id]&&daysUntilExpiry(expiryMap[p.id])<0&&getStock(p.id)>0);
+  const soonProds=data.products.filter(p=>!p.archived&&expiryMap[p.id]&&daysUntilExpiry(expiryMap[p.id])>=0&&daysUntilExpiry(expiryMap[p.id])<=7&&getStock(p.id)>0);
+ 
   const lowCard=document.getElementById('r-lowstock-card');
   const lowEl=document.getElementById('r-lowstock');
-  if(!lowStock.length){
+  const hasIssues = lowStock.length||expiredProds.length||soonProds.length;
+  if(!hasIssues){
     lowCard.style.display='none';
   } else {
     lowCard.style.display='';
-    lowEl.innerHTML=lowStock.map(p=>{
-      const st=stocks[p.id]||0;
-      const cls=st<=0?'ch-r':'ch-a';
-      const txt=st<=0?'⛔ Нет':'⚠️ '+st+' '+( p.unit||'шт');
-      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
-        <span style="font-size:20px">${p.emoji||'📦'}</span>
-        <span style="flex:1;font-size:13px;font-weight:600">${p.name}</span>
-        <span class="chip ${cls}">${txt}</span>
-      </div>`;
-    }).join('');
+    let html='';
+    // Просроченные — сначала
+    if(expiredProds.length){
+      html+=`<div style="font-size:11px;font-weight:700;color:var(--rd);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;margin-top:4px">⛔ Просрочено — убрать с полки!</div>`;
+      html+=expiredProds.map(p=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:20px">${p.emoji||'📦'}</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">${p.name}</div>
+          <div style="margin-top:2px">${expiryBadge(expiryMap[p.id])}</div></div>
+          <span class="chip ch-r">${getStock(p.id)} ${p.unit||'шт'}</span>
+        </div>`).join('');
+    }
+    // Скоро истекают
+    if(soonProds.length){
+      html+=`<div style="font-size:11px;font-weight:700;color:var(--am);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;margin-top:8px">⚠️ Скоро истекает</div>`;
+      html+=soonProds.map(p=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:20px">${p.emoji||'📦'}</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">${p.name}</div>
+          <div style="margin-top:2px">${expiryBadge(expiryMap[p.id])}</div></div>
+          <span class="chip ch-a">${getStock(p.id)} ${p.unit||'шт'}</span>
+        </div>`).join('');
+    }
+    // Мало на складе
+    if(lowStock.length){
+      html+=`<div style="font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;margin-top:8px">📦 Мало на складе</div>`;
+      html+=lowStock.map(p=>{
+        const st=stocks[p.id]||0;
+        return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
+          <span style="font-size:20px">${p.emoji||'📦'}</span>
+          <span style="flex:1;font-size:13px;font-weight:600">${p.name}</span>
+          <span class="chip ${st<=0?'ch-r':'ch-a'}">${st<=0?'⛔ Нет':'⚠️ '+st+' '+(p.unit||'шт')}</span>
+        </div>`;
+      }).join('');
+    }
+    lowEl.innerHTML=html;
+    // Обновляем заголовок карточки
+    document.querySelector('#r-lowstock-card .ctitle').textContent =
+      expiredProds.length ? '⛔ Требует внимания!' : '⚠️ Заканчивается на складе';
   }
  
   // Топ товаров
@@ -3083,6 +3277,8 @@ function applyOwnerMode() {
     const el = document.getElementById(id);
     if (el) el.style.display = '';
   });
+  // Проверяем просрочки через секунду после входа
+  setTimeout(checkExpiryAlerts, 1200);
 }
  
 // Применить режим кассира — только касса и долги
