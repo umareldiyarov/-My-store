@@ -917,32 +917,73 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- ══════ НАСТРОЙКИ ══════ -->
 <div id="pg-settings" class="page">
 <div class="wrap" style="padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))">
+ 
   <div class="card">
     <div class="ctitle">Магазин</div>
-    <div class="fr"><label class="lbl">Название магазина</label><input type="text" class="fi" id="set-name" placeholder="Мой магазин" oninput="saveSetting()"></div>
+    <div class="fr"><label class="lbl">Название магазина</label>
+      <input type="text" class="fi" id="set-name" placeholder="Мой магазин" oninput="saveSetting()">
+    </div>
+    <div class="fr2">
+      <div><label class="lbl">Валюта</label>
+        <select class="fi" id="set-currency" onchange="saveSetting()">
+          <option value="сом">сом (Кыргызстан)</option>
+          <option value="тг">тг (Казахстан)</option>
+          <option value="руб">руб (Россия)</option>
+          <option value="$">$ (США)</option>
+          <option value="€">€ (Европа)</option>
+        </select>
+      </div>
+      <div><label class="lbl">Мин. остаток по умолч.</label>
+        <input type="number" class="fi" id="set-minstock" placeholder="5" min="0" inputmode="numeric" oninput="saveSetting()">
+      </div>
+    </div>
   </div>
+ 
+  <div class="card">
+    <div class="ctitle">Категории товаров</div>
+    <div id="cat-list-settings" style="margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px">
+      <input type="text" class="fi" id="new-cat-input" placeholder="Новая категория…" style="flex:1">
+      <button class="sm sm-dk" onclick="addCategory()">+ Добавить</button>
+    </div>
+  </div>
+ 
+  <div class="card">
+    <div class="ctitle">📦 Архив товаров</div>
+    <div style="font-size:12px;color:var(--tx3);margin-bottom:10px;line-height:1.6">Товары которые убрали из продажи. История и отчёты сохранены.</div>
+    <div id="archived-list"></div>
+  </div>
+ 
   <div class="card">
     <div class="ctitle">Безопасность</div>
     <button class="btn btn-gh" onclick="openChangePinScreen()" style="margin-bottom:7px">🔑 Изменить PIN владельца</button>
     <div style="font-size:12px;color:var(--tx3);line-height:1.6">PIN по умолчанию: <b>1234</b>. Смените его для безопасности.</div>
   </div>
+ 
   <div class="card">
     <div class="ctitle">Данные</div>
     <button class="btn btn-gh" onclick="exportExcel()" style="margin-bottom:7px">⬇ Товары в Excel</button>
-    <button class="btn btn-gh" onclick="exportJson()" style="margin-bottom:7px">📤 Резервная копия</button>
+    <button class="btn btn-gh" onclick="exportJson()" style="margin-bottom:7px">📤 Скачать резервную копию</button>
+    <label class="btn btn-gh" style="margin-bottom:7px;cursor:pointer">
+      📥 Восстановить из копии
+      <input type="file" id="restore-inp" accept=".json" style="display:none" onchange="restoreJson(event)">
+    </label>
     <button class="btn btn-rd" onclick="clearAll()">🗑 Удалить все данные</button>
   </div>
+ 
   <div class="card">
     <div class="ctitle">О приложении</div>
     <div style="font-size:13px;color:var(--tx2);line-height:1.75">
-      <b style="color:var(--tx)">Мой Магазин</b> — кассовая система для малого бизнеса Кыргызстана.<br><br>
+      Каждый третий владелец магазина работает в минус и не знает об этом. <b style="color:var(--tx)">POS кассовая система Мой Магазин</b> — создана специально для продуктовых магазинов Кыргызстана. Видишь остатки, знаешь прибыль, не теряешь долги. Твой бизнес — в твоих руках.<br><br>
       <span style="color:var(--tx3)">v6.0 · Умар Элдияров</span>
     </div>
     <a href="https://wa.me/996502516726" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;padding:13px;border-radius:var(--r);font-size:14px;font-weight:700;text-decoration:none;margin-top:13px">💬 Написать разработчику</a>
   </div>
+ 
   <div class="card">
     <button class="btn btn-gh" onclick="switchRole()">🔄 Сменить роль (выйти)</button>
   </div>
+ 
 </div>
 </div>
  
@@ -1005,12 +1046,7 @@ input[type=number]{-moz-appearance:textfield;}
     </label>
     <div class="fr2">
       <div><label class="lbl">Категория</label>
-        <select class="fi" id="ep-cat">
-          <option value="Напитки">Напитки</option><option value="Продукты">Продукты</option>
-          <option value="Молочное">Молочное</option><option value="Хлеб">Хлеб</option>
-          <option value="Снеки">Снеки</option><option value="Хозтовары">Хозтовары</option>
-          <option value="Другое" selected>Другое</option>
-        </select>
+        <select class="fi" id="ep-cat"></select>
       </div>
       <div><label class="lbl">Единица</label>
         <select class="fi" id="ep-unit">
@@ -1351,7 +1387,7 @@ function closeGenericScanner(){_stopReader('gen-video');closeModal('ov-scan-gene
 // ══════════════════════════════════════════
 function renderNobarStrip() {
   const data = db();
-  const nobar = data.products.filter(p => p.noBarcode);
+  const nobar = data.products.filter(p => p.noBarcode && !p.archived);
   const wrap = document.getElementById('nobar-strip-wrap');
   if (!wrap) return;
   if (!nobar.length) {
@@ -1465,7 +1501,7 @@ function stopKassaCamera(){
 }
  
 function kassaScanFound(code){
-  const p=db().products.find(pr=>pr.barcode===code||pr.name.toLowerCase()===code.toLowerCase());
+  const p=db().products.find(pr=>!pr.archived&&(pr.barcode===code||pr.name.toLowerCase()===code.toLowerCase()));
   if(!p){
     scanBeep('error');
     toast(`⚠️ Не найден: ${code}`);
@@ -1554,7 +1590,7 @@ function ks1ManualSearch(q){
   const res=document.getElementById('ks1-manual-res');
   if(!q||q.length<1){res.style.display='none';return;}
   const stocks=getAllStocks();
-  const found=db().products.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||(p.barcode||'').includes(q)).slice(0,6);
+  const found=db().products.filter(p=>!p.archived&&(p.name.toLowerCase().includes(q.toLowerCase())||(p.barcode||'').includes(q))).slice(0,6);
   if(!found.length){res.style.display='none';return;}
   res.style.display='block';
   res.innerHTML=found.map(p=>{
@@ -1723,23 +1759,122 @@ document.getElementById('ks2-buyer').addEventListener('keydown',function(e){
 // ══════════════════════════════════════════
 // SETTINGS
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// НАСТРОЙКИ
+// ══════════════════════════════════════════
+const DEFAULT_CATS = ['Напитки','Продукты','Молочное','Хлеб','Снеки','Хозтовары','Другое'];
+ 
+function getCategories() {
+  try { return JSON.parse(localStorage.getItem('mm_cats')) || DEFAULT_CATS; }
+  catch(e) { return DEFAULT_CATS; }
+}
+function saveCategories(cats) { localStorage.setItem('mm_cats', JSON.stringify(cats)); }
+function getCurrency() { return localStorage.getItem('mm_currency') || 'сом'; }
+function getMinStock() { return parseInt(localStorage.getItem('mm_minstock')) || 5; }
+ 
+// Глобальный fmt с валютой
+function fmtC(n) { return fmt(n) + ' ' + getCurrency(); }
+ 
+function saveSetting() {
+  const name = document.getElementById('set-name')?.value.trim() || 'Мой Магазин';
+  const currency = document.getElementById('set-currency')?.value || 'сом';
+  const minstock = parseInt(document.getElementById('set-minstock')?.value) || 5;
+  localStorage.setItem('mm_name', name);
+  localStorage.setItem('mm_currency', currency);
+  localStorage.setItem('mm_minstock', minstock);
+  document.getElementById('hdr-store').textContent = name;
+}
+ 
+function loadSettings() {
+  const name = localStorage.getItem('mm_name') || '';
+  const currency = getCurrency();
+  const minstock = getMinStock();
+  const el = document.getElementById('set-name');
+  if (el) el.value = name;
+  const cur = document.getElementById('set-currency');
+  if (cur) cur.value = currency;
+  const ms = document.getElementById('set-minstock');
+  if (ms) ms.value = minstock;
+  document.getElementById('hdr-store').textContent = name;
+  renderCatSettings();
+  fillCatSelect();
+  renderArchivedProds();
+}
+ 
+function initSettings() {
+  const v = localStorage.getItem('mm_name') || '';
+  document.getElementById('hdr-store').textContent = v;
+}
+ 
+// Рендер списка категорий в настройках
+function renderCatSettings() {
+  const el = document.getElementById('cat-list-settings');
+  if (!el) return;
+  const cats = getCategories();
+  el.innerHTML = cats.map((c,i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)">
+      <span style="flex:1;font-size:13px;font-weight:600">${c}</span>
+      ${c !== 'Другое' ? `<button class="ib ib-rd" onclick="deleteCat(${i})">×</button>` : ''}
+    </div>`).join('');
+}
+ 
+function addCategory() {
+  const inp = document.getElementById('new-cat-input');
+  const name = inp.value.trim();
+  if (!name) { toast('⚠️ Введите название'); return; }
+  const cats = getCategories();
+  if (cats.includes(name)) { toast('⚠️ Такая категория уже есть'); return; }
+  // Добавляем перед «Другое»
+  cats.splice(cats.length - 1, 0, name);
+  saveCategories(cats);
+  inp.value = '';
+  renderCatSettings();
+  fillCatSelect();
+  toast(`✓ Категория «${name}» добавлена`);
+}
+ 
+function deleteCat(i) {
+  const cats = getCategories();
+  const name = cats[i];
+  if (name === 'Другое') return;
+  if (!confirm(`Удалить категорию «${name}»?`)) return;
+  cats.splice(i, 1);
+  saveCategories(cats);
+  renderCatSettings();
+  fillCatSelect();
+  toast(`Категория удалена`);
+}
+ 
+// Заполняем select категорий в форме товара
+function fillCatSelect(selected) {
+  const sel = document.getElementById('ep-cat');
+  if (!sel) return;
+  const cats = getCategories();
+  sel.innerHTML = cats.map(c =>
+    `<option value="${c}" ${c === (selected || 'Другое') ? 'selected' : ''}>${c}</option>`
+  ).join('');
+}
+ 
+// Импорт резервной копии JSON
+function restoreJson(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.products || !data.sales) { toast('⚠️ Неверный формат файла'); return; }
+      if (!confirm(`Восстановить данные?\n\nТоваров: ${data.products.length}\nПродаж: ${data.sales.length}\n\nТекущие данные будут заменены.`)) return;
+      localStorage.setItem(KEY, JSON.stringify(data));
+      toast('✓ Данные восстановлены! Перезагружаю…');
+      setTimeout(() => location.reload(), 1500);
+    } catch(err) { toast('⚠️ Ошибка чтения файла'); }
+  };
+  r.readAsText(file);
+  e.target.value = '';
+}
+ 
 function openSettings(){
   if(isOwner()) goPage('settings', document.getElementById('nb-settings'));
-}
-function loadSettings(){
-  const v=localStorage.getItem('mm_name')||'';
-  const el = document.getElementById('set-name');
-  if(el) el.value=v;
-  document.getElementById('hdr-store').textContent=v;
-}
-function saveSetting(){
-  const v=document.getElementById('set-name').value.trim()||'Мой Магазин';
-  localStorage.setItem('mm_name',v);
-  document.getElementById('hdr-store').textContent=v;
-}
-function initSettings(){
-  const v=localStorage.getItem('mm_name')||'';
-  document.getElementById('hdr-store').textContent=v;
 }
  
 // ══════════════════════════════════════════
@@ -1952,7 +2087,7 @@ function doArrival(pid, qtyId, buyPriceId){
  
 function renderPrikhList(){
   const data=db(); const q=(document.getElementById('pk-q')?.value||'').toLowerCase();
-  const filtered=data.products.filter(p=>p.name.toLowerCase().includes(q));
+  const filtered=data.products.filter(p=>!p.archived&&p.name.toLowerCase().includes(q));
   const el=document.getElementById('pk-list'); if(!el) return;
   if(!filtered.length){el.innerHTML=`<div class="empty" style="padding:14px 0"><div class="et">Нет товаров</div></div>`;return;}
   el.innerHTML=filtered.map(p=>{
@@ -2044,7 +2179,7 @@ function renderSklad(){
   const today=new Date().toDateString();
   const todayArr=data.operations.filter(o=>o.type==='arrival'&&new Date(o.date).toDateString()===today);
   let low=0,out=0;
-  data.products.forEach(p=>{const st=stocks[p.id]||0;if(st<=0)out++;else if(st<=(p.minStock||5))low++;});
+  data.products.filter(p=>!p.archived).forEach(p=>{const st=stocks[p.id]||0;if(st<=0)out++;else if(st<=(p.minStock||5))low++;});
   document.getElementById('sklad-stats').innerHTML=`
     <div class="sc"><div class="sc-v">${data.products.length}</div><div class="sc-l">Товаров</div></div>
     <div class="sc"><div class="sc-v" style="color:var(--am)">${low}</div><div class="sc-l">Мало</div></div>
@@ -2071,7 +2206,7 @@ function renderSklad(){
 function renderSkladList(){
   const data=db(); const stocks=getAllStocks();
   const q=(document.getElementById('sklad-q')?.value||'').toLowerCase();
-  const filtered=data.products.filter(p=>!q||p.name.toLowerCase().includes(q));
+  const filtered=data.products.filter(p=>!p.archived&&(!q||p.name.toLowerCase().includes(q)));
   const list=document.getElementById('sklad-list'); if(!list) return;
   if(!filtered.length){list.innerHTML=`<div class="empty" style="padding:14px 0"><div class="et">${q?'Не найдено':'Нет товаров'}</div></div>`;return;}
   list.innerHTML=filtered.map(p=>{
@@ -2134,13 +2269,13 @@ function openProdForm(id) {
   if (id) {
     const p = db().products.find(x => x.id === id);
     if (p) {
+      fillCatSelect(p.category || 'Другое');
       document.getElementById('ep-name').value  = p.name;
       document.getElementById('ep-bar').value   = p.barcode || '';
       document.getElementById('ep-bar-show').textContent = p.barcode || '—';
       document.getElementById('ep-buy').value   = p.buyPrice;
       document.getElementById('ep-sell').value  = p.sellPrice;
       document.getElementById('ep-emo').value   = p.emoji || '';
-      document.getElementById('ep-cat').value   = p.category || 'Другое';
       document.getElementById('ep-unit').value  = p.unit || 'шт';
       document.getElementById('ep-nobar').checked = p.noBarcode || false;
       showMprev();
@@ -2149,13 +2284,13 @@ function openProdForm(id) {
     document.getElementById('ep-form-step').style.display = '';
     openModal('ov-prod');
   } else {
+    fillCatSelect('Другое');
     document.getElementById('ep-scan-step').style.display = '';
     document.getElementById('ep-form-step').style.display = 'none';
     document.getElementById('ep-bar-manual').value = '';
     document.getElementById('ep-lookup-status').textContent = '';
     document.getElementById('ep-nobar').checked = false;
     ['ep-name','ep-bar','ep-buy','ep-sell','ep-emo'].forEach(f => document.getElementById(f).value = '');
-    document.getElementById('ep-cat').value = 'Другое';
     document.getElementById('ep-unit').value = 'шт';
     openModal('ov-prod');
     _startReader('ep-video', 'ep-scan-st', code => { _stopReader('ep-video'); lookupBarcode(code); });
@@ -2200,6 +2335,8 @@ function lookupBarcode(code) {
   } else {
     document.getElementById('ep-found-badge').style.display = 'none';
   }
+  // Заполняем категории
+  fillCatSelect(existing ? existing.category : 'Другое');
   // Показываем форму — кассир вводит название и цены сам
   document.getElementById('ep-scan-step').style.display = 'none';
   document.getElementById('ep-form-step').style.display = '';
@@ -2223,26 +2360,65 @@ function saveProd(){
     category:  document.getElementById('ep-cat').value,
     unit:      document.getElementById('ep-unit').value,
     noBarcode: document.getElementById('ep-nobar').checked,
-    minStock:  5
+    minStock:  getMinStock()
   };
   if(eid){const i=data.products.findIndex(p=>p.id===eid);if(i>=0)data.products[i]={...data.products[i],...pd};}
   else{pd.id=uid();data.products.push(pd);}
   _stopReader('ep-video');
   save(data); closeModal('ov-prod'); renderProds(); toast(eid?'✓ Обновлено':'✓ Товар добавлен');
 }
-function deleteProd(id){if(!confirm('Удалить товар?'))return;const data=db();data.products=data.products.filter(p=>p.id!==id);save(data);renderProds();toast('Удалён');}
+function archiveProd(id){
+  const data=db();
+  const p=data.products.find(x=>x.id===id); if(!p) return;
+  // Проверяем есть ли операции по этому товару
+  const hasOps=data.operations.some(o=>o.pid===id)||data.sales.some(s=>s.items.some(i=>i.pid===id));
+  if(hasOps){
+    // Архивируем — скрываем но не удаляем
+    p.archived=true;
+    save(data); renderProds(); toast('📦 Товар перемещён в архив');
+  } else {
+    // Операций нет — можно удалить физически
+    if(!confirm('По этому товару нет продаж. Удалить полностью?')) return;
+    data.products=data.products.filter(x=>x.id!==id);
+    save(data); renderProds(); toast('Удалён');
+  }
+}
+function restoreProd(id){
+  const data=db();
+  const p=data.products.find(x=>x.id===id);
+  if(p){p.archived=false; save(data); renderArchivedProds(); renderProds(); toast('✓ Товар восстановлен');}
+}
+function deleteArchivedProd(id){
+  if(!confirm('Удалить навсегда? Это нельзя отменить.')) return;
+  const data=db();
+  data.products=data.products.filter(x=>x.id!==id);
+  save(data); renderArchivedProds(); toast('Удалён навсегда');
+}
+function renderArchivedProds(){
+  const data=db();
+  const archived=data.products.filter(p=>p.archived);
+  const el=document.getElementById('archived-list'); if(!el) return;
+  if(!archived.length){el.innerHTML='<div style="font-size:12px;color:var(--tx3);padding:10px 0">Архив пуст</div>';return;}
+  el.innerHTML=archived.map(p=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)">
+      <span style="font-size:20px">${p.emoji||'📦'}</span>
+      <span style="flex:1;font-size:13px;font-weight:600;color:var(--tx2)">${p.name}</span>
+      <button class="sm sm-gn" onclick="restoreProd('${p.id}')">↩ Вернуть</button>
+      <button class="sm sm-rd" onclick="deleteArchivedProd('${p.id}')">🗑</button>
+    </div>`).join('');
+}
 let _activeCat='Все';
 function renderProds(){
   const data=db(); const stocks=getAllStocks();
   const q=(document.getElementById('prod-q').value||'').toLowerCase();
   let low=0,out=0;
-  data.products.forEach(p=>{const st=stocks[p.id]||0;if(st<=0)out++;else if(st<=(p.minStock||5))low++;});
-  document.getElementById('ss-total').textContent=data.products.length;
+  data.products.filter(p=>!p.archived).forEach(p=>{const st=stocks[p.id]||0;if(st<=0)out++;else if(st<=(p.minStock||5))low++;});
+  document.getElementById('ss-total').textContent=data.products.filter(p=>!p.archived).length;
   document.getElementById('ss-low').textContent=low;
   document.getElementById('ss-out').textContent=out;
   const cats=['Все',...new Set(data.products.map(p=>p.category||'Другое'))];
   document.getElementById('cat-filter').innerHTML=cats.map(c=>`<button class="sm ${_activeCat===c?'sm-dk':'sm-gh'}" onclick="_activeCat='${c}';renderProds()">${c}</button>`).join('');
-  const filtered=data.products.filter(p=>{const catOk=_activeCat==='Все'||(p.category||'Другое')===_activeCat;const qOk=p.name.toLowerCase().includes(q)||(p.barcode||'').includes(q);return catOk&&qOk;});
+  const filtered=data.products.filter(p=>{if(p.archived)return false;const catOk=_activeCat==='Все'||(p.category||'Другое')===_activeCat;const qOk=p.name.toLowerCase().includes(q)||(p.barcode||'').includes(q);return catOk&&qOk;});
   const list=document.getElementById('prod-list');
   if(!filtered.length){list.innerHTML=`<div class="empty"><div class="ei">📦</div><div class="et">${q?'Ничего не найдено':'Нет товаров'}</div></div>`;return;}
   list.innerHTML=filtered.map(p=>{
@@ -2256,7 +2432,7 @@ function renderProds(){
         <div class="pi-row"><span class="pi-sell">${fmt(p.sellPrice)} сом</span><span class="pi-buy">закуп ${fmt(p.buyPrice)}</span><span class="chip ${mcls}">+${m}%</span><span class="chip ch-tx">${p.category||''}</span></div>
       </div>
       <div class="pi-right"><span class="chip ${scls}">${stxt} ${p.unit||'шт'}</span>
-        <div style="display:flex;gap:4px"><button class="ib" onclick="openProdForm('${p.id}')">✏️</button><button class="ib ib-rd" onclick="deleteProd('${p.id}')">×</button></div>
+        <div style="display:flex;gap:4px"><button class="ib" onclick="openProdForm('${p.id}')">✏️</button><button class="ib ib-rd" onclick="archiveProd('${p.id}')" title="В архив">📦</button></div>
       </div></div>`;
   }).join('');
 }
@@ -2570,7 +2746,7 @@ function renderReport(){
  
   // Что заканчивается (из склада)
   const stocks=getAllStocks();
-  const lowStock=data.products.filter(p=>{const st=stocks[p.id]||0;return st<=0||(st<=(p.minStock||5));});
+  const lowStock=data.products.filter(p=>!p.archived&&(()=>{const st=stocks[p.id]||0;return st<=0||(st<=(p.minStock||getMinStock()));})());
   const lowCard=document.getElementById('r-lowstock-card');
   const lowEl=document.getElementById('r-lowstock');
   if(!lowStock.length){
