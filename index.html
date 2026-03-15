@@ -990,6 +990,22 @@ input[type=number]{-moz-appearance:textfield;}
   </div>
  
   <div class="card">
+    <div class="ctitle">👥 Как добавить кассира</div>
+    <div style="font-size:13px;color:var(--tx2);line-height:1.8">
+      <div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:16px;font-weight:800;color:var(--gn)">1</span><span>Возьмите телефон кассира</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:16px;font-weight:800;color:var(--gn)">2</span><span>Откройте приложение на его телефоне</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:16px;font-weight:800;color:var(--gn)">3</span><span>Нажмите «Войти по коду»</span></div>
+      <div style="display:flex;gap:8px;margin-bottom:6px"><span style="font-size:16px;font-weight:800;color:var(--gn)">4</span><span>Введите код и пароль магазина</span></div>
+      <div style="display:flex;gap:8px"><span style="font-size:16px;font-weight:800;color:var(--gn)">5</span><span>Передайте телефон кассиру — готово!</span></div>
+    </div>
+    <div style="background:var(--sf2);border-radius:var(--rs);padding:11px 13px;margin-top:12px;font-size:12px;color:var(--tx2);line-height:1.6">
+      <b>Код магазина:</b> <span id="settings-shop-code" style="font-weight:800;color:var(--tx);letter-spacing:.05em">—</span><br>
+      <b>Пароль:</b> тот что вы придумали при создании<br><br>
+      <span style="color:var(--tx3)">⚠️ Кассир будет видеть только кассу и долги. Прибыль и склад скрыты.</span>
+    </div>
+  </div>
+ 
+  <div class="card">
     <button class="btn btn-gh" onclick="switchRole()">🔄 Сменить роль (выйти)</button>
     <button class="btn btn-gh" onclick="if(confirm('Отключиться от магазина?'))disconnectShop()" style="margin-top:7px">🏪 Сменить магазин</button>
     <div id="shop-id-display" style="font-size:11px;color:var(--tx3);text-align:center;margin-top:8px"></div>
@@ -1204,25 +1220,48 @@ input[type=number]{-moz-appearance:textfield;}
  
   <!-- Создать магазин -->
   <div id="shop-create-form" style="width:100%;max-width:320px">
-    <div class="fr"><label class="lbl">Название магазина</label>
+    <div class="fr">
+      <label class="lbl">Название магазина *</label>
       <input type="text" class="fi" id="shop-name-inp" placeholder="Магазин Байкеши…">
+    </div>
+    <div class="fr">
+      <label class="lbl">Пароль магазина *</label>
+      <input type="password" class="fi" id="shop-pass-inp" placeholder="Придумайте пароль">
+      <div style="background:var(--ambg);border:1px solid var(--ambr);border-radius:var(--rs);padding:10px 12px;margin-top:6px;font-size:12px;color:var(--am);line-height:1.7">
+        ⚠️ <b>Важно!</b> Этот пароль нужен для входа в магазин.<br>
+        Не забудьте его — <b>запишите в надёжном месте</b>.<br>
+        Без пароля восстановить доступ невозможно.
+      </div>
     </div>
     <button class="btn btn-dk" id="shop-create-btn" onclick="createShop()">Создать магазин</button>
   </div>
  
   <!-- Код после создания -->
   <div id="shop-code-display" style="display:none;width:100%;max-width:320px;text-align:center">
-    <div style="font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px">Ваш код магазина — сохраните его!</div>
+    <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:6px">✓ Магазин создан!</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:8px">Ваш код магазина:</div>
     <div class="shop-code-big" id="shop-code-val">—</div>
-    <div class="shop-hint">Этот код нужен чтобы войти с другого телефона. Отправьте его кассирам в WhatsApp.</div>
-    <button class="btn btn-gn" onclick="enterShop()" style="margin-top:16px">Войти в магазин →</button>
+    <div style="background:var(--blbg);border:1px solid var(--blbr);border-radius:var(--rs);padding:12px;margin-top:10px;font-size:12px;color:var(--bl);line-height:1.7;text-align:left">
+      📋 <b>Сохраните этот код и пароль:</b><br>
+      Код + пароль нужны чтобы войти с другого телефона.<br>
+      Отправьте код кассирам в WhatsApp — они тоже будут вводить его при входе.
+    </div>
+    <button class="btn btn-gn" onclick="enterShop()" style="margin-top:14px">Войти в магазин →</button>
   </div>
  
   <!-- Войти по коду -->
   <div id="shop-join-form" style="display:none;width:100%;max-width:320px">
-    <div class="fr"><label class="lbl">Код магазина</label>
+    <div class="fr">
+      <label class="lbl">Код магазина *</label>
       <input type="text" class="fi" id="shop-code-inp" placeholder="ABC12" maxlength="5"
         style="text-align:center;font-size:22px;font-weight:800;letter-spacing:.1em;text-transform:uppercase">
+    </div>
+    <div class="fr">
+      <label class="lbl">Пароль магазина *</label>
+      <input type="password" class="fi" id="shop-join-pass" placeholder="Пароль магазина">
+      <div style="font-size:11px;color:var(--tx3);margin-top:4px;line-height:1.6">
+        Код и пароль даёт владелец магазина
+      </div>
     </div>
     <button class="btn btn-dk" id="shop-join-btn" onclick="joinShop()">Войти</button>
   </div>
@@ -1245,14 +1284,17 @@ input[type=number]{-moz-appearance:textfield;}
 <!-- ═══ PIN ЭКРАН ═══ -->
 <div id="pin-screen" class="pin-screen" style="display:none">
   <div class="pin-title">Введите PIN</div>
-  <div class="pin-sub" id="pin-sub-txt">Введите PIN владельца</div>
+  <div class="pin-sub" id="pin-sub-txt">Введите 6-значный PIN владельца</div>
   <div class="pin-dots">
     <div class="pin-dot" id="pd0"></div>
     <div class="pin-dot" id="pd1"></div>
     <div class="pin-dot" id="pd2"></div>
     <div class="pin-dot" id="pd3"></div>
+    <div class="pin-dot" id="pd4"></div>
+    <div class="pin-dot" id="pd5"></div>
   </div>
   <div class="pin-error" id="pin-error"></div>
+  <div id="pin-block-msg" style="display:none;font-size:12px;font-weight:700;color:var(--rd);text-align:center;margin-bottom:8px"></div>
   <div class="pin-grid">
     <button class="pin-key" onclick="pinKey('1')">1</button>
     <button class="pin-key" onclick="pinKey('2')">2</button>
@@ -1398,7 +1440,9 @@ function hideShopScreen() {
  
 async function createShop() {
   const name = document.getElementById('shop-name-inp').value.trim();
+  const pass = document.getElementById('shop-pass-inp').value.trim();
   if (!name) { toast('⚠️ Введите название магазина'); return; }
+  if (!pass || pass.length < 4) { toast('⚠️ Пароль минимум 4 символа'); return; }
   if (!initFirebase()) { toast('⚠️ Firebase не загружен. Обнови страницу.'); return; }
  
   const btn = document.getElementById('shop-create-btn');
@@ -1406,9 +1450,10 @@ async function createShop() {
  
   try {
     const code = Math.random().toString(36).slice(2,7).toUpperCase();
-    const initData = {products:[],operations:[],sales:[],debts:[],supDebts:[]};
+    const initData = {products:[],operations:[],sales:[],debts:[],supDebts:[],_shopPass:pass,_shopName:name};
     await firestore.collection('shops').doc(code).set(initData);
     localStorage.setItem('mm_name', name);
+    localStorage.setItem('mm_shop_pass', pass);
     document.getElementById('shop-code-display').style.display = '';
     document.getElementById('shop-code-val').textContent = code;
     document.getElementById('shop-create-form').style.display = 'none';
@@ -1421,7 +1466,9 @@ async function createShop() {
  
 async function joinShop() {
   const code = document.getElementById('shop-code-inp').value.trim().toUpperCase();
+  const pass = document.getElementById('shop-join-pass').value.trim();
   if (!code) { toast('⚠️ Введите код магазина'); return; }
+  if (!pass) { toast('⚠️ Введите пароль магазина'); return; }
   if (!initFirebase()) { toast('⚠️ Firebase не загружен. Обнови страницу.'); return; }
  
   const btn = document.getElementById('shop-join-btn');
@@ -1434,6 +1481,15 @@ async function joinShop() {
       btn.textContent = 'Войти'; btn.disabled = false;
       return;
     }
+    const data = snap.data();
+    // Проверяем пароль
+    if (data._shopPass && data._shopPass !== pass) {
+      toast('⚠️ Неверный пароль магазина');
+      btn.textContent = 'Войти'; btn.disabled = false;
+      return;
+    }
+    localStorage.setItem('mm_shop_pass', pass);
+    if (data._shopName) localStorage.setItem('mm_name', data._shopName);
     connectToShop(code);
     enterShop();
   } catch(e) {
@@ -2030,6 +2086,8 @@ function loadSettings() {
   // Показываем код магазина
   const shopDisp = document.getElementById('shop-id-display');
   if (shopDisp && _shopId) shopDisp.textContent = 'Код магазина: ' + _shopId;
+  const settingsCode = document.getElementById('settings-shop-code');
+  if (settingsCode && _shopId) settingsCode.textContent = _shopId;
 }
  
 function initSettings() {
@@ -3361,10 +3419,48 @@ let _pinBuffer = '';
 let _pinMode = 'login'; // 'login' | 'setup'
  
 const PIN_KEY = 'mm_owner_pin';
-const DEFAULT_PIN = '1234';
+const DEFAULT_PIN = '123456';
+const PIN_ATTEMPTS_KEY = 'mm_pin_attempts';
+const PIN_BLOCK_KEY = 'mm_pin_block_until';
  
 function getPin() { return localStorage.getItem(PIN_KEY) || DEFAULT_PIN; }
 function isOwner() { return _role === 'owner'; }
+ 
+// Блокировка PIN
+function getPinAttempts() { return parseInt(localStorage.getItem(PIN_ATTEMPTS_KEY))||0; }
+function setPinAttempts(n) { localStorage.setItem(PIN_ATTEMPTS_KEY, n); }
+function getPinBlockUntil() { return parseInt(localStorage.getItem(PIN_BLOCK_KEY))||0; }
+function setPinBlockUntil(ts) { localStorage.setItem(PIN_BLOCK_KEY, ts); }
+ 
+function isPinBlocked() {
+  const until = getPinBlockUntil();
+  if (!until) return false;
+  if (Date.now() < until) {
+    const mins = Math.ceil((until - Date.now()) / 60000);
+    document.getElementById('pin-block-msg').style.display = '';
+    document.getElementById('pin-block-msg').textContent = `🔒 Заблокировано на ${mins} мин. Слишком много попыток.`;
+    return true;
+  }
+  localStorage.removeItem(PIN_BLOCK_KEY);
+  localStorage.removeItem(PIN_ATTEMPTS_KEY);
+  document.getElementById('pin-block-msg').style.display = 'none';
+  return false;
+}
+ 
+function recordFailedAttempt() {
+  const attempts = getPinAttempts() + 1;
+  setPinAttempts(attempts);
+  if (attempts >= 3) {
+    const blockMins = attempts >= 6 ? 30 : 5;
+    setPinBlockUntil(Date.now() + blockMins * 60000);
+    setPinAttempts(0);
+    document.getElementById('pin-error').textContent = '';
+    document.getElementById('pin-block-msg').style.display = '';
+    document.getElementById('pin-block-msg').textContent = `🔒 Заблокировано на ${blockMins} мин. Слишком много попыток.`;
+  } else {
+    document.getElementById('pin-error').textContent = `⚠️ Неверный PIN · Осталось попыток: ${3 - attempts}`;
+  }
+}
  
 // Показать экран выбора роли
 function showRoleScreen() {
@@ -3398,10 +3494,11 @@ function loginAsCashier() {
  
 // PIN ввод
 function pinKey(d) {
-  if (_pinBuffer.length >= 4) return;
+  if (isPinBlocked()) return;
+  if (_pinBuffer.length >= 6) return;
   _pinBuffer += d;
   updatePinDots();
-  if (_pinBuffer.length === 4) {
+  if (_pinBuffer.length === 6) {
     setTimeout(() => checkPin(), 120);
   }
 }
@@ -3413,27 +3510,28 @@ function pinDel() {
 }
  
 function updatePinDots() {
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 6; i++) {
     const dot = document.getElementById('pd' + i);
-    dot.classList.toggle('filled', i < _pinBuffer.length);
+    if (dot) dot.classList.toggle('filled', i < _pinBuffer.length);
   }
 }
  
 function checkPin() {
   if (_pinMode === 'login') {
     if (_pinBuffer === getPin()) {
-      // Успех — входим как владелец
+      // Успех — сбрасываем счётчик попыток
+      setPinAttempts(0);
+      localStorage.removeItem(PIN_BLOCK_KEY);
       _role = 'owner';
       document.getElementById('pin-screen').style.display = 'none';
       applyOwnerMode();
       startKassaCamera();
     } else {
       // Неверный PIN
-      document.getElementById('pin-error').textContent = '⚠️ Неверный PIN';
       scanBeep('error');
+      recordFailedAttempt();
       _pinBuffer = '';
       updatePinDots();
-      // Тряска
       const dots = document.getElementById('pin-screen');
       dots.style.animation = 'shake .3s ease';
       setTimeout(() => dots.style.animation = '', 300);
