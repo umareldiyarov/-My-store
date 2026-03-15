@@ -1417,7 +1417,11 @@ function refreshCurrentPage() {
   const page = document.querySelector('.page.active')?.id?.replace('pg-','');
   if (!page) return;
   const refreshMap = {
-    kassa: () => { renderKassaLog(); updatePayBtn(); renderNobarStrip(); },
+    kassa: () => { 
+      // Обновляем кассу только если нет активного чека (не прерываем кассира)
+      if(!kCart.length) renderNobarStrip();
+      renderKassaLog(); updatePayBtn(); 
+    },
     sklad: renderSklad,
     products: renderProds,
     debts: () => { renderDebts(); renderSupDebts(); },
@@ -1988,6 +1992,7 @@ function confirmCheckout(){
   data.sales.push({id:uid(),date:now,items:saleItems,revenue,cost,profit,payType:type,buyer:buyer||null});
  
   if(type==='debt'){
+    if(!buyer){toast('⚠️ Не указано имя должника');return;}
     const saleId = data.sales[data.sales.length-1].id;
     const ex=data.debts.find(d=>d.name.toLowerCase()===buyer.toLowerCase()&&!d.paid);
     if(ex){
@@ -2572,7 +2577,7 @@ function applyPrikhod(){
   }
  
   save(data);
-  prikh_qtys={}; prikh_buys={};
+  prikh_qtys={}; prikh_buys={}; prikh_expiry={};
   closePrikhod(); renderSklad();
   const changesTxt = priceChanges.length ? ` · цены обновлены: ${priceChanges.join(', ')}` : '';
   toast(`✓ Оприходовано ${count} позиций${changesTxt}${isDebt?' · долг записан':''}`);
@@ -3084,11 +3089,13 @@ function filterSales(data, period, offsetDays=0) {
     if(period==='week'){
       const from=new Date(now); from.setDate(from.getDate()-7*(offsetDays+1));
       const to=new Date(now); to.setDate(to.getDate()-7*offsetDays);
+      if(offsetDays===0) to.setHours(23,59,59,999); // включаем сегодняшний день полностью
       return d>=from&&d<to;
     }
     if(period==='month'){
       const from=new Date(now); from.setDate(from.getDate()-30*(offsetDays+1));
       const to=new Date(now); to.setDate(to.getDate()-30*offsetDays);
+      if(offsetDays===0) to.setHours(23,59,59,999); // включаем сегодняшний день полностью
       return d>=from&&d<to;
     }
     return true;
@@ -3403,6 +3410,12 @@ function exportJson(){
 function clearAll(){
   if(!confirm('Удалить ВСЕ данные? Это необратимо.'))return;
   localStorage.removeItem(KEY);
+  _localCache = null;
+  // Удаляем из Firebase тоже
+  if (_shopId && initFirebase()) {
+    firestore.collection('shops').doc(_shopId).set({products:[],operations:[],sales:[],debts:[],supDebts:[]})
+      .catch(e => console.log('Firebase clear error:', e));
+  }
   kCart=[];
   renderKassaLog();
   updatePayBtn();
@@ -3549,9 +3562,10 @@ function checkPin() {
         localStorage.setItem(PIN_KEY, _pinBuffer);
         _pinFirst = null; _pinBuffer = '';
         updatePinDots();
-        
         document.getElementById('pin-screen').style.display = 'none';
-        toast('✓ PIN изменён');
+        // Возвращаемся в настройки
+        goPage('settings', document.getElementById('nb-settings'));
+        toast('✓ PIN изменён успешно');
       } else {
         document.getElementById('pin-error').textContent = '⚠️ PIN не совпадает, попробуйте снова';
         _pinFirst = null; _pinBuffer = '';
