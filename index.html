@@ -11,6 +11,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root {
   --bg:#f8f8f6; --sf:#ffffff; --sf2:#f2f2ef;
@@ -495,7 +498,13 @@ input[type=number]{-moz-appearance:textfield;}
 .toast{position:fixed;top:62px;left:50%;transform:translateX(-50%) translateY(-8px);background:var(--tx);border-radius:50px;padding:9px 18px;font-size:13px;font-weight:700;color:#fff;z-index:999;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;box-shadow:var(--sh2);max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
  
-/* ─── РОЛИ ─── */
+/* ─── ЭКРАН МАГАЗИНА ─── */
+.shop-screen{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;padding-top:calc(env(safe-area-inset-top,0px)+32px);}
+.shop-tabs{display:flex;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rs);padding:3px;gap:2px;width:100%;max-width:320px;margin-bottom:20px;}
+.shop-tab{flex:1;padding:9px;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--tx3);border-radius:6px;cursor:pointer;transition:all .15s;}
+.shop-tab.active{background:var(--sf);color:var(--tx);box-shadow:var(--sh);}
+.shop-code-big{font-size:42px;font-weight:800;letter-spacing:.15em;color:var(--tx);text-align:center;background:var(--sf2);border:2px dashed var(--bd2);border-radius:var(--r);padding:16px 24px;margin:12px 0;width:100%;max-width:320px;}
+.shop-hint{font-size:12px;color:var(--tx3);text-align:center;line-height:1.6;max-width:280px;}
 .role-screen,.pin-screen{
   position:fixed;inset:0;background:var(--bg);z-index:500;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -982,6 +991,8 @@ input[type=number]{-moz-appearance:textfield;}
  
   <div class="card">
     <button class="btn btn-gh" onclick="switchRole()">🔄 Сменить роль (выйти)</button>
+    <button class="btn btn-gh" onclick="if(confirm('Отключиться от магазина?'))disconnectShop()" style="margin-top:7px">🏪 Сменить магазин</button>
+    <div id="shop-id-display" style="font-size:11px;color:var(--tx3);text-align:center;margin-top:8px"></div>
   </div>
  
 </div>
@@ -1180,6 +1191,44 @@ input[type=number]{-moz-appearance:textfield;}
 </div>
  
  
+<!-- ═══ ЭКРАН ВХОДА В МАГАЗИН ═══ -->
+<div id="shop-screen" class="shop-screen" style="display:none">
+  <div class="role-logo">М</div>
+  <div class="role-title">Мой Магазин</div>
+  <div class="role-sub" style="margin-bottom:16px">POS система для продуктовых магазинов</div>
+ 
+  <div class="shop-tabs">
+    <button class="shop-tab active" id="tab-create" onclick="switchShopTab('create')">Новый магазин</button>
+    <button class="shop-tab" id="tab-join" onclick="switchShopTab('join')">Войти по коду</button>
+  </div>
+ 
+  <!-- Создать магазин -->
+  <div id="shop-create-form" style="width:100%;max-width:320px">
+    <div class="fr"><label class="lbl">Название магазина</label>
+      <input type="text" class="fi" id="shop-name-inp" placeholder="Магазин Байкеши…">
+    </div>
+    <button class="btn btn-dk" id="shop-create-btn" onclick="createShop()">Создать магазин</button>
+  </div>
+ 
+  <!-- Код после создания -->
+  <div id="shop-code-display" style="display:none;width:100%;max-width:320px;text-align:center">
+    <div style="font-size:13px;font-weight:600;color:var(--tx2);margin-bottom:8px">Ваш код магазина — сохраните его!</div>
+    <div class="shop-code-big" id="shop-code-val">—</div>
+    <div class="shop-hint">Этот код нужен чтобы войти с другого телефона. Отправьте его кассирам в WhatsApp.</div>
+    <button class="btn btn-gn" onclick="enterShop()" style="margin-top:16px">Войти в магазин →</button>
+  </div>
+ 
+  <!-- Войти по коду -->
+  <div id="shop-join-form" style="display:none;width:100%;max-width:320px">
+    <div class="fr"><label class="lbl">Код магазина</label>
+      <input type="text" class="fi" id="shop-code-inp" placeholder="ABC12" maxlength="5"
+        style="text-align:center;font-size:22px;font-weight:800;letter-spacing:.1em;text-transform:uppercase">
+    </div>
+    <button class="btn btn-dk" id="shop-join-btn" onclick="joinShop()">Войти</button>
+  </div>
+ 
+</div>
+ 
 <!-- ═══ ЭКРАН ВЫБОРА РОЛИ ═══ -->
 <div id="role-screen" class="role-screen">
   <div class="role-logo">М</div>
@@ -1245,15 +1294,170 @@ input[type=number]{-moz-appearance:textfield;}
  
 <script>
 // ══════════════════════════════════════════
-// DATABASE — операционная архитектура
-// stock = Σ arrivals + Σ returns − Σ sales − Σ writeoffs ± corrections
 // ══════════════════════════════════════════
-const KEY = 'mm6';
-function db() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || {products:[],operations:[],sales:[],debts:[]}; }
-  catch(e) { return {products:[],operations:[],sales:[],debts:[]}; }
+// FIREBASE INIT — ленивая инициализация
+// ══════════════════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyAiuX7oOVzIyFylYzZkKbLRGo6BKcrZnKs",
+  authDomain: "moy-magazin-f5f17.firebaseapp.com",
+  projectId: "moy-magazin-f5f17",
+  storageBucket: "moy-magazin-f5f17.firebasestorage.app",
+  messagingSenderId: "539604660781",
+  appId: "1:539604660781:web:49a87d4564b82a07087ea4"
+};
+ 
+let firestore = null;
+ 
+function initFirebase() {
+  if (firestore) return true;
+  try {
+    if (!window.firebase) return false;
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    firestore = firebase.firestore();
+    return true;
+  } catch(e) {
+    console.log('Firebase init error:', e);
+    return false;
+  }
 }
-function save(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+ 
+// ══════════════════════════════════════════
+// МАГАЗИН — текущий shopId
+// ══════════════════════════════════════════
+let _shopId = localStorage.getItem('mm_shop_id') || null;
+const KEY = 'mm6_' + (_shopId || 'local');
+ 
+// Локальный кэш для офлайн работы
+let _localCache = null;
+ 
+function db() {
+  if (_localCache) return _localCache;
+  try {
+    const raw = localStorage.getItem(KEY);
+    _localCache = raw ? JSON.parse(raw) : {products:[],operations:[],sales:[],debts:[]};
+    return _localCache;
+  } catch(e) {
+    _localCache = {products:[],operations:[],sales:[],debts:[]};
+    return _localCache;
+  }
+}
+ 
+function save(d) {
+  _localCache = d;
+  localStorage.setItem(KEY, JSON.stringify(d));
+  // Синхронизируем с Firebase в фоне
+  if (_shopId && initFirebase()) {
+    firestore.collection('shops').doc(_shopId).set(d)
+      .catch(e => console.log('Firebase sync error:', e));
+  }
+}
+ 
+// Загрузить данные из Firebase и подписаться на обновления
+let _firestoreUnsub = null;
+function connectToShop(shopId) {
+  _shopId = shopId;
+  localStorage.setItem('mm_shop_id', shopId);
+  if (!initFirebase()) { console.log('Firebase not ready yet'); return; }
+  const shopKey = 'mm6_' + shopId;
+  if (_firestoreUnsub) _firestoreUnsub();
+  _firestoreUnsub = firestore.collection('shops').doc(shopId)
+    .onSnapshot(snap => {
+      if (snap.exists) {
+        const data = snap.data();
+        _localCache = data;
+        localStorage.setItem(shopKey, JSON.stringify(data));
+        refreshCurrentPage();
+      }
+    }, err => console.log('Firestore error:', err));
+}
+ 
+function refreshCurrentPage() {
+  const page = document.querySelector('.page.active')?.id?.replace('pg-','');
+  if (!page) return;
+  const refreshMap = {
+    kassa: () => { renderKassaLog(); updatePayBtn(); renderNobarStrip(); },
+    sklad: renderSklad,
+    products: renderProds,
+    debts: () => { renderDebts(); renderSupDebts(); },
+    report: renderReport,
+    settings: loadSettings
+  };
+  refreshMap[page]?.();
+}
+ 
+// ══════════════════════════════════════════
+// ЭКРАН ВХОДА В МАГАЗИН
+// ══════════════════════════════════════════
+function showShopScreen() {
+  document.getElementById('shop-screen').style.display = 'flex';
+}
+ 
+function hideShopScreen() {
+  document.getElementById('shop-screen').style.display = 'none';
+}
+ 
+async function createShop() {
+  const name = document.getElementById('shop-name-inp').value.trim();
+  if (!name) { toast('⚠️ Введите название магазина'); return; }
+  if (!initFirebase()) { toast('⚠️ Firebase не загружен. Обнови страницу.'); return; }
+ 
+  const btn = document.getElementById('shop-create-btn');
+  btn.textContent = 'Создаём…'; btn.disabled = true;
+ 
+  try {
+    const code = Math.random().toString(36).slice(2,7).toUpperCase();
+    const initData = {products:[],operations:[],sales:[],debts:[],supDebts:[]};
+    await firestore.collection('shops').doc(code).set(initData);
+    localStorage.setItem('mm_name', name);
+    document.getElementById('shop-code-display').style.display = '';
+    document.getElementById('shop-code-val').textContent = code;
+    document.getElementById('shop-create-form').style.display = 'none';
+    connectToShop(code);
+  } catch(e) {
+    toast('⚠️ Ошибка создания. Проверь интернет.');
+    btn.textContent = 'Создать магазин'; btn.disabled = false;
+  }
+}
+ 
+async function joinShop() {
+  const code = document.getElementById('shop-code-inp').value.trim().toUpperCase();
+  if (!code) { toast('⚠️ Введите код магазина'); return; }
+  if (!initFirebase()) { toast('⚠️ Firebase не загружен. Обнови страницу.'); return; }
+ 
+  const btn = document.getElementById('shop-join-btn');
+  btn.textContent = 'Подключаемся…'; btn.disabled = true;
+ 
+  try {
+    const snap = await firestore.collection('shops').doc(code).get();
+    if (!snap.exists) {
+      toast('⚠️ Магазин не найден. Проверь код.');
+      btn.textContent = 'Войти'; btn.disabled = false;
+      return;
+    }
+    connectToShop(code);
+    enterShop();
+  } catch(e) {
+    toast('⚠️ Ошибка подключения. Проверь интернет.');
+    btn.textContent = 'Войти'; btn.disabled = false;
+  }
+}
+ 
+function enterShop() {
+  hideShopScreen();
+  showRoleScreen();
+}
+ 
+function disconnectShop() {
+  if (_firestoreUnsub) _firestoreUnsub();
+  _shopId = null;
+  _localCache = null;
+  localStorage.removeItem('mm_shop_id');
+  location.reload();
+}
+ 
+// ══════════════════════════════════════════
+// DATABASE
+// ══════════════════════════════════════════
 const fmt = n => Math.round(n||0).toLocaleString('ru-RU');
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
 const OP_SIGN = {arrival:+1, return:+1, sale:-1, writeoff:-1, correction:+1};
@@ -1823,6 +2027,9 @@ function loadSettings() {
   renderCatSettings();
   fillCatSelect();
   renderArchivedProds();
+  // Показываем код магазина
+  const shopDisp = document.getElementById('shop-id-display');
+  if (shopDisp && _shopId) shopDisp.textContent = 'Код магазина: ' + _shopId;
 }
  
 function initSettings() {
@@ -3309,9 +3516,24 @@ document.head.appendChild(shakeStyle);
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
+function switchShopTab(tab) {
+  document.getElementById('tab-create').classList.toggle('active', tab==='create');
+  document.getElementById('tab-join').classList.toggle('active', tab==='join');
+  document.getElementById('shop-create-form').style.display = tab==='create' ? '' : 'none';
+  document.getElementById('shop-join-form').style.display = tab==='join' ? '' : 'none';
+  document.getElementById('shop-code-display').style.display = 'none';
+}
+ 
 document.addEventListener('DOMContentLoaded', function() {
+  initFirebase();
   initSettings();
-  showRoleScreen();
+ 
+  if (_shopId) {
+    connectToShop(_shopId);
+    showRoleScreen();
+  } else {
+    showShopScreen();
+  }
  
   // Кнопка "В долг" подтвердить на экране 2
   const debtBlock=document.getElementById('ks2-debt-block');
